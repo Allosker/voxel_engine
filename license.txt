@@ -1,0 +1,7 @@
+Copyright (c) 2026 Allosker. All rights reserved. 
+
+This source code and any accidental binaries are the sole property of Allosker.
+
+No one may use, copy, modify, merge, publish, distribute, sublicense, or sell copies of this software for any purpose without written explicit permission of the right holder.
+
+This code is provided "as-is", without warranty of any kind.
