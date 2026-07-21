@@ -1,0 +1,110 @@
+  cmake_minimum_required (VERSION 3.20)
+
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
+project (
+	VoxelEngine
+	VERSION 0.0.1
+	LANGUAGES C CXX 
+)   
+
+
+# Set Directories
+
+set(SRC_DIR "${PROJECT_SOURCE_DIR}/src/") 
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/") 
+set(LIB_DIR "${PROJECT_SOURCE_DIR}/lib/") 
+
+
+# Fetch files   
+ 
+file(GLOB_RECURSE SRC_FILES CMAKE_CONFIGURE_DEPENDS 
+	"${SRC_DIR}/*.cpp"
+	"${SRC_DIR}/*.c"  
+) 
+ 
+file(GLOB_RECURSE HEAD_FILES CMAKE_CONFIGURE_DEPENDS  
+	"${INCLUDE_DIR}/*.hpp"
+	"${INCLUDE_DIR}/*.h"
+) 
+
+file(GLOB_RECURSE LIB_FILES CMAKE_CONFIGURE_DEPENDS
+	"${LIB_DIR}/*.h"
+	"${LIB_DIR}/*.c"
+)  
+
+
+add_executable( VoxelEngine     
+	${SRC_FILES}   
+	${HEAD_FILES}
+	${LIB_FILES}   
+)  
+
+target_include_directories(VoxelEngine PUBLIC ${INCLUDE_DIR})
+target_include_directories(VoxelEngine PUBLIC ${LIB_DIR})
+
+
+# Set Language settings
+set_property(TARGET VoxelEngine PROPERTY CXX_STANDARD 23) 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+
+# Special Paths
+set(ASSET_DIR "${CMAKE_SOURCE_DIR}/assets/")
+target_compile_definitions(VoxelEngine PRIVATE ASSET_PATH="${ASSET_DIR}")
+
+
+
+# Include Libraries
+ 
+include(FetchContent) 
+
+# GLFW - Windows creation
+FetchContent_Declare(  
+	glfw   
+	GIT_REPOSITORY https://github.com/glfw/glfw.git 
+	GIT_TAG 	7b6aead9fb88b3623e3b3725ebb42670cbe4c579 #refs/tags/3.4
+)
+ 
+# Disable Wayland and force X11 on Linux 
+if(UNIX AND NOT APPLE OR NOT WIN32 OR NOT MINGW OR NOT MSYS OR NOT CYGWIN)
+	set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
+endif()
+
+
+FetchContent_MakeAvailable(glfw)   
+
+target_link_libraries(VoxelEngine PRIVATE glfw)
+
+
+# MPML - Math Library
+FetchContent_Declare(
+	MPML
+	GIT_REPOSITORY https://github.com/Allosker/MPML.git 
+)
+ 
+FetchContent_MakeAvailable(MPML) 
+
+target_link_libraries(VoxelEngine PRIVATE MPML::MPML)
+
+
+# FREETYPE - Font Rendering Lib
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
+
+FetchContent_Declare(
+	freetype
+	GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+    GIT_TAG VER-2-13-2
+)
+ 
+FetchContent_MakeAvailable(freetype) 
+
+target_link_libraries(VoxelEngine PRIVATE freetype)
