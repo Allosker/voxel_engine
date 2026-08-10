@@ -1,4 +1,4 @@
-  cmake_minimum_required (VERSION 3.20)
+ cmake_minimum_required (VERSION 3.20)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -11,15 +11,19 @@ project (
 	VERSION 0.0.1
 	LANGUAGES C CXX 
 )   
+  
 
-
-# Set Directories
+# Set Directories 
 
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src/") 
 set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/") 
 set(LIB_DIR "${PROJECT_SOURCE_DIR}/lib/") 
 
+set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/lib/imgui-docking")
+set(IMGUI_BACKENDS_DIR "${PROJECT_SOURCE_DIR}/lib/imgui-docking/backends")
+set(IMGUI_MISC_DIR "${PROJECT_SOURCE_DIR}/lib/imgui-docking/misc")
 
+  
 # Fetch files   
  
 file(GLOB_RECURSE SRC_FILES CMAKE_CONFIGURE_DEPENDS 
@@ -32,20 +36,37 @@ file(GLOB_RECURSE HEAD_FILES CMAKE_CONFIGURE_DEPENDS
 	"${INCLUDE_DIR}/*.h"
 ) 
 
-file(GLOB_RECURSE LIB_FILES CMAKE_CONFIGURE_DEPENDS
+file(GLOB_RECURSE LIB_FILES CMAKE_CONFIGURE_DEPENDS 
 	"${LIB_DIR}/*.h"
 	"${LIB_DIR}/*.c"
 )  
+
+file(GLOB IMGUI_FILES CMAKE_CONFIGURE_DEPENDS
+	"${IMGUI_DIR}/*.cpp"
+	"${IMGUI_DIR}/*.h"  
+	"${IMGUI_BACKENDS_DIR}/imgui_impl_glfw.cpp"
+	"${IMGUI_BACKENDS_DIR}/imgui_impl_glfw.h"
+	"${IMGUI_BACKENDS_DIR}/imgui_impl_opengl3.cpp"
+	"${IMGUI_BACKENDS_DIR}/imgui_impl_opengl3.h"
+	"${IMGUI_BACKENDS_DIR}/imgui_impl_opengl3_loader.h"
+	"${IMGUI_MISC_DIR}/imgui_stdlib.cpp"
+)  
+  
 
 
 add_executable( VoxelEngine     
 	${SRC_FILES}   
 	${HEAD_FILES}
 	${LIB_FILES}   
+	${IMGUI_FILES}
 )  
-
+ 
+   
 target_include_directories(VoxelEngine PUBLIC ${INCLUDE_DIR})
 target_include_directories(VoxelEngine PUBLIC ${LIB_DIR})
+
+target_include_directories(VoxelEngine PUBLIC ${IMGUI_DIR})
+target_include_directories(VoxelEngine PUBLIC ${IMGUI_BACKENDS_DIR})
 
 
 # Set Language settings
@@ -92,19 +113,30 @@ FetchContent_MakeAvailable(MPML)
 
 target_link_libraries(VoxelEngine PRIVATE MPML::MPML)
 
-
+ 
 # FREETYPE - Font Rendering Lib
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20) 
 
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5) 
+   
 
 FetchContent_Declare(
 	freetype
 	GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
     GIT_TAG VER-2-13-2
-)
+) 
  
 FetchContent_MakeAvailable(freetype) 
 
 target_link_libraries(VoxelEngine PRIVATE freetype)
+
+
+FetchContent_Declare(
+	FastNoise2
+	GIT_REPOSITORY https://github.com/Auburn/FastNoise2.git
+	GIT_TAG v1.1.1
+)
+ 
+FetchContent_MakeAvailable(FastNoise2) 
+
+target_link_libraries(VoxelEngine PRIVATE FastNoise2)
