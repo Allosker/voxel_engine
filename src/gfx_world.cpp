@@ -6,18 +6,25 @@ namespace gfx
 {
 	void World::update_grid(types::chunk_loc player_loc, bool reload) noexcept
 	{
-		auto v = overworld.manage_chunks(player_loc, reload);
 
-		generate_world(v);
-		
-		overworld.add_cmesh(v);
-		overworld.allocate_waiting_cmesh();
+		if (debug.update_world)
+		{
+			auto v = overworld.manage_chunks(player_loc, reload);
+
+			generate_world(v);
+
+			overworld.add_cmesh(v);
+			overworld.allocate_waiting_cmesh();
+		}
 
 		/*== Debug ==*/
 		if (debug.show_chunk_borders)
 			for (const auto& c : overworld.get_chunkMap())
 			{
-				gfx::aabb((v3f32)(c.second.get_position() + 16ll), { 16.f }, (c.second.isEmpty() ? v3f32{ 0, 1, 1 } : v3f32{ 1, 1, 0 }), 0, false);
+				gfx::aabb((v3f32)(c.second.get_position() + 16ll), { 16.f }, v3f32{ 1, 1, 0 }, 0, false);
+
+				if (c.second.isEmpty())
+					gfx::aabb((v3f32)(c.second.get_position() + 16ll), { 15.f }, v3f32{ 0, 1, 1 }, 0, false);
 			}
 	}
 
@@ -56,6 +63,35 @@ namespace gfx
 			if (should_be_empty_chunk)
 				chunk->set_empty();
 		}
+	}
+
+	bool World::set_voxel(types::voxel_point voxel_p, Voxel new_voxel) noexcept
+	{
+		const auto loc = to_chunkLoc(voxel_p);
+		auto* chunk = overworld.at_chunk(loc);
+
+		if (!chunk)
+			return false;
+
+		chunk->at(Chunk::to_voxelLoc(*chunk, voxel_p)) = new_voxel;
+		overworld.add_cmesh(loc);
+
+
+		if (loc.z >= Chunk::g_size<i32>.z)
+			overworld.add_cmesh(loc + Chunk::dirs<i64>[4]);
+		else if (loc.y >= Chunk::g_size<i32>.y)
+			overworld.add_cmesh(loc + Chunk::dirs<i64>[2]);
+		else if (loc.x >= Chunk::g_size<i32>.x)
+			overworld.add_cmesh(loc + Chunk::dirs<i64>[0]);
+		else if (loc.z <= 0)
+			overworld.add_cmesh(loc + Chunk::dirs<i64>[5]);
+		else if (loc.y <= 0)
+			overworld.add_cmesh(loc + Chunk::dirs<i64>[3]);
+		else if (loc.x <= 0)
+			overworld.add_cmesh(loc + Chunk::dirs<i64>[1]);
+
+
+		return true;
 	}
 	
 

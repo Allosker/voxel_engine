@@ -17,6 +17,14 @@ namespace gfx
 		out.emplace_back(ChunkMesh::VoxelVertex{ pos[5] + xyz, uvs[5], ao[2] });
 	}
 
+	/// <summary>
+	/// Calculate the AO components for one face as an array representing each corner (readjusted depending on the direction)
+	/// </summary>
+	/// <param name="The chunk from which the face comes"></param>
+	/// <param name="Current Voxel Index"></param>
+	/// <param name="Location of the block in front of the face"></param>
+	/// <param name="The chunk grid from which the target chunk comes"></param>
+	/// <returns>The ao value for each corner</returns>
 	static std::array<f32, 4> calculate_ao(const auto* targetChunk, auto index, const auto& v_loc_dir, const ChunkGrid& grid) noexcept
 	{
 		std::array<f32, 4> physical_ao{ 1.f, 1.f, 1.f, 1.f };
@@ -156,7 +164,7 @@ namespace gfx
 	{
 		create_buffers();
 
-		update_mesh(build_mesh(current_chunk, grid));
+		update_mesh(bake_mesh(current_chunk, grid));
 	}
 
 	ChunkMesh::ChunkMesh(ChunkMesh&& other) noexcept
@@ -183,13 +191,8 @@ namespace gfx
 		return *this;
 	}
 
-	ChunkMesh::~ChunkMesh() noexcept
-	{
-		free_resources();
-	}
 
-
-	std::vector<ChunkMesh::VoxelVertex> ChunkMesh::build_mesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
+	std::vector<ChunkMesh::VoxelVertex> ChunkMesh::bake_mesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
 	{
 		std::vector<VoxelVertex> ret;
 

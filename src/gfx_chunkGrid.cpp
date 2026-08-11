@@ -11,20 +11,43 @@ namespace gfx
 
 		std::list<types::chunk_loc> ret{};
 
-		for (i64 z{ cloc.z - r_dist }; z < cloc.z + r_dist; z++)
+		v3i64 max
 		{
-			for (i64 y{ cloc.y - r_height }; y < cloc.y + r_height; y++)
+			cloc.x + r_dist,
+			cloc.y + r_height,
+			cloc.z + r_dist
+		};
+		v3i64 min
+		{
+			cloc.x - r_dist,
+			cloc.y - r_height,
+			cloc.z - r_dist
+		};
+
+		for (i64 z{ min.z }; z <= max.z; z++)
+		{
+			for (i64 y{ min.y }; y <= max.y; y++)
 			{
-				for (i64 x{ cloc.x - r_dist }; x < cloc.x + r_dist; x++)
+				for (i64 x{ min.x }; x <= max.x; x++)
 				{
 					if (m_chunks.try_emplace(types::chunk_loc{ x, y, z }, Chunk{ { x, y, z } }).second)
 					{
 						ret.emplace_back(x, y, z);
 					}
 
+					if (z == old_min.z || y == old_min.y || x == old_min.x || z == old_max.z || y == old_max.y || x == old_max.x)
+					{
+						const auto loc = types::chunk_loc{ x,y,z };
+
+						if (const auto* const cmptr = at_chunkMesh(loc); cmptr && !cmptr->queued)
+							m_waiting_cmesh.push(loc);
+					}
 				}
 			}
 		}
+
+		old_min = min;
+		old_max = max;
 
 		return ret;
 	}
@@ -39,14 +62,22 @@ namespace gfx
 		return allocate_chunks(loc, override);
 	}
 
-	bool ChunkGrid::allocate_cmesh(const types::chunk_loc& loc) noexcept
+	bool ChunkGrid::update_cmesh(const types::chunk_loc& loc) noexcept
 	{
-		if (auto* cptr = at_chunk(loc))
+		if (const auto* const cptr = at_chunk(loc))
 		{
 			if (cptr->isEmpty())
 				return false;
 
-			return m_chunk_meshes.try_emplace(loc, *cptr, *this).second;
+			if (!m_chunk_meshes.try_emplace(loc, *cptr, *this).second)
+			{
+				auto& cm = m_chunk_meshes.at(loc);
+				
+				cm.update(*cptr, *this);
+				cm.queued = false;
+			}
+
+			return true;
 		}
 
 		return false;
@@ -60,7 +91,7 @@ namespace gfx
 		types::chunk_loc loc{ m_waiting_cmesh.front() };
 		m_waiting_cmesh.pop();
 
-		return allocate_cmesh(loc);
+		return update_cmesh(loc);
 	}
 
 	void ChunkGrid::deallocate_chunks(types::chunk_loc cloc, bool override) noexcept
@@ -75,13 +106,13 @@ namespace gfx
 		auto r_dist = static_cast<i64>(parameters.r_dist);
 		auto r_height = static_cast<i64>(parameters.r_dist);
 
-		v3i64 u_bounds
+		v3i64 max
 		{
 			cloc.x + r_dist,
 			cloc.y + r_height,
 			cloc.z + r_dist
 		};
-		v3i64 l_bounds
+		v3i64 min
 		{
 			cloc.x - r_dist,
 			cloc.y - r_height,
@@ -93,9 +124,9 @@ namespace gfx
 			const auto loc = it->first;
 
 			if ( 
-				(loc.z > u_bounds.z || loc.z < l_bounds.z) ||
-				(loc.y > u_bounds.y || loc.y < l_bounds.y) ||
-				(loc.x > u_bounds.x || loc.x < l_bounds.x)
+				(loc.z > max.z || loc.z < min.z) ||
+				(loc.y > max.y || loc.y < min.y) ||
+				(loc.x > max.x || loc.x < min.x)
 				)
 			{
 				it = m_chunks.erase(it);

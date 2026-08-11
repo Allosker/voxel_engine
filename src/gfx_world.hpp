@@ -26,6 +26,8 @@ namespace gfx
 		void update_grid(types::chunk_loc player_loc, bool reload = false) noexcept;
 
 		void generate_world(const std::list<types::chunk_loc>& clocs) noexcept;
+
+		bool set_voxel(types::voxel_point voxel_p, Voxel new_voxel) noexcept;
 		
 		/// <summary>
 		/// First draws chunk grids, then entities
@@ -44,7 +46,22 @@ namespace gfx
 
 		static types::chunk_loc to_chunkLoc(const v3f32& pos) noexcept
 		{
-			return static_cast<types::chunk_loc>(pos / Chunk::g_size<f32>.x);
+			return {
+				static_cast<i64>(std::floor(pos.x / Chunk::g_size<f32>.x)),
+				static_cast<i64>(std::floor(pos.y / Chunk::g_size<f32>.y)),
+				static_cast<i64>(std::floor(pos.z / Chunk::g_size<f32>.z))
+			};
+		}
+
+		static types::chunk_loc to_chunkLoc(const types::voxel_point& pos) noexcept
+		{
+			return {
+				pos.x / Chunk::g_size<i64>.x,
+				pos.y / Chunk::g_size<i64>.y,
+				pos.z / Chunk::g_size<i64>.z
+			};
+
+			// Fix that, it does not work correctly since -1/32 in integer division gives -0 which is zero, figure this out when you are not tired!
 		}
 
 
@@ -53,6 +70,7 @@ namespace gfx
 		struct Debug
 		{
 			bool show_chunk_borders{};
+			bool update_world{ true };
 		} debug;
 
 

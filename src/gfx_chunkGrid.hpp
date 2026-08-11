@@ -44,11 +44,11 @@ namespace gfx
 		std::list<types::chunk_loc> manage_chunks(types::chunk_loc loc, bool override = false) noexcept;
 
 		/// <summary>
-		/// Allocate new chunk meshes for the provided chunks.
+		/// Update a chunk mesh for the provided chunk (via its corresponding chunkloc) if there exist one, allocate a new one otherwise
 		/// </summary>
 		/// <param name="Location of the chunk"></param>
 		/// <returns>false if could not create chunk mesh</returns>
-		bool allocate_cmesh(const types::chunk_loc& loc) noexcept;
+		bool update_cmesh(const types::chunk_loc& loc) noexcept;
 		
 		/// <summary>
 		/// Allocate a new chunk mesh in sequence from the Queue
@@ -80,6 +80,7 @@ namespace gfx
 		/// /// <param name="Location of the chunk"></param>
 		void add_cmesh(const types::chunk_loc& cloc) noexcept
 		{
+			m_chunk_meshes.at(cloc).queued = true;
 			m_waiting_cmesh.push(cloc);
 		}
 
@@ -123,6 +124,20 @@ namespace gfx
 			return l == m_chunks.end() ? nullptr : &l->second;
 		}
 
+		const ChunkMesh* at_chunkMesh(types::chunk_loc loc) const noexcept
+		{
+			auto l = m_chunk_meshes.find(loc);
+
+			return l == m_chunk_meshes.end() ? nullptr : &l->second;
+		}
+
+		ChunkMesh* at_chunkMesh(types::chunk_loc loc) noexcept
+		{
+			auto l = m_chunk_meshes.find(loc);
+
+			return l == m_chunk_meshes.end() ? nullptr : &l->second;
+		}
+
 		const std::unordered_map<types::chunk_loc, Chunk>& get_chunkMap() const noexcept { return m_chunks; }
 
 		
@@ -142,6 +157,8 @@ namespace gfx
 
 		std::queue<types::chunk_loc> m_waiting_cmesh{};
 
+		types::chunk_loc old_min{};
+		types::chunk_loc old_max{};
 
 		// Old location around which to allocate the new chunks
 		types::chunk_loc last_loc{};

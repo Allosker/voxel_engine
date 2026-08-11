@@ -126,6 +126,12 @@ void Game::inputs()
 
 			if (key->scancode == Keys::F3)
 				compute_noise_map = true;
+
+			if (key->scancode == Keys::F4)
+				world.debug.update_world = !world.debug.update_world;
+
+			if (key->scancode == Keys::F)
+				world.set_voxel(static_cast<types::voxel_point>(camera.getPosition()), gfx::Voxel{ .type_id{} });
 		}
 
 
@@ -210,6 +216,9 @@ void Game::debug()
 
 	void Game::debug_imgui()
 	{
+		static bool show_general{ true };
+		static bool show_tg{};
+
 		// Clear Inputs when window->cursor can't be seen, avoids weird behaviours
 		if (window->isCursorHidden())
 		{
@@ -219,9 +228,47 @@ void Game::debug()
 			io.ClearInputKeys();
 		}
 
-		if (ImGui::Begin("Main", nullptr, ImGuiWindowFlags_MenuBar))
+		if (ImGui::BeginMainMenuBar())
 		{
-			if (ImGui::CollapsingHeader("Noise"))
+			if (ImGui::BeginMenu("Windows"))
+			{
+				ImGui::MenuItem("General", nullptr, &show_general);
+				ImGui::MenuItem("Terrain Generation", nullptr, &show_tg);
+
+				ImGui::EndMenu();
+			}
+		}
+		ImGui::EndMainMenuBar();
+		
+
+		if (show_general)
+		{
+			if (ImGui::Begin("General"/*nullptr, ImGuiWindowFlags_MenuBar*/))
+			{
+				const auto player_loc = gfx::World::to_chunkLoc(camera.getPosition());
+
+				ImGui::Text("Camera Pos: %d %d %d", (i32)camera.getPosition().x, (i32)camera.getPosition().y, (i32)camera.getPosition().z);
+				ImGui::Text("Camera Pos: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
+				ImGui::DragFloat("Speed", &camera.speed);
+
+				ImGui::BeginGroup();
+				{
+					const u32 max{ 8 };
+					const u32 min{ 1 };
+
+					ImGui::SliderScalar("Render Distance	: ", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
+					ImGui::SliderScalar("Render Height	: ", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
+
+				}
+				ImGui::EndGroup();
+
+			}
+			ImGui::End();
+		}
+
+		if(show_tg)
+		{
+			if (ImGui::Begin("Terrain Generation"))
 			{
 				static gfx::Image noise_image{ v2i32{}, GL_RED };
 				static gfx::Texture noise_texture{ noise_image };
@@ -240,7 +287,7 @@ void Game::debug()
 
 					v3i32 gap{ max - min };
 
-					noise_image = gfx::Image{ (v2u32)v2i32{gap.x, gap.z}, GL_RGB };
+					noise_image = gfx::Image{ (v2u32)v2i32 { gap.x, gap.z }, GL_RGB };
 
 
 					for (i32 x{ min.x }; x < max.x; x++)
@@ -250,7 +297,7 @@ void Game::debug()
 
 							i32 grayscale = t * 255;
 
-							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel())	 = grayscale;
+							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel()) = grayscale;
 							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 1) = grayscale;
 							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 2) = grayscale;
 						}
@@ -261,24 +308,9 @@ void Game::debug()
 				static float scale{ 10.f };
 				ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
 				ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
-			} 
-
-			ImGui::Text("Camera Pos: %f %f %f", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
-			ImGui::DragFloat("Speed", &camera.speed);
-
-			ImGui::BeginGroup();
-			{
-				const u32 max{ 8 };
-				const u32 min{ 1 };
-
-				ImGui::SliderScalar("Render Distance	: ", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
-				ImGui::SliderScalar("Render Height	: ", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
-
 			}
-			ImGui::EndGroup();
-
+			ImGui::End();
 		}
-		ImGui::End();
 	}
 
 

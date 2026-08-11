@@ -42,7 +42,7 @@ namespace gfx
 
 		const Voxel& at(types::voxel_loc loc) const noexcept { return m_empty ? m_voxels[0] : m_voxels[loc.x + loc.y * g_size<u16>.y + loc.z * g_size<u16>.z * g_size<u16>.z]; }
 
-		v3i64 get_position() const noexcept { return static_cast<v3i64>(m_loc) * g_size<i64>.x; }
+		types::voxel_point get_position() const noexcept { return static_cast<v3i64>(m_loc) * g_size<i64>.x; }
 
 		types::chunk_loc get_location() const noexcept { return m_loc; }
 
@@ -50,6 +50,14 @@ namespace gfx
 		void set_voxel_at(types::voxel_loc loc, Voxel new_voxel) noexcept;
 
 		void set_empty() noexcept;
+
+
+	public:
+
+		static types::voxel_loc to_voxelLoc(const Chunk& chunk, const types::voxel_point& point) noexcept
+		{
+			return static_cast<types::voxel_loc>(mpml::abs(point - chunk.get_position()));
+		}
 
 
 	public:
