@@ -20,6 +20,7 @@ namespace gfx
 		std::string name{};
 
 		bool is_transparent{};
+		bool is_traversable{};
 
 	};
 

@@ -13,7 +13,7 @@ namespace gfx
 {
 	struct Camera
 	{
-		Camera(v3f32 pos_Start) noexcept
+		Camera(types::pos pos_Start) noexcept
 			: m_pos{ pos_Start }
 		{
 		}
@@ -23,14 +23,14 @@ namespace gfx
 
 		// Setters
 
-		void setDirections(const v3f32& front) noexcept
+		void setDirections(const types::pos& front) noexcept
 		{
 			m_frontdir = front;
 
 			build_cam_matrix();
 		}
 
-		void setPosition(const v3f32& position) noexcept
+		void setPosition(const types::pos& position) noexcept
 		{
 			m_pos = position;
 
@@ -44,7 +44,7 @@ namespace gfx
 			build_cam_matrix();
 		}
 
-		void setFOV(const float fov) noexcept
+		void setFOV(const f64 fov) noexcept
 		{
 			m_fov = fov;
 			build_cam_matrix();
@@ -56,32 +56,32 @@ namespace gfx
 		void toggle_dir_updates() noexcept { m_update_dirs = !m_update_dirs; }
 
 		// Absolute
-		void move_up(float dt, float speed) noexcept
+		void move_up(f64 dt, f64 speed) noexcept
 		{
 			setPosition(m_pos + m_updir * dt * speed);
 		}
 
-		void move_down(float dt, float speed) noexcept
+		void move_down(f64 dt, f64 speed) noexcept
 		{
 			setPosition(m_pos - m_updir * dt * speed);
 		}
 
-		void move_right(float dt, float speed) noexcept
+		void move_right(f64 dt, f64 speed) noexcept
 		{
 			setPosition(m_pos + m_frontdir.cross(m_updir) * dt * speed);
 		}
 
-		void move_left(float dt, float speed) noexcept
+		void move_left(f64 dt, f64 speed) noexcept
 		{
 			setPosition(m_pos - m_frontdir.cross(m_updir) * dt * speed);
 		}
 
-		void move_front(float dt, float speed) noexcept
+		void move_front(f64 dt, f64 speed) noexcept
 		{
 			setPosition(m_pos + m_frontdir * dt * speed);
 		}
 
-		void move_back(float dt, float speed) noexcept
+		void move_back(f64 dt, f64 speed) noexcept
 		{
 			setPosition(m_pos - m_frontdir * dt * speed);
 		}
@@ -89,15 +89,15 @@ namespace gfx
 
 		// = Getters
 
-		v3f32 getRightDir() const noexcept { return m_frontdir.cross(m_updir); }
+		types::pos getRightDir() const noexcept { return m_frontdir.cross(m_updir); }
 
-		const v3f32& getUpDir() const noexcept { return m_updir; }
+		const types::pos& getUpDir() const noexcept { return m_updir; }
 
-		const v3f32& getFrontDir() const noexcept { return m_frontdir; }
+		const types::pos& getFrontDir() const noexcept { return m_frontdir; }
 
-		const v3f32& getPosition() const noexcept { return m_pos; }
+		const types::pos& getPosition() const noexcept { return m_pos; }
 
-		const m4f32& getViewProj() const noexcept { return m_vp; }
+		const m4f64& getViewProj() const noexcept { return m_vp; }
 
 		const bool should_update_dirs() const noexcept { return m_update_dirs; }
 
@@ -108,21 +108,21 @@ namespace gfx
 
 		void build_cam_matrix() noexcept
 		{
-			m4f32 view = mpml::lookAt(m_pos, m_frontdir + m_pos, m_updir);
-			m4f32 proj = mpml::perspective(mpml::Angle<>::from_degrees(m_fov), m_framebuffer_size.x, m_framebuffer_size.y, 0.1f, 1000.f);
+			m4f64 view = mpml::lookAt(m_pos, m_frontdir + m_pos, m_updir);
+			m4f64 proj = mpml::perspective(mpml::Angle<>::from_degrees(m_fov), m_framebuffer_size.x, m_framebuffer_size.y, 0.1f, 1000.f);
 
 			m_vp = view * proj;
 		}
 
 
-		m4f32 m_vp{};
+		m4f64 m_vp{};
 
-		float m_fov{ 45 };
+		f64 m_fov{ 45 };
 
 		v2f32 m_framebuffer_size{};
-		v3f32 m_pos{ 0.f, 0.f, 0.f };
-		v3f32 m_updir{ v3f32{0.f, 1.f, 0.f} };
-		v3f32 m_frontdir{ 0.f, 0.f, -1.f };
+		types::pos  m_pos{ 0.f, 0.f, 0.f };
+		types::pos  m_updir{ types::pos {0.f, 1.f, 0.f} };
+		types::pos  m_frontdir{ 0.f, 0.f, -1.f };
 
 		bool m_update_dirs{ false };
 	};

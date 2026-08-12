@@ -1,5 +1,7 @@
 #include "gfx_chunkMesh.hpp"
 
+#include <cassert>
+
 #include "gfx_voxelTypeManager.hpp"
 #include "gfx_chunkGrid.hpp"
 
@@ -154,6 +156,9 @@ namespace gfx
 				physical_ao[0],
 				physical_ao[2]
 			};
+
+		default:
+			assert("ERROR::CHUNKMESH::AO_CALCULATING::Cannot calculate AO for the given face, index out of bound");
 		}
 	}
 

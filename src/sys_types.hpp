@@ -104,6 +104,23 @@ using v4f64 = mpml::Vector4<f64>;
 using m3f32 = mpml::Matrix3<f32>;
 using m4f32 = mpml::Matrix4<f32>;
 
+using m4f64 = mpml::Matrix4<f64>;
+
+// Small Utility Function to move into the MAths lib:
+
+template<std::integral I>
+inline I integer_div_floor(I a, I b) noexcept
+{
+	I res = a / b;
+	I rem = a % b;
+
+	// Correct for negative results with a non-zero remainder
+	if (rem != 0 && ((a < 0) ^ (b < 0))) 
+		res--;
+
+	return res;
+}
+
 
 // Inner Types
 
@@ -125,6 +142,7 @@ namespace types
 	// world
 
 	using voxel_point = v3i64;
+	using pos = v3f64;
 
 
 	// 2D/3D

@@ -44,24 +44,22 @@ namespace gfx
 		}
 
 
-		static types::chunk_loc to_chunkLoc(const v3f32& pos) noexcept
+		static types::chunk_loc to_chunkLoc(const types::pos& pos) noexcept
 		{
 			return {
-				static_cast<i64>(std::floor(pos.x / Chunk::g_size<f32>.x)),
-				static_cast<i64>(std::floor(pos.y / Chunk::g_size<f32>.y)),
-				static_cast<i64>(std::floor(pos.z / Chunk::g_size<f32>.z))
+				static_cast<i64>(std::floor(pos.x / Chunk::g_size<f64>.x)),
+				static_cast<i64>(std::floor(pos.y / Chunk::g_size<f64>.y)),
+				static_cast<i64>(std::floor(pos.z / Chunk::g_size<f64>.z))
 			};
 		}
 
 		static types::chunk_loc to_chunkLoc(const types::voxel_point& pos) noexcept
 		{
 			return {
-				pos.x / Chunk::g_size<i64>.x,
-				pos.y / Chunk::g_size<i64>.y,
-				pos.z / Chunk::g_size<i64>.z
+				integer_div_floor(pos.x, Chunk::g_size<i64>.x),
+				integer_div_floor(pos.y, Chunk::g_size<i64>.y),
+				integer_div_floor(pos.z, Chunk::g_size<i64>.z)
 			};
-
-			// Fix that, it does not work correctly since -1/32 in integer division gives -0 which is zero, figure this out when you are not tired!
 		}
 
 

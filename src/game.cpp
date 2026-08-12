@@ -149,22 +149,22 @@ void Game::inputs()
 			if (!window->isCursorHidden())
 			{
 
-				offset *= 0.1f;
+				offset *= 0.1;
 
 				yaw += offset.x;
 				pitch += offset.y;
 
 
-				if (pitch > 89.f)
-					pitch = 89.f;
-				if (pitch < -89.f)
-					pitch = -89.f;
+				if (pitch > 89.)
+					pitch = 89.;
+				if (pitch < -89.)
+					pitch = -89.;
 
-				v3f32 direction{};
+				types::pos direction{};
 
-				float radPitch{ mpml::to_radians(pitch) };
-				float cosPitch{ std::cos(radPitch) };
-				float radYaw{ mpml::to_radians(yaw) };
+				f64 radPitch{ mpml::to_radians(pitch) };
+				f64 cosPitch{ std::cos(radPitch) };
+				f64 radYaw{ mpml::to_radians(yaw) };
 
 				direction.x = std::cos(radYaw) * cosPitch;
 				direction.y = -std::sin(radPitch);
