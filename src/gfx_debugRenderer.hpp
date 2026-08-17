@@ -169,7 +169,7 @@ namespace gfx
 					for (int x = 0; x < list.pendings.size(); x++)
 					{
 						float endTime = list.pendings[x];
-						if (endTime <= 0.f || endTime > currentTime)
+						if (endTime < 0.f || endTime > currentTime)
 							continue;
 
 						std::swap(list.pendings[x], list.pendings.back());

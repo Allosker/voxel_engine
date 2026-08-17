@@ -80,8 +80,11 @@ namespace gfx
 		/// /// <param name="Location of the chunk"></param>
 		void add_cmesh(const types::chunk_loc& cloc) noexcept
 		{
-			m_chunk_meshes.at(cloc).queued = true;
-			m_waiting_cmesh.push(cloc);
+			if (m_chunk_meshes.contains(cloc))
+			{
+				m_chunk_meshes.at(cloc).queued = true;
+				m_waiting_cmesh.push(cloc);
+			}
 		}
 
 

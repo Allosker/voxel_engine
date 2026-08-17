@@ -96,6 +96,8 @@ DebugMessage Game::run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		gfx::DebugRenderer::get().update(glfwGetTime());
+
 		window->clear_states(); 
 
 
@@ -240,7 +242,7 @@ void Game::logic()
 
 void Game::debug()
 {
-	gfx::DebugRenderer::get().update(glfwGetTime());
+	
 
 	debug_imgui();
 }
