@@ -41,8 +41,6 @@ namespace gfx
 			"    out_FragColor = v_Color;\n"
 			"}\n";
 
-	public:
-
 		DebugRenderer()
 		{
 			linesWorld.primitiveSize = 2;
@@ -113,6 +111,11 @@ namespace gfx
 			setupArrayList(trianglesForeground);
 		}
 
+
+	public:
+
+		
+
 		static DebugRenderer& get()
 		{
 			static DebugRenderer instance;
@@ -166,7 +169,7 @@ namespace gfx
 					for (int x = 0; x < list.pendings.size(); x++)
 					{
 						float endTime = list.pendings[x];
-						if (endTime != -1.f && (endTime <= 0.f || endTime > currentTime))
+						if (endTime <= 0.f || endTime > currentTime)
 							continue;
 
 						std::swap(list.pendings[x], list.pendings.back());

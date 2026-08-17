@@ -101,4 +101,5 @@ public:
 	// Debug
 	bool compute_noise_map{ false };
 
+
 };

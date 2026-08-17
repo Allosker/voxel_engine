@@ -63,6 +63,9 @@ namespace gfx
 
 	};
 
+	/// <summary>
+	/// The result of a Ray Cast, containing the origin of the ray, its current position, and its normal
+	/// </summary>
 	struct RayCastResult
 	{
 		types::pos origin{};
@@ -70,8 +73,16 @@ namespace gfx
 		types::pos normal{};
 	};
 
-	// Returns the location of the block that was hit by the ray alongside its corresponding chunk, if no block was hit, std::nullopt is returned
-	static inline std::optional<RayCastResult> raycast(const types::pos& origin, const types::pos& dir, const gfx::ChunkGrid& grid, u64 maxLength) noexcept
+	
+	/// <summary>
+	/// Cast a ray using the Ray Traversal algorithm, if the ray hits a solid block, the ray cast stops
+	/// </summary>
+	/// <param name="origin"></param>
+	/// <param name="direction"></param>
+	/// <param name="chunk grid"></param>
+	/// <param name="max length of ray"></param>
+	/// <returns>std::nullopt if the Ray hit nothing, the RayCastResult otherwise</returns>
+	static inline std::optional<RayCastResult> raycast(const types::pos& origin, const types::pos& dir, const gfx::ChunkGrid& grid, u64 max_length) noexcept
 	{
 		Ray ray{ origin, dir };
 		types::pos normal{};
@@ -85,7 +96,7 @@ namespace gfx
 		if (!(chunk = grid.at_chunk(ray_loc)))
 			return std::nullopt;
 
-		while ((origin - ray.pos).length() < maxLength)
+		while ((origin - ray.pos).length_squared() < max_length * max_length)
 		{
 
 			ray_loc = gfx::World::to_chunkLoc(ray.pos);
@@ -100,12 +111,13 @@ namespace gfx
 					return std::nullopt;
 			}
 
-			const auto vloc = chunk->to_voxelLoc(*chunk, static_cast<v3i64>(ray.pos));
+			const auto vloc = chunk->to_voxelLoc(*chunk, gfx::World::to_voxelPos(ray.pos));
 
-			if (!VoxelTypeManager::get().get_type(chunk->at(vloc).type_id).is_traversable)
-			{
-				return std::make_optional<RayCastResult>({ origin, ray.pos, normal });
-			}
+			if (auto* v = chunk->at_ptr(vloc))
+				if (VoxelTypeManager::get().get_type(v->type_id).is_solid)
+				{
+					return std::make_optional<RayCastResult>({ origin, ray.pos, normal });
+				}
 
 
 			if (ray.tMax.x < ray.tMax.y)
@@ -114,13 +126,13 @@ namespace gfx
 				{
 					ray.pos.x += ray.step.x;
 					ray.tMax.x += ray.tDelta.x;
-					normal = { -ray.step.x, 0.f, 0.f };
+					normal = { -ray.step.x, 0., 0. };
 				}
 				else
 				{
 					ray.pos.z += ray.step.z;
 					ray.tMax.z += ray.tDelta.z;
-					normal = { 0.f, 0.f, -ray.step.z };
+					normal = { 0., 0., -ray.step.z };
 				}
 			}
 			else
@@ -129,13 +141,13 @@ namespace gfx
 				{
 					ray.pos.y += ray.step.y;
 					ray.tMax.y += ray.tDelta.y;
-					normal = { 0.f, -ray.step.y, 0.f };
+					normal = { 0., -ray.step.y, 0. };
 				}
 				else
 				{
 					ray.pos.z += ray.step.z;
 					ray.tMax.z += ray.tDelta.z;
-					normal = { 0.f, 0.f, -ray.step.z };
+					normal = { 0., 0., -ray.step.z };
 				}
 			}
 

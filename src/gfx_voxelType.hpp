@@ -14,13 +14,15 @@
 
 namespace gfx
 {
-
+	/// <summary>
+	/// All names are defaulted accounting for the average block
+	/// </summary>
 	struct VoxelType
 	{
 		std::string name{};
 
-		bool is_transparent{};
-		bool is_traversable{};
+		bool is_transparent{ false };
+		bool is_solid{ true };
 
 	};
 

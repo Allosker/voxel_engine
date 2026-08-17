@@ -87,12 +87,16 @@ namespace gfx
 
 		void draw() const noexcept
 		{
+			glEnable(GL_CULL_FACE);
+
 			for (const auto& i : m_chunk_meshes)
 				i.second.draw();
+
+			glDisable(GL_CULL_FACE);
 		}
 
 
-		Voxel at(types::voxel_point pos) const noexcept
+		Voxel at(types::voxel_pos pos) const noexcept
 		{
 			auto cloc = pos / Chunk::g_size<i64>.x; 
 

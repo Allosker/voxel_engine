@@ -105,12 +105,17 @@ public:
 
 private:
 
-	bool m_cursorHidden{ true };
+	
 
-	v2i32 m_size{};
+	
+
+	std::queue<Event> m_queue_events{};
 
 	GLFWwindow* m_window{ nullptr };
 
-	std::queue<Event> m_queue_events{};
+	v2i32 m_size{};
+
+	bool m_cursorHidden{ true };
+
 
 };

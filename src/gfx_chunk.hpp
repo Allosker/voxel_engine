@@ -39,10 +39,24 @@ namespace gfx
 		
 
 		Voxel& at(types::voxel_loc loc) noexcept { return m_empty ? m_voxels[0] : m_voxels[loc.x + loc.y * g_size<u16>.y + loc.z * g_size<u16>.z * g_size<u16>.z]; }
-
 		const Voxel& at(types::voxel_loc loc) const noexcept { return m_empty ? m_voxels[0] : m_voxels[loc.x + loc.y * g_size<u16>.y + loc.z * g_size<u16>.z * g_size<u16>.z]; }
 
-		types::voxel_point get_position() const noexcept { return static_cast<v3i64>(m_loc) * g_size<i64>.x; }
+		Voxel* at_ptr(types::voxel_loc loc) noexcept 
+		{ 
+			if ((loc.x < 0 || loc.y < 0 || loc.z < 0) || (loc.x >= g_size<u16>.x || loc.y >= g_size<u16>.y || loc.z >= g_size<u16>.z))
+				return nullptr;
+
+			return &at(loc); 
+		}
+		const Voxel* at_ptr(types::voxel_loc loc) const noexcept
+		{
+			if ((loc.x < 0 || loc.y < 0 || loc.z < 0) || (loc.x >= g_size<u16>.x || loc.y >= g_size<u16>.y || loc.z >= g_size<u16>.z))
+				return nullptr;
+
+			return &at(loc);
+		}
+
+		types::voxel_pos get_position() const noexcept { return static_cast<v3i64>(m_loc) * g_size<i64>.x; }
 
 		types::chunk_loc get_location() const noexcept { return m_loc; }
 
@@ -54,7 +68,7 @@ namespace gfx
 
 	public:
 
-		static types::voxel_loc to_voxelLoc(const Chunk& chunk, const types::voxel_point& point) noexcept
+		static types::voxel_loc to_voxelLoc(const Chunk& chunk, const types::voxel_pos& point) noexcept
 		{
 			return static_cast<types::voxel_loc>(mpml::abs(point - chunk.get_position()));
 		}

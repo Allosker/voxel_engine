@@ -2,6 +2,9 @@
 
 #include "gfx_debugRenderer.hpp"
 
+#include "gfx_rayTraversal.hpp"
+
+
 namespace gfx
 {
 	void World::update_grid(types::chunk_loc player_loc, bool reload) noexcept
@@ -42,7 +45,7 @@ namespace gfx
 			for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
 			for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
 			{
-				auto pos = types::voxel_point{ x, 0, z } + c_pos;
+				auto pos = types::voxel_pos{ x, 0, z } + c_pos;
 
 				i64 height = continentalness(terrain_context, pos.z, pos.x) * 100;
 
@@ -65,7 +68,7 @@ namespace gfx
 		}
 	}
 
-	bool World::set_voxel(types::voxel_point voxel_p, Voxel new_voxel) noexcept
+	bool World::set_voxel(types::voxel_pos voxel_p, Voxel new_voxel) noexcept
 	{
 		const auto loc = to_chunkLoc(voxel_p);
 		auto* chunk = overworld.at_chunk(loc);
@@ -73,25 +76,31 @@ namespace gfx
 		if (!chunk)
 			return false;
 
-		chunk->at(Chunk::to_voxelLoc(*chunk, voxel_p)) = new_voxel;
+		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
+		chunk->at(voxel_l) = new_voxel;
 		overworld.add_cmesh(loc);
 
 
-		if (loc.z >= Chunk::g_size<i32>.z)
+		if (voxel_l.z >= Chunk::g_size<i32>.z - 1)
 			overworld.add_cmesh(loc + Chunk::dirs<i64>[4]);
-		else if (loc.y >= Chunk::g_size<i32>.y)
+		if (voxel_l.y >= Chunk::g_size<i32>.y - 1)
 			overworld.add_cmesh(loc + Chunk::dirs<i64>[2]);
-		else if (loc.x >= Chunk::g_size<i32>.x)
+		if (voxel_l.x >= Chunk::g_size<i32>.x - 1)
 			overworld.add_cmesh(loc + Chunk::dirs<i64>[0]);
-		else if (loc.z <= 0)
+		if (voxel_l.z <= 0)
 			overworld.add_cmesh(loc + Chunk::dirs<i64>[5]);
-		else if (loc.y <= 0)
+		if (voxel_l.y <= 0)
 			overworld.add_cmesh(loc + Chunk::dirs<i64>[3]);
-		else if (loc.x <= 0)
+		if (voxel_l.x <= 0)
 			overworld.add_cmesh(loc + Chunk::dirs<i64>[1]);
 
 
 		return true;
+	}
+
+	std::optional<RayCastResult> World::raycast(const types::pos& origin, const types::pos& dir, u64 max_length) noexcept
+	{
+		return gfx::raycast(origin, dir, overworld, max_length);
 	}
 	
 

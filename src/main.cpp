@@ -2,7 +2,6 @@
 
 #include "game.hpp"
 
-
 int main()
 try
 {

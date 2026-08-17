@@ -141,7 +141,7 @@ namespace types
 
 	// world
 
-	using voxel_point = v3i64;
+	using voxel_pos = v3i64;
 	using pos = v3f64;
 
 

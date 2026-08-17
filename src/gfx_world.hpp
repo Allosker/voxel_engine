@@ -11,8 +11,11 @@
 #include "gfx_chunkGrid.hpp"
 #include "gfx_terrainGeneration.hpp"
 
+
 namespace gfx
 {
+	struct RayCastResult;
+
 	class World
 	{
 	public:
@@ -27,7 +30,10 @@ namespace gfx
 
 		void generate_world(const std::list<types::chunk_loc>& clocs) noexcept;
 
-		bool set_voxel(types::voxel_point voxel_p, Voxel new_voxel) noexcept;
+		bool set_voxel(types::voxel_pos voxel_p, Voxel new_voxel) noexcept;
+
+		std::optional<RayCastResult> raycast(const types::pos& origin, const types::pos& dir, u64 max_length) noexcept;
+
 		
 		/// <summary>
 		/// First draws chunk grids, then entities
@@ -38,10 +44,7 @@ namespace gfx
 		}
 
 
-		ChunkGrid& get_chunkGrid() noexcept
-		{
-			return overworld;
-		}
+		ChunkGrid& get_chunkGrid() noexcept { return overworld; }
 
 
 		static types::chunk_loc to_chunkLoc(const types::pos& pos) noexcept
@@ -53,13 +56,18 @@ namespace gfx
 			};
 		}
 
-		static types::chunk_loc to_chunkLoc(const types::voxel_point& pos) noexcept
+		static types::chunk_loc to_chunkLoc(const types::voxel_pos& pos) noexcept
 		{
 			return {
 				integer_div_floor(pos.x, Chunk::g_size<i64>.x),
 				integer_div_floor(pos.y, Chunk::g_size<i64>.y),
 				integer_div_floor(pos.z, Chunk::g_size<i64>.z)
 			};
+		}
+
+		static types::voxel_pos to_voxelPos(const types::pos& pos)
+		{
+			return static_cast<types::voxel_pos>(types::pos{ (pos.x), (pos.y), (pos.z) });
 		}
 
 

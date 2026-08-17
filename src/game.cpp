@@ -1,5 +1,10 @@
 #include "game.hpp"
 
+#include "gfx_inputManager.hpp"
+
+#include "gfx_rayTraversal.hpp"
+
+
 static std::unique_ptr<Window> init_glfw()
 {
 	if (!glfwInit())
@@ -45,6 +50,7 @@ static DebugMessage init_imgui(Window& window)
 	return DebugMessage{ .msg{"Info::ImGui_Init::Successful"}, .severity{DebugMessage::Info} };
 }
 
+
 DebugMessage Game::run()
 {
 	window = init_glfw();
@@ -58,6 +64,7 @@ DebugMessage Game::run()
 
 
 	AssetsManager::get(); // load all assets
+
 
 	// Temporary
 
@@ -77,6 +84,7 @@ DebugMessage Game::run()
 	};
 
 	world.update_grid({0, 0, 0}, true);
+
 
 	// Main Loop
 	while (window->isOpen())
@@ -107,14 +115,20 @@ DebugMessage Game::run()
 	return DebugMessage{ .msg{"Info::Game ran successfully"}, .severity{DebugMessage::Info} };
 }
 
-
-
 void Game::inputs()
 {
+	static gfx::RayCastResult ray{};
+
+	
+
 	while (auto event = window->poll_event())
 	{
+		
+
 		if (auto key = event->get_if<Event::KeyPressed>())
 		{
+			gfx::InputManager::get().update_keys(*key);
+
 			if (key->scancode == Keys::Escape)
 				window->close();
 
@@ -130,8 +144,21 @@ void Game::inputs()
 			if (key->scancode == Keys::F4)
 				world.debug.update_world = !world.debug.update_world;
 
-			if (key->scancode == Keys::F)
-				world.set_voxel(static_cast<types::voxel_point>(camera.getPosition()), gfx::Voxel{ .type_id{} });
+			
+		}
+
+		if (auto mouse = event->get_if<Event::MouseButtonPressed>())
+		{
+			if (mouse->scancode == MouseButtons::Left)
+			{
+				if (auto r = world.raycast(camera.getPosition(), camera.getFrontDir(), 200))
+				{
+					ray = *r;
+					auto pos = gfx::World::to_voxelPos(r->pos);
+
+					world.set_voxel(pos, gfx::Voxel{ .type_id{} });
+				}
+			}
 		}
 
 
@@ -175,6 +202,10 @@ void Game::inputs()
 		}
 
 	}
+
+	
+	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.pos), { 0, 0, 0 }, 0, false);
+	gfx::line((v3f32)ray.origin, (v3f32)ray.pos, { 1, 1, 1 }, 0, false);
 
 
 	if (window->isKeyPressed(Keys::W))
