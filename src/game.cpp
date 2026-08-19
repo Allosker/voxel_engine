@@ -60,7 +60,7 @@ DebugMessage Game::run()
 	init_imgui(*window).print_to_console();
 
 
-	camera.setFramebufferSize(window->getSize());
+	camera.set_FBS(window->getSize());
 
 
 	AssetsManager::get(); // load all assets
@@ -153,7 +153,7 @@ void Game::inputs()
 		{
 			if (mouse->scancode == MouseButtons::Left)
 			{
-				if (auto r = world.raycast(camera.getPosition(), camera.getFrontDir(), 200))
+				if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
 				{
 					ray = *r;
 					auto pos = gfx::World::to_voxelPos(r->pos);
@@ -166,7 +166,7 @@ void Game::inputs()
 
 		if (auto f = event->get_if<Event::Resized>())
 		{
-			camera.setFramebufferSize(f->size);
+			camera.set_FBS(f->size);
 		}
 
 		if (auto p = event->get_if<Event::MouseMoved>())
@@ -199,7 +199,7 @@ void Game::inputs()
 				direction.y = -std::sin(radPitch);
 				direction.z = std::sin(radYaw) * cosPitch;
 
-				camera.setDirections(direction.normal());
+				camera.set_dirs(direction.normal());
 			}
 		}
 
@@ -233,7 +233,7 @@ void Game::inputs()
 
 void Game::logic()
 {
-	types::chunk_loc player_loc = gfx::World::to_chunkLoc(camera.getPosition());
+	types::chunk_loc player_loc = gfx::World::to_chunkLoc(camera.get_pos());
 
 	world.update_grid(player_loc);
 }
@@ -242,8 +242,6 @@ void Game::logic()
 
 void Game::debug()
 {
-	
-
 	debug_imgui();
 }
 
@@ -278,9 +276,9 @@ void Game::debug()
 		{
 			if (ImGui::Begin("General"/*nullptr, ImGuiWindowFlags_MenuBar*/))
 			{
-				const auto player_loc = gfx::World::to_chunkLoc(camera.getPosition());
+				const auto player_loc = gfx::World::to_chunkLoc(camera.get_pos());
 
-				ImGui::Text("Camera Pos: %d %d %d", (i32)camera.getPosition().x, (i32)camera.getPosition().y, (i32)camera.getPosition().z);
+				ImGui::Text("Camera Pos: %d %d %d", (i32)camera.get_pos().x, (i32)camera.get_pos().y, (i32)camera.get_pos().z);
 				ImGui::Text("Camera Pos: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
 				ImGui::DragFloat("Speed", &camera.speed);
 
@@ -310,7 +308,7 @@ void Game::debug()
 				const i32 l1{ 0 }, l2{ 100 };
 				ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
 
-				auto pos = static_cast<v3i32>(camera.getPosition());
+				auto pos = static_cast<v3i32>(camera.get_pos());
 				v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
 				v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };
 
@@ -358,7 +356,7 @@ void Game::render_on_screen()
 
 	AssetsManager::get().shader.bind();
 
-	AssetsManager::get().shader.setValue("vp", camera.getViewProj());
+	AssetsManager::get().shader.setValue("vp", camera.get_VP());
 	AssetsManager::get().shader.setValue("model", m4f32::Identity);
 
 	AssetsManager::get().tex.bind();
@@ -373,7 +371,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render(camera.getViewProj());
+	gfx::DebugRenderer::get().render(camera.get_VP());
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

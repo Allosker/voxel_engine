@@ -1,23 +1,23 @@
 #pragma once
-// MIT
-// Allosker ------------------------------
-// =========+
-// Basic 2D transform class passing 4x4 transform matrices
-// ---------------------------------------
+/* -- All Rights Reserved: Allosker 2026
+* https://github.com/Allosker/voxel_engine/blob/main/license.txt
+* ==============================================-
+*	3D transformable that creates a 4x4 model matrix as a result of any translation/scaling/rotation it undergoes
+* Mainly for any game object that needs transformations
+* ==============================================-
+*/
 
-#include "utilities/opengl.hpp"
-#include "mpml/quaternions/quaternion.hpp"
+#include "sys_types.hpp"
 
-namespace physics
+
+namespace gfx
 {
 
 	class Transformable3D
 	{
 	public:
 
-		Transformable3D() = delete;
-
-		Transformable3D(const vec3f& size, const vec3f& ori)
+		Transformable3D(const v3f64& size = {}, const types::pos& ori = {})
 			: m_origin{ ori }, m_baseSize{ size }, m_scale{ 1.f, 1.f, 1.f }
 		{
 			if (m_origin.x != 0 || m_origin.y != 0)
@@ -30,16 +30,16 @@ namespace physics
 		Transformable3D& operator=(Transformable3D&&) = default;
 		Transformable3D& operator=(Transformable3D&) = default;
 
-		virtual ~Transformable3D() = default;
+		~Transformable3D() = default;
 
 
 		// = Getters
 
-		const mpml::Matrix4<float>& getTransformation() noexcept
+		const m4f64& get_transform() noexcept
 		{
 			if (m_transformNeedUpdate)
 			{
-				mat4f transforms{ mat4f::Identity };
+				m4f64 transforms{ m4f64::Identity };
 
 				transforms = mpml::scale(transforms, m_scale);
 				transforms = mpml::rotate(transforms, m_rotation);
@@ -53,80 +53,80 @@ namespace physics
 			return m_transformations;
 		}
 
-		const vec3f& getSize() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y, m_baseSize.z * m_scale.z }; }
+		const v3f64& get_size() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y, m_baseSize.z * m_scale.z }; }
 
-		mpml::Quaternion<float> getRotation() const noexcept { return m_rotation; }
+		qf64 get_rotation() const noexcept { return m_rotation; }
 
-		const vec3f& getPosition() const noexcept { return m_position; }
+		const types::pos& get_pos() const noexcept { return m_position; }
 
-		const vec3f& getBaseSize() const noexcept { return m_baseSize; }
+		const v3f64& get_baseSize() const noexcept { return m_baseSize; }
 
 
 		// = Setters
 
-		virtual void setPosition(const vec3f& pos) noexcept
+		void set_pos(const types::pos& pos) noexcept
 		{
 			m_position = pos;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setScale(const vec3f& scale) noexcept
+		void set_scale(const v3f64& scale) noexcept
 		{
 			m_scale = scale;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setSize(const vec3f& size) noexcept
+		void set_size(const v3f64& size) noexcept
 		{
 			if (m_baseSize != 0)
-				setScale({ size.x / m_baseSize.x, size.y / m_baseSize.y, size.z / m_baseSize.z });
+				set_scale({ size.x / m_baseSize.x, size.y / m_baseSize.y, size.z / m_baseSize.z });
 			else
 				m_baseSize = size;
 
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setBaseSize(const vec3f& size) noexcept
+		void set_baseSize(const v3f64& size) noexcept
 		{
 			m_baseSize = size;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setRotation(const mpml::Quaternion<float>& q) noexcept
+		void set_rotation(const qf64& q) noexcept
 		{
 			m_rotation = q;
 			m_transformNeedUpdate = true;
 		}
 
-		void move(const vec3f& offset) noexcept
+		void move(const v3f64& offset) noexcept
 		{
-			setPosition(m_position + offset);
+			set_pos(m_position + offset);
 		}
 
-		void scale(const vec3f& factor) noexcept
+		void scale(const v3f64& factor) noexcept
 		{
-			setScale({ m_scale.x * factor.x, m_scale.y * factor.y, m_scale.z * factor.z });
+			set_scale({ m_scale.x * factor.x, m_scale.y * factor.y, m_scale.z * factor.z });
 		}
 
-		void rotate(const mpml::Quaternion<float>& q) noexcept
+		void rotate(const qf64& q) noexcept
 		{
-			setRotation(m_rotation * q);
+			set_rotation(m_rotation * q);
 		}
 
 
 	private:
 
-		mat4f								m_transformations{ mat4f::Identity };
+		m4f64		m_transformations{ m4f64::Identity };
 
+		v3f64		m_scale{};
+		v3f64		m_baseSize{};
+		v3f64		m_origin{};
+		types::pos	m_position{};
 
-		vec3f								m_scale{};
-		vec3f								m_baseSize{};
-		vec3f								m_origin{};
-		vec3f								m_position{};
+		qf64		m_rotation{ 1., 0, 0, 0 };
 
-		mpml::Quaternion<float>				m_rotation{ 1.f, 0, 0, 0 };
+		bool		m_transformNeedUpdate{ false };
 
-		bool								m_transformNeedUpdate{ false };
 
 	};
 

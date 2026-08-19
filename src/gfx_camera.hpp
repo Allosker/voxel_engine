@@ -23,28 +23,32 @@ namespace gfx
 
 		// Setters
 
-		void setDirections(const types::pos& front) noexcept
+		void set_dirs(const types::pos& front) noexcept
 		{
 			m_frontdir = front;
 
 			build_cam_matrix();
 		}
 
-		void setPosition(const types::pos& position) noexcept
+		void set_pos(const types::pos& position) noexcept
 		{
 			m_pos = position;
 
 			build_cam_matrix();
 		}
 
-		void setFramebufferSize(const v2f32& new_size) noexcept
+		/// <summary>
+		/// Set the size of the frame buffer for building projection matrices
+		/// </summary>
+		/// <param name="new_size"></param>
+		void set_FBS(const v2f32& new_size) noexcept
 		{
 			m_framebuffer_size = new_size;
 
 			build_cam_matrix();
 		}
 
-		void setFOV(const f64 fov) noexcept
+		void set_FOV(const f64 fov) noexcept
 		{
 			m_fov = fov;
 			build_cam_matrix();
@@ -58,46 +62,50 @@ namespace gfx
 		// Absolute
 		void move_up(f64 dt, f64 speed) noexcept
 		{
-			setPosition(m_pos + m_updir * dt * speed);
+			set_pos(m_pos + m_updir * dt * speed);
 		}
 
 		void move_down(f64 dt, f64 speed) noexcept
 		{
-			setPosition(m_pos - m_updir * dt * speed);
+			set_pos(m_pos - m_updir * dt * speed);
 		}
 
 		void move_right(f64 dt, f64 speed) noexcept
 		{
-			setPosition(m_pos + m_frontdir.cross(m_updir) * dt * speed);
+			set_pos(m_pos + m_frontdir.cross(m_updir) * dt * speed);
 		}
 
 		void move_left(f64 dt, f64 speed) noexcept
 		{
-			setPosition(m_pos - m_frontdir.cross(m_updir) * dt * speed);
+			set_pos(m_pos - m_frontdir.cross(m_updir) * dt * speed);
 		}
 
 		void move_front(f64 dt, f64 speed) noexcept
 		{
-			setPosition(m_pos + m_frontdir * dt * speed);
+			set_pos(m_pos + m_frontdir * dt * speed);
 		}
 
 		void move_back(f64 dt, f64 speed) noexcept
 		{
-			setPosition(m_pos - m_frontdir * dt * speed);
+			set_pos(m_pos - m_frontdir * dt * speed);
 		}
 
 
 		// = Getters
 
-		types::pos getRightDir() const noexcept { return m_frontdir.cross(m_updir); }
+		types::pos get_right() const noexcept { return m_frontdir.cross(m_updir); }
 
-		const types::pos& getUpDir() const noexcept { return m_updir; }
+		const types::pos& get_up() const noexcept { return m_updir; }
 
-		const types::pos& getFrontDir() const noexcept { return m_frontdir; }
+		const types::pos& get_front() const noexcept { return m_frontdir; }
 
-		const types::pos& getPosition() const noexcept { return m_pos; }
+		const types::pos& get_pos() const noexcept { return m_pos; }
 
-		const m4f64& getViewProj() const noexcept { return m_vp; }
+		/// <summary>
+		/// View projection matrix used to build the projection plan
+		/// </summary>
+		/// <returns>View Projection matrix</returns>
+		const m4f64& get_VP() const noexcept { return m_vp; }
 
 		const bool should_update_dirs() const noexcept { return m_update_dirs; }
 

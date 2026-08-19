@@ -106,6 +106,12 @@ using m4f32 = mpml::Matrix4<f32>;
 
 using m4f64 = mpml::Matrix4<f64>;
 
+using qf64 = mpml::Quaternion<f64>;
+
+using angle = mpml::Angle<f64>;
+using angle32 = mpml::Angle<f32>;
+
+
 // Small Utility Function to move into the MAths lib:
 
 template<std::integral I>
@@ -153,6 +159,8 @@ namespace types
 		T pos;
 		T size;
 	};
+
+	using pos2d = v2f32;
 
 
 }

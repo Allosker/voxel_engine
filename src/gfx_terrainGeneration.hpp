@@ -17,15 +17,14 @@ namespace gfx
 	struct TerrainGenContext
 	{
 		TerrainGenContext(f32 _octaves=3, f32 _gain=1, f32 _lacunarity=1, f32 _warp_amplitude=1, f32 _seed=0x0)
-			: base{ FastNoise::New<FastNoise::Simplex>() }, noise{ FastNoise::New<FastNoise::FractalRidged>() }
+			: base{ FastNoise::New<FastNoise::Simplex>() }, noise{ FastNoise::New<FastNoise::FractalFBm>() }
 		{
 			noise->SetSource(base);
 			noise->SetOctaveCount(octaves);
-
 		}
 
 		FastNoise::SmartNode<FastNoise::Simplex> base;
-		FastNoise::SmartNode<FastNoise::FractalRidged> noise;
+		FastNoise::SmartNode<FastNoise::FractalFBm> noise;
 		f32 octaves{};
 		f32 gain{};
 		f32 lacunarity{};

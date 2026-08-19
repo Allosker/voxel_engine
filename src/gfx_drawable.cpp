@@ -13,7 +13,7 @@ namespace gfx
 
 
 		m_shader.bind();
-		m_shader.setValue("vp", m_camera->getViewProj());
+		m_shader.setValue("vp", m_camera->get_VP());
 
 		for (const auto& i : m_contexts)
 		{

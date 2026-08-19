@@ -88,10 +88,10 @@ namespace gfx
 		types::pos normal{};
 
 		
-		types::chunk_loc ray_loc{};
+		types::chunk_loc ray_loc{ World::to_chunkLoc(origin) };
 		types::chunk_loc old_loc{};
 
-		const gfx::Chunk* chunk{ nullptr };
+		const Chunk* chunk{ nullptr };
 
 		if (!(chunk = grid.at_chunk(ray_loc)))
 			return std::nullopt;
@@ -99,7 +99,7 @@ namespace gfx
 		while ((origin - ray.pos).length_squared() < max_length * max_length)
 		{
 
-			ray_loc = gfx::World::to_chunkLoc(ray.pos);
+			ray_loc = World::to_chunkLoc(ray.pos);
 
 			if (old_loc != ray_loc)
 			{
@@ -111,7 +111,7 @@ namespace gfx
 					return std::nullopt;
 			}
 
-			const auto vloc = chunk->to_voxelLoc(*chunk, gfx::World::to_voxelPos(ray.pos));
+			const auto vloc = chunk->to_voxelLoc(*chunk, World::to_voxelPos(ray.pos));
 
 			if (auto* v = chunk->at_ptr(vloc))
 				if (VoxelTypeManager::get().get_type(v->type_id).is_solid)
