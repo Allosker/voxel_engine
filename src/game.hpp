@@ -6,19 +6,19 @@
 * ==============================================-
 */ 
 
-#include "sys_opengl_debug.hpp"
-#include "sys_assetsManager.hpp"
-#include "gfx_debugRenderer.hpp"
+#include "sys/opengl_debug.hpp"
+#include "sys/assetsManager.hpp"
+#include "gfx/debugRenderer.hpp"
 
-#include "sys_window.hpp"
+#include "sys/window.hpp"
 
-#include "gfx_camera.hpp"
+#include "gfx/camera.hpp"
 
-#include "gfx_mesh.hpp"
-#include "gfx_shader.hpp"
-#include "gfx_texture.hpp"
+#include "gfx/mesh.hpp"
+#include "gfx/shader.hpp"
+#include "gfx/texture.hpp"
 
-#include "gfx_world.hpp"
+#include "gfx/world.hpp"
 
 
 
@@ -81,11 +81,13 @@ public:
 
 		f32 get() const noexcept { return dt; }
 
-		void update() noexcept
+		void update(f32 current_time) noexcept
 		{
-			dt = glfwGetTime() - last_frame;
+			dt = current_time - last_frame;
 			last_frame = glfwGetTime();
 		}
+
+		void limit() noexcept { dt = std::min(dt, 1.f / 30.f); }
 
 	private:
 
@@ -93,13 +95,22 @@ public:
 		f32 last_frame{};
 	} delta_time;
 
+	f32 fps{};
+	f32 target_fps{ 160 };
+
+
 	v2f32 last_mouse_window_pos{};
 	f32 yaw{}, pitch{};
 
 	bool was_f2_pressed{};
 
+	struct RenderSettings
+	{
+		u32 MSAA{ 8 };
+
+	} render_settings;
+
 	// Debug
 	bool compute_noise_map{ false };
-
 
 };

@@ -1,14 +1,20 @@
 #include "game.hpp"
 
-#include "gfx_inputManager.hpp"
+#include <thread>
+#include <chrono>
 
-#include "gfx_rayTraversal.hpp"
+#include "gfx/inputManager.hpp"
+
+#include "gfx/rayTraversal.hpp"
 
 
-static std::unique_ptr<Window> init_glfw()
+static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 {
 	if (!glfwInit())
 		return nullptr;
+
+	if (AA)
+		glfwWindowHint(GLFW_SAMPLES, MSAA);
 
 	glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
 
@@ -16,6 +22,8 @@ static std::unique_ptr<Window> init_glfw()
 	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 640, 480 }, "test");
 	window->toggle_cursor();
 
+	if (AA)
+		glEnable(GL_MULTISAMPLE);
 
 	// Must come once the Context Flags have been intialised
 	GLint flags{};
@@ -53,10 +61,12 @@ static DebugMessage init_imgui(Window& window)
 
 DebugMessage Game::run()
 {
-	window = init_glfw();
+	window = init_glfw(true, render_settings.MSAA);
 	if (!window)
 		return DebugMessage{ .msg{"Error::Cannot initialise window"}, .severity{DebugMessage::Critical} };
+	 
 
+	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
 
 
@@ -89,8 +99,10 @@ DebugMessage Game::run()
 	// Main Loop
 	while (window->isOpen())
 	{
-		// Start of Frame
-		delta_time.update();
+		const f32 time_at_frame_start = glfwGetTime();
+
+		delta_time.update(time_at_frame_start);
+		fps = 1.f / delta_time.get();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -108,6 +120,13 @@ DebugMessage Game::run()
 		debug();
 
 		render_on_screen();
+
+
+		auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
+		if (frameExecutionTime < 1.f / target_fps)
+		{
+			std::this_thread::sleep_for(std::chrono::duration<f32>(1.f / target_fps - frameExecutionTime));
+		}
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
@@ -145,7 +164,6 @@ void Game::inputs()
 
 			if (key->scancode == Keys::F4)
 				world.debug.update_world = !world.debug.update_world;
-
 			
 		}
 
@@ -278,8 +296,22 @@ void Game::debug()
 			{
 				const auto player_loc = gfx::World::to_chunkLoc(camera.get_pos());
 
-				ImGui::Text("Camera Pos: %d %d %d", (i32)camera.get_pos().x, (i32)camera.get_pos().y, (i32)camera.get_pos().z);
-				ImGui::Text("Camera Pos: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
+				ImGui::Text("FPS: %f", fps);
+
+				const auto camVoxelPos = gfx::World::to_voxelPos(camera.get_pos());
+				ImGui::Text("Camera Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
+
+				if (auto* c = world.get_chunkGrid().at_chunk(player_loc))
+				{
+					const auto camInChunk = gfx::Chunk::to_voxelLoc(*c, camVoxelPos);
+					ImGui::Text("Camera Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
+					ImGui::Text("Camera In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
+				}
+				else
+					ImGui::Text("No chunk at location");
+
+				ImGui::Text("Camera Discrete: %f %f %f", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
+				
 				ImGui::DragFloat("Speed", &camera.speed);
 
 				ImGui::BeginGroup();
