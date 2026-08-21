@@ -3,7 +3,7 @@
 #include <thread>
 #include <chrono>
 
-#include "gfx/inputManager.hpp"
+#include "sys/inputManager.hpp"
 
 #include "gfx/rayTraversal.hpp"
 
@@ -57,7 +57,6 @@ static DebugMessage init_imgui(Window& window)
 
 	return DebugMessage{ .msg{"Info::ImGui_Init::Successful"}, .severity{DebugMessage::Info} };
 }
-
 
 DebugMessage Game::run()
 {
@@ -136,45 +135,49 @@ DebugMessage Game::run()
 	return DebugMessage{ .msg{"Info::Game ran successfully"}, .severity{DebugMessage::Info} };
 }
 
+
+
 void Game::inputs()
 {
 	static gfx::RayCastResult ray{};
 
-	
 
 	while (auto event = window->poll_event())
 	{
-		
 
-		if (auto key = event->get_if<Event::KeyPressed>())
+		if (auto key = event->get_if<Event::KeyEvent>())
 		{
-			gfx::InputManager::get().update_keys(*key);
+			sys::InputManager::get().add_key_event(*key);
 
-			if (key->scancode == Keys::Escape)
+
+			if (sys::InputManager::pressed(*key, Keys::Escape))
 				window->close();
 
-			if (key->scancode == Keys::F1)
+			if (sys::InputManager::pressed(*key, Keys::F1))
 				window->toggle_cursor();
 
-			if (key->scancode == Keys::F2)
+			if (sys::InputManager::pressed(*key, Keys::F2))
 				world.debug.show_chunk_borders = !world.debug.show_chunk_borders;
 
-			if (key->scancode == Keys::F3)
+			if (sys::InputManager::pressed(*key, Keys::F3))
 				compute_noise_map = true;
 
-			if (key->scancode == Keys::F4)
+			if (sys::InputManager::pressed(*key, Keys::F4))
 				world.debug.update_world = !world.debug.update_world;
 			
 		}
 
-		if (auto mouse = event->get_if<Event::MouseButtonPressed>())
+		if (auto mouse = event->get_if<Event::MouseButtonEvent>())
 		{
-			if (mouse->scancode == MouseButtons::Left)
+			sys::InputManager::get().add_mouseButton_event(*mouse);
+
+
+			if (sys::InputManager::pressed(*mouse, MouseButtons::Left))
 			{
 				if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
 				{
 					ray = *r;
-					auto pos = gfx::World::to_voxelPos(r->pos);
+					auto pos = r->voxel_pos;
 
 					world.set_voxel(pos, gfx::Voxel{ .type_id{} });
 				}
@@ -224,27 +227,31 @@ void Game::inputs()
 	}
 
 	
-	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.pos), { 0, 0, 0 }, 0, false);
-	gfx::line((v3f32)ray.origin, (v3f32)ray.pos, { 1, 1, 1 }, 0, false);
+	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0 }, 0, false);
+	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1 }, 0, false);
 
 
 	if (window->isKeyPressed(Keys::W))
-		camera.move_front(delta_time.get(), camera.speed);
+		player.move(Keys::W, delta_time.get());
 
 	if (window->isKeyPressed(Keys::S))
-		camera.move_back(delta_time.get(), camera.speed);
+		player.move(Keys::S, delta_time.get());
 
 	if (window->isKeyPressed(Keys::D))
-		camera.move_right(delta_time.get(), camera.speed);
+		player.move(Keys::D, delta_time.get());;
 
 	if (window->isKeyPressed(Keys::A))
-		camera.move_left(delta_time.get(), camera.speed);
+		player.move(Keys::A, delta_time.get());
+
 
 	if (window->isKeyPressed(Keys::Space))
-		camera.move_up(delta_time.get(), camera.speed);
+		player.move(Keys::Space, delta_time.get());
 
 	if (window->isKeyPressed(Keys::Left_shift))
-		camera.move_down(delta_time.get(), camera.speed);
+		player.move(Keys::Left_shift, delta_time.get());
+
+
+	sys::InputManager::get().update();
 }
 
 
@@ -254,6 +261,8 @@ void Game::logic()
 	types::chunk_loc player_loc = gfx::World::to_chunkLoc(camera.get_pos());
 
 	world.update_grid(player_loc);
+
+	player.update(delta_time.get());
 }
 
 
@@ -312,7 +321,8 @@ void Game::debug()
 
 				ImGui::Text("Camera Discrete: %f %f %f", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
 				
-				ImGui::DragFloat("Speed", &camera.speed);
+				ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
+				ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
 
 				ImGui::BeginGroup();
 				{

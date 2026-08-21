@@ -20,6 +20,7 @@
 
 #include "gfx/world.hpp"
 
+#include "gfx/player.hpp"
 
 
 
@@ -74,25 +75,27 @@ public:
 
 	gfx::World world{};
 
+	gfx::Player player{ &camera };
+
 
 	class DeltaTime
 	{
 	public:
 
-		f32 get() const noexcept { return dt; }
+		f64 get() const noexcept { return dt; }
 
-		void update(f32 current_time) noexcept
+		void update(f64 current_time) noexcept
 		{
 			dt = current_time - last_frame;
 			last_frame = glfwGetTime();
 		}
 
-		void limit() noexcept { dt = std::min(dt, 1.f / 30.f); }
+		void limit() noexcept { dt = std::min(dt, 1. / 30.); }
 
 	private:
 
-		f32 dt{};
-		f32 last_frame{};
+		f64 dt{};
+		f64 last_frame{};
 	} delta_time;
 
 	f32 fps{};

@@ -129,7 +129,7 @@ namespace gfx
 
 		v2f32 m_framebuffer_size{};
 		types::pos  m_pos{ 0.f, 0.f, 0.f };
-		types::pos  m_updir{ types::pos {0.f, 1.f, 0.f} };
+		types::pos  m_updir{ 0.f, 1.f, 0.f };
 		types::pos  m_frontdir{ 0.f, 0.f, -1.f };
 
 		bool m_update_dirs{ false };

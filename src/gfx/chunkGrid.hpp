@@ -72,23 +72,23 @@ namespace gfx
 		void add_cmeshes(const std::list<types::chunk_loc>& cloc) noexcept
 		{
 			for (const auto& i : cloc)
-				m_waiting_cmesh.push_back(i);
+				m_waiting_cmesh.push_back({ i, false });
 		}
 
 		/// <summary>
 		/// Add the element to the back of the deque
 		/// </summary>
 		/// /// <param name="Location of the chunk"></param>
-		void add_cmesh(const types::chunk_loc& cloc) noexcept
+		void add_cmesh(const types::chunk_loc& cloc, bool keep_updating_whereupon = false) noexcept
 		{
 			m_chunk_meshes.at(cloc).queued = true;
-			m_waiting_cmesh.push_back(cloc);
+			m_waiting_cmesh.push_back({ cloc, keep_updating_whereupon });
 		}
 
-		void add_priority_cmesh(const types::chunk_loc& cloc) noexcept
+		void add_priority_cmesh(const types::chunk_loc& cloc, bool keep_updating_whereupon = false) noexcept
 		{
 			m_chunk_meshes.at(cloc).queued = true;
-			m_waiting_cmesh.push_front(cloc);
+			m_waiting_cmesh.push_front({cloc, keep_updating_whereupon});
 		}
 
 
@@ -166,7 +166,11 @@ namespace gfx
 		std::unordered_map<types::chunk_loc, Chunk> m_chunks{};
 		std::unordered_map<types::chunk_loc, ChunkMesh> m_chunk_meshes{};
 
-		std::deque<types::chunk_loc> m_waiting_cmesh{};
+		/// <summary>
+		/// The first element represents the location of the chunk mesh to be created/updated
+		/// <para>The second element represents whether we should stop updating chunk meshes whereupon </para>
+		/// </summary>
+		std::deque<std::pair<types::chunk_loc, bool>> m_waiting_cmesh{};
 
 		types::chunk_loc old_min{};
 		types::chunk_loc old_max{};

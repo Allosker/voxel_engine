@@ -17,23 +17,19 @@ class Event
 {
 public:
 
-	// = Event definitions
+	enum class ButtonState : i8 { Press, Release };
+
 
 	struct Resized
 	{
 		v2i32 size;
 	};
 
-	struct MouseButtonPressed
+	struct MouseButtonEvent
 	{
 		MouseButtons scancode;
-		KeyboardModes mode;
-	};
-
-	struct MouseButtonReleased
-	{
-		MouseButtons scancode;
-		KeyboardModes mode;
+		ButtonState state;
+		KeyboardModes modes;
 	};
 
 	struct MouseMoved
@@ -46,16 +42,11 @@ public:
 		v2f32 delta;
 	};
 
-	struct KeyPressed
+	struct KeyEvent
 	{
 		Keys scancode;
-		KeyboardModes mode;
-	};
-
-	struct KeyReleased
-	{
-		Keys scancode;
-		KeyboardModes mode;
+		ButtonState state;
+		KeyboardModes modes;
 	};
 
 	
@@ -91,12 +82,10 @@ private:
 
 	std::variant <
 		Resized,
-		MouseButtonPressed,
-		MouseButtonReleased,
+		MouseButtonEvent,
 		MouseMoved,
 		MouseWheelScrolled,
-		KeyPressed,
-		KeyReleased
+		KeyEvent
 	> m_data;
 
 

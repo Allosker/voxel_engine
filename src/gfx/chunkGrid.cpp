@@ -88,13 +88,24 @@ namespace gfx
 
 	bool ChunkGrid::allocate_waiting_cmesh() noexcept
 	{
-		if (m_waiting_cmesh.empty())
-			return false;
+		std::pair<types::chunk_loc, bool> elem{};
 
-		types::chunk_loc loc{ m_waiting_cmesh.front() };
-		m_waiting_cmesh.pop_front();
+		bool successful{ true };
 
-		return update_cmesh(loc);
+		do
+		{
+			if (m_waiting_cmesh.empty())
+				return false;
+
+			elem = m_waiting_cmesh.front();
+			m_waiting_cmesh.pop_front();
+
+			successful = successful && update_cmesh(elem.first);
+
+		} while (elem.second);
+
+
+		return successful;
 	}
 
 	void ChunkGrid::deallocate_chunks(types::chunk_loc cloc, bool override) noexcept

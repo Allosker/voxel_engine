@@ -36,9 +36,9 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	auto* current_window = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
 	if (action == GLFW_PRESS)
-		current_window->add_event(Event::KeyPressed{ static_cast<Keys>(key), static_cast<KeyboardModes>(mods) });
+		current_window->add_event(Event::KeyEvent{ static_cast<Keys>(key), Event::ButtonState::Press, static_cast<KeyboardModes>(mods) });
 	else if (action == GLFW_RELEASE)
-		current_window->add_event(Event::KeyReleased{ static_cast<Keys>(key), static_cast<KeyboardModes>(mods) });
+		current_window->add_event(Event::KeyEvent{ static_cast<Keys>(key), Event::ButtonState::Release, static_cast<KeyboardModes>(mods) });
 }
 
 inline void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) noexcept
@@ -46,7 +46,7 @@ inline void mouse_button_callback(GLFWwindow* window, int button, int action, in
 	auto* current_window = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
 	if (action == GLFW_PRESS)
-		current_window->add_event(Event::MouseButtonPressed{ static_cast<MouseButtons>(button), static_cast<KeyboardModes>(mods) });
+		current_window->add_event(Event::MouseButtonEvent{ static_cast<MouseButtons>(button), Event::ButtonState::Press, static_cast<KeyboardModes>(mods) });
 	else if (action == GLFW_RELEASE)
-		current_window->add_event(Event::MouseButtonReleased{ static_cast<MouseButtons>(button), static_cast<KeyboardModes>(mods) });
+		current_window->add_event(Event::MouseButtonEvent{ static_cast<MouseButtons>(button), Event::ButtonState::Release, static_cast<KeyboardModes>(mods) });
 }

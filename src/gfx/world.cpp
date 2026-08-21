@@ -79,22 +79,22 @@ namespace gfx
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		chunk->at(voxel_l) = new_voxel;
 
-		overworld.add_priority_cmesh(loc);
+		overworld.add_priority_cmesh(loc, true);
 
 		if (voxel_l.z >= Chunk::g_size<i32>.z - 1)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[4]);
+			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[4], true);
 		if (voxel_l.y >= Chunk::g_size<i32>.y - 1)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[2]);
+			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[2], true);
 		if (voxel_l.x >= Chunk::g_size<i32>.x - 1)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[0]);
+			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[0], true);
 		if (voxel_l.z <= 0)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[5]);
+			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[5], true);
 		if (voxel_l.y <= 0)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[3]);
+			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[3], true);
 		if (voxel_l.x <= 0)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[1]);
+			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[1], true);
 
-		// Add after adjacent chunks to have maximum priority
+
 		overworld.add_priority_cmesh(loc);
 
 

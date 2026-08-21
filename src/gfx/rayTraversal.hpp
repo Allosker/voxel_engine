@@ -68,9 +68,10 @@ namespace gfx
 	/// </summary>
 	struct RayCastResult
 	{
-		types::pos origin{};
-		types::pos pos{};
-		types::pos normal{};
+		types::pos			origin{};
+		types::voxel_pos	voxel_pos{};
+		types::pos			hit_pos{};
+		types::pos			normal{};
 	};
 
 	
@@ -86,8 +87,8 @@ namespace gfx
 	{
 		Ray ray{ origin, dir };
 		types::pos normal{};
+		double tMin{};
 
-		
 		types::chunk_loc ray_loc{ World::to_chunkLoc(origin) };
 		types::chunk_loc old_loc{};
 
@@ -116,20 +117,23 @@ namespace gfx
 			if (auto* v = chunk->at_ptr(vloc))
 				if (VoxelTypeManager::get().get_type(v->type_id).is_solid)
 				{
-					return std::make_optional<RayCastResult>({ origin, ray.pos, normal });
+					tMin += 0.0001f;
+					const auto hitPos = origin + dir * tMin;
+					return std::make_optional<RayCastResult>(origin, World::to_voxelPos(ray.pos), hitPos, normal);
 				}
-
 
 			if (ray.tMax.x < ray.tMax.y)
 			{
 				if (ray.tMax.x < ray.tMax.z)
 				{
+					tMin = ray.tMax.x;
 					ray.pos.x += ray.step.x;
 					ray.tMax.x += ray.tDelta.x;
 					normal = { -ray.step.x, 0., 0. };
 				}
 				else
 				{
+					tMin = ray.tMax.z;
 					ray.pos.z += ray.step.z;
 					ray.tMax.z += ray.tDelta.z;
 					normal = { 0., 0., -ray.step.z };
@@ -139,18 +143,19 @@ namespace gfx
 			{
 				if (ray.tMax.y < ray.tMax.z)
 				{
+					tMin = ray.tMax.y;
 					ray.pos.y += ray.step.y;
 					ray.tMax.y += ray.tDelta.y;
 					normal = { 0., -ray.step.y, 0. };
 				}
 				else
 				{
+					tMin = ray.tMax.z;
 					ray.pos.z += ray.step.z;
 					ray.tMax.z += ray.tDelta.z;
 					normal = { 0., 0., -ray.step.z };
 				}
 			}
-
 		}
 
 		return std::nullopt;

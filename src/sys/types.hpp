@@ -133,25 +133,25 @@ inline I integer_div_floor(I a, I b) noexcept
 namespace types
 {
 
-	// Voxels
-
 	using type_id = u16;
 	using rgbs = u16;
-	
 
-	// Chunks
 
 	using chunk_loc = v3i64;
+	/// <summary>
+	/// Voxel absolute position within a chunk
+	/// </summary>
 	using voxel_loc = v3u16;
 
-
-	// world
-
+	/// <summary>
+	/// World absolute position
+	/// </summary>
 	using voxel_pos = v3i64;
+	/// <summary>
+	/// World discrete position
+	/// </summary>
 	using pos = v3f64;
 
-
-	// 2D/3D
 
 	template<typename T>
 	struct Rect
@@ -160,6 +160,9 @@ namespace types
 		T size;
 	};
 
+	/// <summary>
+	/// 2D world discrete position
+	/// </summary>
 	using pos2d = v2f32;
 
 

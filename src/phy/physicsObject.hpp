@@ -2,12 +2,12 @@
 /* -- All Rights Reserved: Allosker 2026
 * https://github.com/Allosker/voxel_engine/blob/main/license.txt
 * ==============================================-
-*	Define a basic struct that any physic object can inherit from and be treated by the engine
+*	Define a basic Physics Object with specific attributes that can interact with other physics objects
 * ==============================================-
 */
 
 
-#include "transformable3D.hpp"
+#include "gfx/transformable3D.hpp"
 
 #include "hitboxAABB.hpp"
 
@@ -30,6 +30,9 @@ namespace phy
 			: m_hitbox{ pos, size }, m_material{ material }
 		{
 		}
+
+		DEFAULT_COPY_INIT(PhysicsObject);
+		DEFAULT_MOVE_INIT(PhysicsObject);
 
 
 	private:
