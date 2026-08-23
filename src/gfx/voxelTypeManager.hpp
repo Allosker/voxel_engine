@@ -45,7 +45,7 @@ namespace gfx
 		explicit VoxelTypeManager() noexcept
 		{
 			m_voxel_types.push_back({ .name{"air"}, .is_transparent{true}, .is_solid{ false } });
-			m_voxel_types.push_back({ "stone" });
+			m_voxel_types.push_back({ .name{"stone"}, .has_bounds{ true } });
 		}
 
 

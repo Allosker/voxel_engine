@@ -79,23 +79,47 @@ namespace gfx
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		chunk->at(voxel_l) = new_voxel;
 
-		overworld.add_priority_cmesh(loc, true);
+		
 
-		if (voxel_l.z >= Chunk::g_size<i32>.z - 1)
+		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[4], true);
-		if (voxel_l.y >= Chunk::g_size<i32>.y - 1)
+		if (voxel_l.y == Chunk::g_size<i32>.y - 1)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[2], true);
-		if (voxel_l.x >= Chunk::g_size<i32>.x - 1)
+		if (voxel_l.x == Chunk::g_size<i32>.x - 1)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[0], true);
-		if (voxel_l.z <= 0)
+		if (voxel_l.z == 0)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[5], true);
-		if (voxel_l.y <= 0)
+		if (voxel_l.y == 0)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[3], true);
-		if (voxel_l.x <= 0)
+		if (voxel_l.x == 0)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[1], true);
 
 
-		overworld.add_priority_cmesh(loc);
+		overworld.add_priority_cmesh(loc, true);
+		
+
+		// Represent each direction index
+		const auto check_all_dirs = [&](const size_t i, const size_t first, const size_t second, const size_t i2, const size_t first2, const size_t second2)
+			{
+				if (voxel_l[i] == Chunk::g_size<i32>[i] - 1 && voxel_l[i2] == Chunk::g_size<i32>[i2] - 1)
+					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[first] + Chunk::dirs<i64>[first2]);
+				if (voxel_l[i] == Chunk::g_size<i32>[i] - 1 && voxel_l[i2] == 0)
+					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[first] + Chunk::dirs<i64>[second2]);
+
+				if (voxel_l[i] == 0 && voxel_l[i2] == Chunk::g_size<i32>[i2] - 1)
+					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[first2]);
+				if (voxel_l[i] == 0 && voxel_l[i2] == 0)
+					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[second2]);
+			};
+
+		check_all_dirs(2, 4, 5, 1, 2, 3); 
+		check_all_dirs(2, 4, 5, 0, 0, 1); 
+
+		check_all_dirs(1, 2, 3, 0, 0, 1); 
+		check_all_dirs(1, 2, 3, 2, 4, 5); 
+
+		check_all_dirs(0, 0, 1, 2, 4, 5); 
+		check_all_dirs(0, 0, 1, 1, 2, 3); 
 
 
 		return true;

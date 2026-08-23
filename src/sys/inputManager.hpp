@@ -91,22 +91,22 @@ namespace sys
 		}
 
 
-		static bool pressed(Event::KeyEvent event, Keys scancode, KeyboardModes modes = {}) noexcept
+		static bool pressed(Event::KeyEvent event, Keys scancode, Modifiers modes = {}) noexcept
 		{
 			return event.state == Event::ButtonState::Press && scancode == event.scancode && (static_cast<bool>(modes) ? static_cast<u8>(modes) & static_cast<u8>(event.modes) : true);
 		}
 
-		static bool released(Event::KeyEvent event, Keys scancode, KeyboardModes modes = {}) noexcept
+		static bool released(Event::KeyEvent event, Keys scancode, Modifiers modes = {}) noexcept
 		{
 			return event.state == Event::ButtonState::Release && scancode == event.scancode && (static_cast<bool>(modes) ? static_cast<u8>(modes) & static_cast<u8>(event.modes) : true);
 		}
 
-		static bool pressed(Event::MouseButtonEvent event, MouseButtons scancode, KeyboardModes modes = {}) noexcept
+		static bool pressed(Event::MouseButtonEvent event, MouseButtons scancode, Modifiers modes = {}) noexcept
 		{
 			return event.state == Event::ButtonState::Press && scancode == event.scancode && (static_cast<bool>(modes) ? static_cast<u8>(modes) & static_cast<u8>(event.modes) : true);
 		}
 
-		static bool released(Event::MouseButtonEvent event, MouseButtons scancode, KeyboardModes modes = {}) noexcept
+		static bool released(Event::MouseButtonEvent event, MouseButtons scancode, Modifiers modes = {}) noexcept
 		{
 			return event.state == Event::ButtonState::Release && scancode == event.scancode && (static_cast<bool>(modes) ? static_cast<u8>(modes) & static_cast<u8>(event.modes) : true);
 		}

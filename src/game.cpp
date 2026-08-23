@@ -102,6 +102,8 @@ DebugMessage Game::run()
 
 		delta_time.update(time_at_frame_start);
 		fps = 1.f / delta_time.get();
+		delta_time.limit();
+
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -109,14 +111,16 @@ DebugMessage Game::run()
 
 		gfx::DebugRenderer::get().update(glfwGetTime());
 
-		window->clear_states(); 
+		window->clear_states();
 
 
 		inputs();
 
-		logic();
+		if (!runtime_settings.paused)
+			logic();
 
 		debug();
+		
 
 		render_on_screen();
 
@@ -144,10 +148,21 @@ void Game::inputs()
 
 	while (auto event = window->poll_event())
 	{
+		if (auto focus_changed = event->get_if<Event::FocusChanged>())
+			if (focus_changed->focus)
+				runtime_settings.paused = false;
+			else
+				runtime_settings.paused = true;
+
+		if (auto f = event->get_if<Event::Resized>())
+		{
+			camera.set_FBS(f->size);
+		}
 
 		if (auto key = event->get_if<Event::KeyEvent>())
 		{
-			sys::InputManager::get().add_key_event(*key);
+			if (!runtime_settings.paused)
+				sys::InputManager::get().add_key_event(*key);
 
 
 			if (sys::InputManager::pressed(*key, Keys::Escape))
@@ -167,6 +182,9 @@ void Game::inputs()
 			
 		}
 
+		if (runtime_settings.paused)
+			return;
+
 		if (auto mouse = event->get_if<Event::MouseButtonEvent>())
 		{
 			sys::InputManager::get().add_mouseButton_event(*mouse);
@@ -182,12 +200,6 @@ void Game::inputs()
 					world.set_voxel(pos, gfx::Voxel{ .type_id{} });
 				}
 			}
-		}
-
-
-		if (auto f = event->get_if<Event::Resized>())
-		{
-			camera.set_FBS(f->size);
 		}
 
 		if (auto p = event->get_if<Event::MouseMoved>())
@@ -262,7 +274,7 @@ void Game::logic()
 
 	world.update_grid(player_loc);
 
-	player.update(delta_time.get());
+	player.update(world, delta_time.get());
 }
 
 
@@ -276,6 +288,7 @@ void Game::debug()
 	{
 		static bool show_general{ true };
 		static bool show_tg{};
+		static bool show_player{};
 
 		// Clear Inputs when window->cursor can't be seen, avoids weird behaviours
 		if (window->isCursorHidden())
@@ -292,6 +305,7 @@ void Game::debug()
 			{
 				ImGui::MenuItem("General", nullptr, &show_general);
 				ImGui::MenuItem("Terrain Generation", nullptr, &show_tg);
+				ImGui::MenuItem("Player Settings", nullptr, &show_player);
 
 				ImGui::EndMenu();
 			}
@@ -303,26 +317,24 @@ void Game::debug()
 		{
 			if (ImGui::Begin("General"/*nullptr, ImGuiWindowFlags_MenuBar*/))
 			{
-				const auto player_loc = gfx::World::to_chunkLoc(camera.get_pos());
+				const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
 
 				ImGui::Text("FPS: %f", fps);
 
-				const auto camVoxelPos = gfx::World::to_voxelPos(camera.get_pos());
-				ImGui::Text("Camera Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
+				const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
+				ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
 
 				if (auto* c = world.get_chunkGrid().at_chunk(player_loc))
 				{
 					const auto camInChunk = gfx::Chunk::to_voxelLoc(*c, camVoxelPos);
-					ImGui::Text("Camera Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
-					ImGui::Text("Camera In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
+					ImGui::Text("Pos Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
+					ImGui::Text("Pos In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
 				}
 				else
 					ImGui::Text("No chunk at location");
 
-				ImGui::Text("Camera Discrete: %f %f %f", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
+				ImGui::Text("Pos Discrete: %f %f %f", player.get_pos().x, player.get_pos().y, player.get_pos().z);
 				
-				ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
-				ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
 
 				ImGui::BeginGroup();
 				{
@@ -381,6 +393,27 @@ void Game::debug()
 				static float scale{ 10.f };
 				ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
 				ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
+			}
+			ImGui::End();
+		}
+
+		if (show_player)
+		{
+			if (ImGui::Begin("Player"))
+			{
+				ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
+				ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
+				ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
+
+				ImGui::Checkbox("Flying", &player.m_mov.flying);
+				ImGui::Checkbox("Ghost", &player.m_mov.ghost);
+				ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
+
+				ImGui::Text("Other Settings");
+
+				ImGui::DragScalar("Jump Height", ImGuiDataType_Double, &player.m_mov.jump_height);
+				ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
+
 			}
 			ImGui::End();
 		}

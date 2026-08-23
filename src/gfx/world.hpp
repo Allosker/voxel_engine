@@ -45,6 +45,7 @@ namespace gfx
 
 
 		ChunkGrid& get_chunkGrid() noexcept { return overworld; }
+		const ChunkGrid& get_chunkGrid() const noexcept { return overworld; }
 
 
 		static types::chunk_loc to_chunkLoc(const types::pos& pos) noexcept
@@ -81,6 +82,9 @@ namespace gfx
 
 
 		gfx::TerrainGenContext/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
+
+		f64 gravity{ -9.81 };
+
 
 	private:
 		

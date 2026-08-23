@@ -29,7 +29,7 @@ public:
 	{
 		MouseButtons scancode;
 		ButtonState state;
-		KeyboardModes modes;
+		Modifiers modes;
 	};
 
 	struct MouseMoved
@@ -46,7 +46,12 @@ public:
 	{
 		Keys scancode;
 		ButtonState state;
-		KeyboardModes modes;
+		Modifiers modes;
+	};
+
+	struct FocusChanged
+	{
+		bool focus;
 	};
 
 	
@@ -85,7 +90,8 @@ private:
 		MouseButtonEvent,
 		MouseMoved,
 		MouseWheelScrolled,
-		KeyEvent
+		KeyEvent,
+		FocusChanged
 	> m_data;
 
 

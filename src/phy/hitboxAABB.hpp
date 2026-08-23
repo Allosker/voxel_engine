@@ -14,13 +14,19 @@ namespace phy
 
 	/// <summary>
 	/// Basic AABB hitbox that considers an origin and a size, positive direction goes towards +inf
+	/// <para>Note: the origin is considered to be the middle point</para>
 	/// </summary>
 	class HitboxAABB
 	{
 	public:
 
-		HitboxAABB(const types::pos& ori, const v3f64& size = { 1. })
-			: m_min{ ori }, m_max{ ori + size }
+		HitboxAABB(const types::pos& ori, const v3f64& extent = { 1. }) noexcept
+			: m_positive_extent{ extent }, m_negative_extent{ extent }, m_min{ ori - m_negative_extent }, m_max{ ori + m_positive_extent }
+		{
+		}
+
+		HitboxAABB(const types::pos& ori, const v3f64& negative_extent, const v3f64& positive_extent) noexcept
+			: m_positive_extent{ positive_extent }, m_negative_extent{ negative_extent }, m_min{ ori - m_negative_extent }, m_max{ ori + m_positive_extent }
 		{
 		}
 
@@ -32,32 +38,42 @@ namespace phy
 		~HitboxAABB() noexcept = default;
 
 
-		v3f64 get_size() const noexcept { return m_max - m_min; }
-		v3f64 get_pos() const noexcept { return m_min; }
-		v3f64 get_middlePoint() const noexcept { return m_min + get_size() / 2.; }
+		v3f64 get_positive_extent() const noexcept { return m_positive_extent; }
+		v3f64 get_negative_extent() const noexcept { return m_negative_extent; }
+
+		v3f64 get_pos() const noexcept { return m_min + get_negative_extent(); }
+
+		v3f64 get_min() const noexcept { return m_min; }
+		v3f64 get_max() const noexcept { return m_max; }
 
 
 		void set_pos(const types::pos& pos) noexcept
 		{
-			m_max = pos + get_size();
-			m_min = pos;
+			m_min = pos - get_negative_extent();
+			m_max = pos + get_positive_extent();
 		}
 
-		void set_size(const v3f64& size) noexcept
+		void set_extent(const v3f64& extent) noexcept
 		{
-			m_max = m_min + size;
+			m_min = m_min + get_negative_extent() - extent;
+			m_max = m_max - get_positive_extent() + extent;
+
+			m_positive_extent = m_negative_extent = extent;
+		}
+
+		void set_extent(const v3f64& negative_extent, const v3f64& positive_extent) noexcept
+		{
+			m_min = m_min + get_negative_extent() - negative_extent;
+			m_max = m_max - get_positive_extent() + positive_extent;
+
+			m_negative_extent = negative_extent;
+			m_positive_extent = positive_extent;
 		}
 
 
 		void move(const types::pos& offset) noexcept
 		{
-			set_pos(m_min + offset);
-		}
-
-		void scale(const v3f64& factor) noexcept
-		{
-			const auto size = get_size();
-			set_size({ size.x * factor.x, size.y * factor.y, size.z * factor.z });
+			set_pos(get_pos() + offset);
 		}
 
 		/// <summary>
@@ -143,6 +159,9 @@ namespace phy
 
 		v3f64 m_min{};
 		v3f64 m_max{};
+
+		v3f64 m_positive_extent{};
+		v3f64 m_negative_extent{};
 
 	};
 

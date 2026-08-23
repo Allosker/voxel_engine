@@ -321,6 +321,85 @@ namespace gfx
 		renderer.addLine(corners[3], corners[7], color, duration, foreground);
 	}
 
+	/// <param name="center"></param>
+	/// <param name="negative_extent"></param>
+	/// <param name="positive_extent"></param>
+	/// <param name="color"></param>
+	/// <param name="duration"></param>
+	/// <param name="foreground"></param>
+	inline void aabb(v3f32 center, v3f32 negative_extent, v3f32 positive_extent, v3f32 color, float duration = 0.f, bool foreground = true)
+	{
+		const auto min = center - negative_extent;
+		const auto max = center + positive_extent;
+
+		const v3f32 corners[] = {
+			{min.x, min.y, min.z}, // base corner
+			{min.x, max.y, min.z}, // upper base
+			{max.x, max.y, min.z}, // upper left
+			{max.x, min.y, min.z}, // lower left
+
+			{min.x, min.y, max.z}, // front
+			{min.x, max.y, max.z}, // upper front
+			{max.x, max.y, max.z}, // opposite
+			{max.x, min.y, max.z}, // left front
+		};
+
+		auto& renderer = gfx::DebugRenderer::get();
+
+		renderer.addLine(corners[0], corners[1], color, duration, foreground);
+		renderer.addLine(corners[1], corners[2], color, duration, foreground);
+		renderer.addLine(corners[2], corners[3], color, duration, foreground);
+		renderer.addLine(corners[3], corners[0], color, duration, foreground);
+
+		renderer.addLine(corners[4], corners[5], color, duration, foreground);
+		renderer.addLine(corners[5], corners[6], color, duration, foreground);
+		renderer.addLine(corners[6], corners[7], color, duration, foreground);
+		renderer.addLine(corners[7], corners[4], color, duration, foreground);
+
+		renderer.addLine(corners[0], corners[4], color, duration, foreground);
+		renderer.addLine(corners[1], corners[5], color, duration, foreground);
+		renderer.addLine(corners[2], corners[6], color, duration, foreground);
+		renderer.addLine(corners[3], corners[7], color, duration, foreground);
+	}
+
+	/// <param name="min"></param>
+	/// <param name="max"></param>
+	/// <param name="color"></param>
+	/// <param name="duration"></param>
+	/// <param name="foreground"></param>
+	inline void aabb_min_max(v3f32 min, v3f32 max, v3f32 color, float duration = 0.f, bool foreground = true)
+	{
+		const v3f32 corners[] = {
+			{min.x, min.y, min.z}, // base corner
+			{min.x, max.y, min.z}, // upper base
+			{max.x, max.y, min.z}, // upper left
+			{max.x, min.y, min.z}, // lower left
+
+			{min.x, min.y, max.z}, // front
+			{min.x, max.y, max.z}, // upper front
+			{max.x, max.y, max.z}, // opposite
+			{max.x, min.y, max.z}, // left front
+		};
+
+		auto& renderer = gfx::DebugRenderer::get();
+
+		renderer.addLine(corners[0], corners[1], color, duration, foreground);
+		renderer.addLine(corners[1], corners[2], color, duration, foreground);
+		renderer.addLine(corners[2], corners[3], color, duration, foreground);
+		renderer.addLine(corners[3], corners[0], color, duration, foreground);
+
+		renderer.addLine(corners[4], corners[5], color, duration, foreground);
+		renderer.addLine(corners[5], corners[6], color, duration, foreground);
+		renderer.addLine(corners[6], corners[7], color, duration, foreground);
+		renderer.addLine(corners[7], corners[4], color, duration, foreground);
+
+		renderer.addLine(corners[0], corners[4], color, duration, foreground);
+		renderer.addLine(corners[1], corners[5], color, duration, foreground);
+		renderer.addLine(corners[2], corners[6], color, duration, foreground);
+		renderer.addLine(corners[3], corners[7], color, duration, foreground);
+	}
+
+
 	/// <param name="start"></param>
 	/// <param name="end"></param>
 	/// <param name="color"></param>

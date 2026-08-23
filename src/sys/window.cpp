@@ -32,6 +32,7 @@ Window::Window(const v2i32& size_, const std::string& name, GLFWmonitor* monitor
 	glfwSetScrollCallback(m_window, scroll_callback);
 	glfwSetKeyCallback(m_window, key_callback);
 	glfwSetMouseButtonCallback(m_window, mouse_button_callback);
+	glfwSetWindowFocusCallback(m_window, window_focus_callback);
 
 
 	glfwGetFramebufferSize(m_window, &m_size.x, &m_size.y);
@@ -61,10 +62,10 @@ void Window::clear_states() noexcept
 
 bool Window::toggle_cursor() noexcept
 {
-	m_cursorHidden = !m_cursorHidden;
+	m_cursor_hidden = !m_cursor_hidden;
 
-	glfwSetInputMode(m_window, GLFW_CURSOR, m_cursorHidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-	return m_cursorHidden;
+	glfwSetInputMode(m_window, GLFW_CURSOR, m_cursor_hidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+	return m_cursor_hidden;
 }
 
 

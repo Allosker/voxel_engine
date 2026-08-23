@@ -98,6 +98,12 @@ public:
 		f64 last_frame{};
 	} delta_time;
 
+
+	struct RuntimeSettings
+	{
+		bool paused{ false };
+	} runtime_settings;
+
 	f32 fps{};
 	f32 target_fps{ 160 };
 

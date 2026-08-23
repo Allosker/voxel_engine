@@ -81,7 +81,7 @@ public:
 
 	bool isOpen() const noexcept { return !glfwWindowShouldClose(m_window); }
 
-	bool isCursorHidden() const noexcept { return m_cursorHidden; }
+	bool isCursorHidden() const noexcept { return m_cursor_hidden; }
 
 	bool isKeyPressed(Keys key) const noexcept { return glfwGetKey(m_window, static_cast<int>(key)) == GLFW_PRESS; }
 	bool isKeyReleased(Keys key) const noexcept { return glfwGetKey(m_window, static_cast<int>(key)) == GLFW_RELEASE; }
@@ -105,17 +105,12 @@ public:
 
 private:
 
-	
-
-	
-
 	std::queue<Event> m_queue_events{};
 
 	GLFWwindow* m_window{ nullptr };
 
 	v2i32 m_size{};
 
-	bool m_cursorHidden{ true };
-
+	bool m_cursor_hidden{ true };
 
 };

@@ -23,6 +23,7 @@ namespace gfx
 
 		bool is_transparent{ false };
 		bool is_solid{ true };
+		bool has_bounds{ false };
 
 	};
 

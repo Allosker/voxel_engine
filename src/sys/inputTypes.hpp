@@ -155,7 +155,7 @@ enum class MouseButtons
 };
 
 /* Modifier States: mode & mode & mode...*/
-enum class KeyboardModes
+enum class Modifiers
 	: u8
 {
 	Shift =		GLFW_MOD_SHIFT,

@@ -6,13 +6,17 @@
 * ==============================================-
 */
 
-#include "sys/types.hpp"
 #include "sys/inputTypes.hpp"
+#include "sys/types.hpp"
 
 #include "camera.hpp"
 #include "world.hpp"
 
 #include "transformable3D.hpp"
+
+#include "phy/hitboxAABB.hpp"
+
+#include "debugRenderer.hpp"
 
 
 namespace gfx
@@ -23,9 +27,11 @@ namespace gfx
 	public:
 
 		Player(Camera* cam)
-			: m_cam{ cam }
+			: m_cam{ cam }, m_hitbox{ cam->get_pos(), { 0.5, 1.7, 0.5 }, { 0.5, 0.1, 0.5 } }
 		{ }
 
+
+		const types::pos& get_pos() const noexcept { return m_trans.get_pos(); }
 
 		void set_camera(Camera* cam) noexcept
 		{
@@ -36,21 +42,28 @@ namespace gfx
 		{
 			m_trans.set_pos(new_pos);
 
+			m_hitbox.set_pos(m_trans.get_pos());
 			m_cam->set_pos(m_trans.get_pos());
 		}
 
 
 		void move(Keys key, f64 dt) noexcept;
 
-		void update(f64 dt) noexcept
+		void update(const World& world, f64 dt) noexcept
 		{
-			update_position(dt);
+			update_position(world, dt);
+			resolve_collisions(world, dt);
+
+			if (debug.show_hitbox)
+				aabb_min_max((v3f32)m_hitbox.get_min(), (v3f32)m_hitbox.get_max(), { 1, 0, 0 }, 0., false);
 		}
 
 
 	private:
 
-		void update_position(f64 dt) noexcept;
+		void update_position(const World& world, f64 dt) noexcept;
+
+		void resolve_collisions(const World& world, f64 dt) noexcept;
 
 
 	private:
@@ -62,6 +75,8 @@ namespace gfx
 		Camera* m_cam{ nullptr };
 
 		Transformable3D m_trans{};
+
+		phy::HitboxAABB m_hitbox;
 
 
 	public: // for debug
@@ -78,13 +93,17 @@ namespace gfx
 			f64 friction{ 10. };
 
 			bool flying{ true };
-			bool ghost{};
+			bool ghost{ true };
 			bool moving_hor{};
 			bool moving_ver{};
 
 		} m_mov;
 	
 
+		struct Debug
+		{
+			bool show_hitbox{};
+		} debug;
 	};
 
 

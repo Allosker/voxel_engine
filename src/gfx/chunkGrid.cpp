@@ -95,12 +95,12 @@ namespace gfx
 		do
 		{
 			if (m_waiting_cmesh.empty())
-				return false;
+				return successful;
 
 			elem = m_waiting_cmesh.front();
 			m_waiting_cmesh.pop_front();
 
-			successful = successful && update_cmesh(elem.first);
+			successful = update_cmesh(elem.first) && successful;
 
 		} while (elem.second);
 
