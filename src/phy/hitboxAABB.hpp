@@ -21,14 +21,8 @@ namespace phy
 	public:
 
 		HitboxAABB(const types::pos& ori, const v3f64& extent = { 1. }) noexcept
-			: m_positive_extent{ extent }, m_negative_extent{ extent }, m_min{ ori - m_negative_extent }, m_max{ ori + m_positive_extent }
-		{
-		}
-
-		HitboxAABB(const types::pos& ori, const v3f64& negative_extent, const v3f64& positive_extent) noexcept
-			: m_positive_extent{ positive_extent }, m_negative_extent{ negative_extent }, m_min{ ori - m_negative_extent }, m_max{ ori + m_positive_extent }
-		{
-		}
+			: m_extent{ extent }, m_min{ ori - m_extent }, m_max{ ori + m_extent }
+		{}
 
 		DEFAULT_COPY_INIT(HitboxAABB);
 		DEFAULT_MOVE_INIT(HitboxAABB);
@@ -38,10 +32,9 @@ namespace phy
 		~HitboxAABB() noexcept = default;
 
 
-		v3f64 get_positive_extent() const noexcept { return m_positive_extent; }
-		v3f64 get_negative_extent() const noexcept { return m_negative_extent; }
+		v3f64 get_extent() const noexcept { return m_extent; }
 
-		v3f64 get_pos() const noexcept { return m_min + get_negative_extent(); }
+		v3f64 get_pos() const noexcept { return m_min + get_extent(); }
 
 		v3f64 get_min() const noexcept { return m_min; }
 		v3f64 get_max() const noexcept { return m_max; }
@@ -49,25 +42,16 @@ namespace phy
 
 		void set_pos(const types::pos& pos) noexcept
 		{
-			m_min = pos - get_negative_extent();
-			m_max = pos + get_positive_extent();
+			m_min = pos - get_extent();
+			m_max = pos + get_extent();
 		}
 
 		void set_extent(const v3f64& extent) noexcept
 		{
-			m_min = m_min + get_negative_extent() - extent;
-			m_max = m_max - get_positive_extent() + extent;
+			m_min = m_min + get_extent() - extent;
+			m_max = m_max - get_extent() + extent;
 
-			m_positive_extent = m_negative_extent = extent;
-		}
-
-		void set_extent(const v3f64& negative_extent, const v3f64& positive_extent) noexcept
-		{
-			m_min = m_min + get_negative_extent() - negative_extent;
-			m_max = m_max - get_positive_extent() + positive_extent;
-
-			m_negative_extent = negative_extent;
-			m_positive_extent = positive_extent;
+			m_extent = extent;
 		}
 
 
@@ -160,8 +144,8 @@ namespace phy
 		v3f64 m_min{};
 		v3f64 m_max{};
 
-		v3f64 m_positive_extent{};
-		v3f64 m_negative_extent{};
+		v3f64 m_extent{};
+
 
 	};
 

@@ -82,42 +82,40 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 
 	std::vector<types::voxel_pos> voxel_positions;
 
-	const auto flooredPosMin{ static_cast<v3i64>(mpml::floor(m_hitbox.get_min())) };
-	const auto flooredPosMax{ static_cast<v3i64>(mpml::floor(m_hitbox.get_max())) };
-
-	for (i64 x{ flooredPosMin.x }; x <= flooredPosMax.x; x++)
-		for (i64 y{ flooredPosMin.y }; y <= flooredPosMax.y; y++)
-			for (i64 z{ flooredPosMin.z }; z <= flooredPosMax.z; z++)
-				voxel_positions.emplace_back(types::voxel_pos{ x, y, z });
+	const auto flooredPosMin{ World::to_voxelPos(m_hitbox.get_min()) };
+	const auto flooredPosMax{ World::to_voxelPos(m_hitbox.get_max()) };
 
 
 
 	const Chunk* chunk = nullptr;
+	const Chunk* outter_chunk = nullptr;
 
-	for (const auto& pos : voxel_positions)
+	for (i64 x{ flooredPosMin.x }; x <= flooredPosMax.x; x++)
+	for (i64 y{ flooredPosMin.y }; y <= flooredPosMax.y; y++)
+	for (i64 z{ flooredPosMin.z }; z <= flooredPosMax.z; z++)
 	{
-		auto chunk_loc = World::to_chunkLoc(pos);
+		const types::voxel_pos pos{ x, y, z };
+
+		const auto chunk_loc = World::to_chunkLoc(pos);
 		chunk = world.get_chunkGrid().at_chunk(chunk_loc);
 
 		if (!chunk)
 			continue;
 
+
 		if (const auto* vptr{ chunk->at_ptr(Chunk::to_voxelLoc(*chunk, pos)) };
 			vptr && VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
 		{
-			phy::HitboxAABB voxel{ static_cast<v3f64>(pos), {1.} };
-			aabb((v3f32)pos, { 1. }, { 1, 1, 1 }, 0., false);
+			phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, { 0.5 } };
+			aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 1, 1, 1 }, 0., false);
 
 
-			if (m_hitbox.intersects(voxel))
+			//if (m_hitbox.intersects(voxel))
 			{
 				auto offset = m_hitbox.get_MTV(voxel);
 
 				if (offset.x == 0. && offset.y == 0. && offset.z == 0.) continue;
 
-
-				/*if (world.block_at(pos - types::voxel_pos{ offset.normal() }))
-					offset = {};*/
 
 				if (offset.y != 0)
 					m_mov.velocity.y = 0;

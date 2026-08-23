@@ -81,13 +81,15 @@ namespace gfx
 		/// /// <param name="Location of the chunk"></param>
 		void add_cmesh(const types::chunk_loc& cloc, bool keep_updating_whereupon = false) noexcept
 		{
-			m_chunk_meshes.at(cloc).queued = true;
+			if (auto l = m_chunk_meshes.find(cloc); l != m_chunk_meshes.end())
+				l->second.queued = true;
 			m_waiting_cmesh.push_back({ cloc, keep_updating_whereupon });
 		}
 
 		void add_priority_cmesh(const types::chunk_loc& cloc, bool keep_updating_whereupon = false) noexcept
 		{
-			m_chunk_meshes.at(cloc).queued = true;
+			if (auto l = m_chunk_meshes.find(cloc); l != m_chunk_meshes.end())
+				l->second.queued = true;
 			m_waiting_cmesh.push_front({cloc, keep_updating_whereupon});
 		}
 

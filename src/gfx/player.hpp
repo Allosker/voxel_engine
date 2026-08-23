@@ -27,7 +27,7 @@ namespace gfx
 	public:
 
 		Player(Camera* cam)
-			: m_cam{ cam }, m_hitbox{ cam->get_pos(), { 0.5, 1.7, 0.5 }, { 0.5, 0.1, 0.5 } }
+			: m_cam{ cam }, m_hitbox{ cam->get_pos() + v3f64{ 0., -1.7, 0. }, { 0.25, 1.8, 0.25 }}
 		{ }
 
 
@@ -42,7 +42,7 @@ namespace gfx
 		{
 			m_trans.set_pos(new_pos);
 
-			m_hitbox.set_pos(m_trans.get_pos());
+			m_hitbox.set_pos(m_trans.get_pos() + v3f64{ 0., -1.7, 0. });
 			m_cam->set_pos(m_trans.get_pos());
 		}
 
