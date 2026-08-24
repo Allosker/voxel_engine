@@ -30,6 +30,7 @@ namespace gfx
 
 		void generate_world(const std::list<types::chunk_loc>& clocs) noexcept;
 
+		Voxel get_voxel(types::voxel_pos voxel_p) const noexcept;
 		bool set_voxel(types::voxel_pos voxel_p, Voxel new_voxel) noexcept;
 
 		std::optional<RayCastResult> raycast(const types::pos& origin, const types::pos& dir, u64 max_length) noexcept;
