@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "chunk.hpp"
-#include "voxelTypeManager.hpp"
+#include "voxelType.hpp"
 
 
 void gfx::Player::move(Keys key, f64 dt) noexcept
@@ -110,7 +110,7 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 			aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 1, 1, 1 }, 0., false);
 
 
-			//if (m_hitbox.intersects(voxel))
+			if (m_hitbox.intersects(voxel))
 			{
 				auto offset = m_hitbox.get_MTV(voxel);
 

@@ -33,6 +33,12 @@ namespace gfx
 
 		Texture(const Image& image, Type type = tex2D);
 
+
+		DELETE_COPY_INIT(Texture);
+
+		Texture(Texture&& other) noexcept;
+		Texture& operator=(Texture&& other) noexcept;
+
 		~Texture() noexcept;
 
 
@@ -51,7 +57,7 @@ namespace gfx
 
 	// = Getters
 
-		GLuint ID() const noexcept { return m_tex; }
+		GLuint ID() const noexcept { return m_id; }
 
 		v2f32 getSize() const noexcept { return v2f32{ static_cast<float>(m_width), static_cast<float>(m_height) }; }
 
@@ -62,7 +68,7 @@ namespace gfx
 
 		std::int32_t m_width{}, m_height{};
 
-		GLuint m_tex{};
+		GLuint m_id{};
 
 	};
 

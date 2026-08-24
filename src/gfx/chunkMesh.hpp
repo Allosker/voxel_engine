@@ -170,7 +170,7 @@ namespace gfx
         };
 
         // Ambient Occlusion values in range [0;1] representing each stage (right to left)
-        static constexpr std::array<float, 4> ao_values{ 0.7f, 0.8f, 0.9f, 1.f }; 
+        static constexpr std::array<float, 4> ao_values{ 0.85f, 0.9f, 0.95f, 1.f }; 
 
 		bool queued{};
 

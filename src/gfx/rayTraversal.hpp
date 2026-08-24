@@ -11,7 +11,7 @@
 #include "sys/types.hpp"
 
 #include "chunkGrid.hpp"
-#include "voxelTypeManager.hpp"
+#include "voxelType.hpp"
 #include "world.hpp"
 
 

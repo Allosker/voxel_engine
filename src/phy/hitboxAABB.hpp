@@ -14,14 +14,14 @@ namespace phy
 
 	/// <summary>
 	/// Basic AABB hitbox that considers an origin and a size, positive direction goes towards +inf
-	/// <para>Note: the origin is considered to be the middle point</para>
+	/// <para>Note: the position is considered to be the middle point</para>
 	/// </summary>
 	class HitboxAABB
 	{
 	public:
 
-		HitboxAABB(const types::pos& ori, const v3f64& extent = { 1. }) noexcept
-			: m_extent{ extent }, m_min{ ori - m_extent }, m_max{ ori + m_extent }
+		HitboxAABB(const types::pos& pos, const v3f64& extent = { 1. }) noexcept
+			: m_pos{ pos }, m_extent{extent}
 		{}
 
 		DEFAULT_COPY_INIT(HitboxAABB);
@@ -34,23 +34,19 @@ namespace phy
 
 		v3f64 get_extent() const noexcept { return m_extent; }
 
-		v3f64 get_pos() const noexcept { return m_min + get_extent(); }
+		v3f64 get_pos() const noexcept { return m_pos; }
 
-		v3f64 get_min() const noexcept { return m_min; }
-		v3f64 get_max() const noexcept { return m_max; }
+		v3f64 get_min() const noexcept { return m_pos - m_extent; }
+		v3f64 get_max() const noexcept { return m_pos + m_extent; }
 
 
 		void set_pos(const types::pos& pos) noexcept
 		{
-			m_min = pos - get_extent();
-			m_max = pos + get_extent();
+			m_pos = pos;
 		}
 
 		void set_extent(const v3f64& extent) noexcept
 		{
-			m_min = m_min + get_extent() - extent;
-			m_max = m_max - get_extent() + extent;
-
 			m_extent = extent;
 		}
 
@@ -68,11 +64,11 @@ namespace phy
 		bool intersects(const HitboxAABB& other) const noexcept
 		{
 			return
-				m_min.x < other.m_max.x && m_max.x > other.m_min.x &&
+				get_min().x < other.get_max().x && get_max().x > other.get_min().x &&
 
-				m_min.y < other.m_max.y && m_max.y > other.m_min.y &&
+				get_min().y < other.get_max().y && get_max().y > other.get_min().y &&
 
-				m_min.z < other.m_max.z && m_max.z > other.m_min.z;
+				get_min().z < other.get_max().z && get_max().z > other.get_min().z;
 		}
 
 		/// <summary> Consider two cases:
@@ -82,13 +78,13 @@ namespace phy
 		/// <returns>The MTV (minimum translation vector) to stop intersecting with the current AABB</returns>
 		v3f64 get_MTV(const HitboxAABB& other) const noexcept
 		{
-			const f64 right{ m_max.x - other.m_min.x };
-			const f64 down{ m_max.y - other.m_min.y };
-			const f64 back{ m_max.z - other.m_min.z };
+			const f64 right{ get_max().x - other.get_min().x };
+			const f64 down { get_max().y - other.get_min().y };
+			const f64 back { get_max().z - other.get_min().z };
 
-			const f64 left{ other.m_max.x - m_min.x };
-			const f64 up{ other.m_max.y - m_min.y };
-			const f64 front{ other.m_max.z - m_min.z };
+			const f64 left { other.get_max().x - get_min().x };
+			const f64 up   { other.get_max().y - get_min().y };
+			const f64 front{ other.get_max().z - get_min().z };
 
 			v3f64 ret{};
 			f64 bestDist{ -1 };
@@ -140,10 +136,7 @@ namespace phy
 
 	private:
 
-
-		v3f64 m_min{};
-		v3f64 m_max{};
-
+		v3f64 m_pos{};
 		v3f64 m_extent{};
 
 

@@ -341,8 +341,8 @@ void Game::debug()
 					const u32 max{ 8 };
 					const u32 min{ 1 };
 
-					ImGui::SliderScalar("Render Distance	: ", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
-					ImGui::SliderScalar("Render Height	: ", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
+					ImGui::SliderScalar("Render Distance", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
+					ImGui::SliderScalar("Render Height", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
 
 				}
 				ImGui::EndGroup();
@@ -399,7 +399,7 @@ void Game::debug()
 
 		if (show_player)
 		{
-			if (ImGui::Begin("Player"))
+			if (ImGui::Begin("Player & World"))
 			{
 				ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
 				ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
@@ -412,7 +412,9 @@ void Game::debug()
 				ImGui::Text("Other Settings");
 
 				ImGui::DragScalar("Jump Height", ImGuiDataType_Double, &player.m_mov.jump_height);
+				ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
 				ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
+				
 
 			}
 			ImGui::End();
@@ -429,17 +431,17 @@ void Game::render_on_screen()
 	glEnable(GL_DEPTH_TEST);
 
 
-	AssetsManager::get().shader.bind();
+	AssetsManager::get().shaders.at("shader/world_chunks").bind();
 
-	AssetsManager::get().shader.setValue("vp", camera.get_VP());
-	AssetsManager::get().shader.setValue("model", m4f32::Identity);
+	AssetsManager::get().shaders.at("shader/world_chunks").setValue("vp", camera.get_VP());
+	AssetsManager::get().shaders.at("shader/world_chunks").setValue("model", m4f32::Identity);
 
-	AssetsManager::get().tex.bind();
+	AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
 	world.draw();
 
-	AssetsManager::get().tex.unbind();
-	AssetsManager::get().shader.unbind();
+	AssetsManager::get().textures.at("textures/voxels/stone").unbind();
+	AssetsManager::get().shaders.at("shader/world_chunks").unbind();
 
 
 

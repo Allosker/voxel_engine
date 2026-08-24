@@ -6,6 +6,9 @@
 * ==============================================-
 */
 
+#include <unordered_map>
+#include <string>
+
 #include "sys/graphics.hpp"
 
 #include "gfx/shader.hpp"
@@ -26,13 +29,27 @@ public:
 		return instance;
 	}
 
-
-	gfx::Shader shader{ ASSET_PATH"shader/test.vert", ASSET_PATH"shader/test.frag" };
-
-	gfx::Texture tex{ ASSET_PATH"textures/stone.png" };
+	std::unordered_map<std::string, gfx::Texture>	textures;
+	std::unordered_map<std::string, gfx::Shader>	shaders;
 
 
 private:
 
+	AssetsManager() noexcept
+	{
+		add_shaders();
+		add_textures();
+	}
+
+
+	void add_shaders() noexcept
+	{
+		shaders.emplace("shader/world_chunks", gfx::Shader{ ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
+	}
+
+	void add_textures() noexcept
+	{
+		textures.emplace("textures/voxels/stone", gfx::Texture{ ASSET_PATH"textures/voxels/stone.png" });
+	}
 
 };

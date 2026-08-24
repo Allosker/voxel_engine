@@ -51,7 +51,6 @@ inline void mouse_button_callback(GLFWwindow* window, int button, int action, in
 		current_window->add_event(Event::MouseButtonEvent{ static_cast<MouseButtons>(button), Event::ButtonState::Release, static_cast<Modifiers>(mods) });
 }
 
-#include <print>
 inline void window_focus_callback(GLFWwindow* window, int focused) noexcept
 {
 	auto* current_window = static_cast<Window*>(glfwGetWindowUserPointer(window));

@@ -2,18 +2,21 @@
 /* -- All Rights Reserved: Allosker 2026
 * https://github.com/Allosker/voxel_engine/blob/main/license.txt
 * ==============================================-
-*	This class allocates hardcoded data once and only once that is generalised, meaning it can be queried and adapted based on the context.
+*	Singleton accessible anywhere that provides the data corresponding to a a Voxel type ID.
 * ==============================================-
 */
 
+#include <vector>
 #include <string>
 
+#include "sys/types.hpp"
 
-#include "texture.hpp"
+#include "voxelType.hpp"
 
 
 namespace gfx
 {
+	
 	/// <summary>
 	/// All names are defaulted accounting for the average block
 	/// </summary>
@@ -22,8 +25,45 @@ namespace gfx
 		std::string name{};
 
 		bool is_transparent{ false };
-		bool is_solid{ true };
+		bool is_solid{ true }; 
 		bool has_bounds{ false };
+
+	};
+	 
+
+	class VoxelTypeManager
+	{
+	public:
+
+		// = Public Access
+
+		static const VoxelTypeManager& get() noexcept
+		{
+			static VoxelTypeManager instance{};
+
+			return instance;
+		}
+
+
+		// = Getters
+
+		const VoxelType& get_type(types::type_id id) const noexcept
+		{
+			return m_voxel_types[static_cast<size_t>(id)];
+		}
+
+
+	private:
+
+
+		explicit VoxelTypeManager() noexcept
+		{
+			m_voxel_types.push_back({ .name{"air"}, .is_transparent{true}, .is_solid{ false } });
+			m_voxel_types.push_back({ .name{"stone"}, .has_bounds{ true } });
+		}
+
+
+		std::vector<VoxelType> m_voxel_types{};
 
 	};
 

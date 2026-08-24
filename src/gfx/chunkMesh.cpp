@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#include "voxelTypeManager.hpp"
+#include "voxelType.hpp"
 #include "chunkGrid.hpp"
 
 namespace gfx
