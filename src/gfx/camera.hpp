@@ -110,7 +110,7 @@ namespace gfx
 		const bool should_update_dirs() const noexcept { return m_update_dirs; }
 
 
-		f32 speed{};
+		f32 speed{10.f};
 
 	private:
 
