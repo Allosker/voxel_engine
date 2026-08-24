@@ -68,6 +68,18 @@ namespace gfx
 		}
 	}
 
+	Voxel World::get_voxel(types::voxel_pos voxel_p) const noexcept
+	{
+		const auto loc = to_chunkLoc(voxel_p);
+		auto* chunk = overworld.at_chunk(loc);
+
+		if (!chunk)
+			return {};
+
+		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
+		return chunk->at(voxel_l);
+	}
+
 	bool World::set_voxel(types::voxel_pos voxel_p, Voxel new_voxel) noexcept
 	{
 		const auto loc = to_chunkLoc(voxel_p);
