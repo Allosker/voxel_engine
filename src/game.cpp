@@ -185,6 +185,12 @@ void Game::inputs()
 
 			if (sys::InputManager::pressed(*key, Keys::F4))
 				world.debug.update_world = !world.debug.update_world;
+
+			if (sys::InputManager::pressed(*key, Keys::F))
+				player.m_mov.flying = !player.m_mov.flying;
+
+			if (sys::InputManager::pressed(*key, Keys::G))
+				player.m_mov.ghost = !player.m_mov.ghost;
 			
 		}
 
