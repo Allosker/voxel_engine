@@ -94,6 +94,12 @@ DebugMessage Game::run()
 
 	world.update_grid({0, 0, 0}, true);
 
+	while (world.get_voxel(gfx::World::to_voxelPos(player.get_pos())))
+	{
+		player.set_pos(player.get_pos() + types::pos{0.0, 1.0, 0.0});
+	}
+
+	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
 	// Main Loop
 	while (window->isOpen())
