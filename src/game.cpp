@@ -63,7 +63,7 @@ DebugMessage Game::run()
 	window = init_glfw(true, render_settings.MSAA);
 	if (!window)
 		return DebugMessage{ .msg{"Error::Cannot initialise window"}, .severity{DebugMessage::Critical} };
-	 
+
 
 	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
@@ -92,11 +92,11 @@ DebugMessage Game::run()
 		}
 	};
 
-	world.update_grid({0, 0, 0}, true);
+	world.update_grid({ 0, 0, 0 }, true);
 
 	while (world.get_voxel(gfx::World::to_voxelPos(player.get_pos())))
 	{
-		player.set_pos(player.get_pos() + types::pos{0.0, 1.0, 0.0});
+		player.set_pos(player.get_pos() + types::pos{ 0.0, 1.0, 0.0 });
 	}
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
@@ -126,7 +126,7 @@ DebugMessage Game::run()
 			logic();
 
 		debug();
-		
+
 
 		render_on_screen();
 
@@ -186,12 +186,15 @@ void Game::inputs()
 			if (sys::InputManager::pressed(*key, Keys::F4))
 				world.debug.update_world = !world.debug.update_world;
 
+			if (sys::InputManager::pressed(*key, Keys::F5))
+				showDebugMenus = !showDebugMenus;
+
 			if (sys::InputManager::pressed(*key, Keys::F))
 				player.m_mov.flying = !player.m_mov.flying;
 
 			if (sys::InputManager::pressed(*key, Keys::G))
 				player.m_mov.ghost = !player.m_mov.ghost;
-			
+				
 		}
 
 		if (runtime_settings.paused)
@@ -250,7 +253,7 @@ void Game::inputs()
 
 	}
 
-	
+
 	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0 }, 0, false);
 	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1 }, 0, false);
 
@@ -293,145 +296,138 @@ void Game::logic()
 
 void Game::debug()
 {
-	debug_imgui();
+	if (showDebugMenus)
+	{
+		debug_imgui();
+	}
 }
 
-	void Game::debug_imgui()
+void Game::debug_imgui()
+{
+	static bool show_general{ true };
+	static bool show_tg{ true };
+	static bool show_player{ true };
+
+	// Clear Inputs when window->cursor can't be seen, avoids weird behaviours
+	if (window->isCursorHidden())
 	{
-		static bool show_general{ true };
-		static bool show_tg{};
-		static bool show_player{};
+		auto& io = ImGui::GetIO();
 
-		// Clear Inputs when window->cursor can't be seen, avoids weird behaviours
-		if (window->isCursorHidden())
+		io.ClearInputKeys();
+		io.ClearInputKeys();
+	}
+
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("Windows"))
 		{
-			auto& io = ImGui::GetIO();
+			ImGui::MenuItem("General", nullptr, &show_general);
+			ImGui::MenuItem("Terrain Generation", nullptr, &show_tg);
+			ImGui::MenuItem("Player Settings", nullptr, &show_player);
 
-			io.ClearInputKeys();
-			io.ClearInputKeys();
-		}
-
-		if (ImGui::BeginMainMenuBar())
-		{
-			if (ImGui::BeginMenu("Windows"))
-			{
-				ImGui::MenuItem("General", nullptr, &show_general);
-				ImGui::MenuItem("Terrain Generation", nullptr, &show_tg);
-				ImGui::MenuItem("Player Settings", nullptr, &show_player);
-
-				ImGui::EndMenu();
-			}
-		}
-		ImGui::EndMainMenuBar();
-		
-
-		if (show_general)
-		{
-			if (ImGui::Begin("General"/*nullptr, ImGuiWindowFlags_MenuBar*/))
-			{
-				const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
-
-				ImGui::Text("FPS: %f", fps);
-
-				const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
-				ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
-
-				if (auto* c = world.get_chunkGrid().at_chunk(player_loc))
-				{
-					const auto camInChunk = gfx::Chunk::to_voxelLoc(*c, camVoxelPos);
-					ImGui::Text("Pos Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
-					ImGui::Text("Pos In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
-				}
-				else
-					ImGui::Text("No chunk at location");
-
-				ImGui::Text("Pos Discrete: %f %f %f", player.get_pos().x, player.get_pos().y, player.get_pos().z);
-				
-
-				ImGui::BeginGroup();
-				{
-					const u32 max{ 8 };
-					const u32 min{ 1 };
-
-					ImGui::SliderScalar("Render Distance", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
-					ImGui::SliderScalar("Render Height", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
-
-				}
-				ImGui::EndGroup();
-
-			}
-			ImGui::End();
-		}
-
-		if(show_tg)
-		{
-			if (ImGui::Begin("Terrain Generation"))
-			{
-				static gfx::Image noise_image{ v2i32{}, GL_RED };
-				static gfx::Texture noise_texture{ noise_image };
-
-				static i32 renderdistance{};
-				const i32 l1{ 0 }, l2{ 100 };
-				ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
-
-				auto pos = static_cast<v3i32>(camera.get_pos());
-				v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
-				v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };
-
-				if (compute_noise_map)
-				{
-					compute_noise_map = false;
-
-					v3i32 gap{ max - min };
-
-					noise_image = gfx::Image{ (v2u32)v2i32 { gap.x, gap.z }, GL_RGB };
-
-
-					for (i32 x{ min.x }; x < max.x; x++)
-						for (i32 z{ min.z }; z < max.z; z++)
-						{
-							auto t = gfx::continentalness(world.terrain_context, z, x);
-
-							i32 grayscale = t * 255;
-
-							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel()) = grayscale;
-							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 1) = grayscale;
-							noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 2) = grayscale;
-						}
-
-					noise_texture.update(noise_image);
-				}
-
-				static float scale{ 10.f };
-				ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
-				ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
-			}
-			ImGui::End();
-		}
-
-		if (show_player)
-		{
-			if (ImGui::Begin("Player & World"))
-			{
-				ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
-				ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
-				ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
-
-				ImGui::Checkbox("Flying", &player.m_mov.flying);
-				ImGui::Checkbox("Ghost", &player.m_mov.ghost);
-				ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
-
-				ImGui::Text("Other Settings");
-
-				ImGui::DragScalar("Jump Height", ImGuiDataType_Double, &player.m_mov.jump_height);
-				ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
-				ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
-				
-
-			}
-			ImGui::End();
+			ImGui::EndMenu();
 		}
 	}
+	ImGui::EndMainMenuBar();
+
+	if (ImGui::Begin("General", &show_general))
+	{
+		const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
+
+		ImGui::Text("FPS: %f", fps);
+
+		const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
+		ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
+
+		if (auto* c = world.get_chunkGrid().at_chunk(player_loc))
+		{
+			const auto camInChunk = gfx::Chunk::to_voxelLoc(*c, camVoxelPos);
+			ImGui::Text("Pos Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
+			ImGui::Text("Pos In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
+		}
+		else
+			ImGui::Text("No chunk at location");
+
+		ImGui::Text("Pos Discrete: %f %f %f", player.get_pos().x, player.get_pos().y, player.get_pos().z);
+
+
+		ImGui::BeginGroup();
+		{
+			const u32 max{ 8 };
+			const u32 min{ 1 };
+
+			ImGui::SliderScalar("Render Distance", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
+			ImGui::SliderScalar("Render Height", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
+
+		}
+		ImGui::EndGroup();
+
+	}
+	ImGui::End();
+
+	if (ImGui::Begin("Terrain Generation", &show_tg))
+	{
+		static gfx::Image noise_image{ v2i32{}, GL_RED };
+		static gfx::Texture noise_texture{ noise_image };
+
+		static i32 renderdistance{};
+		const i32 l1{ 0 }, l2{ 100 };
+		ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
+
+		auto pos = static_cast<v3i32>(camera.get_pos());
+		v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
+		v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };
+
+		if (compute_noise_map)
+		{
+			compute_noise_map = false;
+
+			v3i32 gap{ max - min };
+
+			noise_image = gfx::Image{ (v2u32)v2i32 { gap.x, gap.z }, GL_RGB };
+
+
+			for (i32 x{ min.x }; x < max.x; x++)
+				for (i32 z{ min.z }; z < max.z; z++)
+				{
+					auto t = gfx::continentalness(world.terrain_context, z, x);
+
+					i32 grayscale = t * 255;
+
+					noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel()) = grayscale;
+					noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 1) = grayscale;
+					noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 2) = grayscale;
+				}
+
+			noise_texture.update(noise_image);
+		}
+
+		static float scale{ 10.f };
+		ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
+		ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
+	}
+	ImGui::End();
+
+	if (ImGui::Begin("Player & World", &show_player))
+	{
+		ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
+		ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
+		ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
+
+		ImGui::Checkbox("Flying", &player.m_mov.flying);
+		ImGui::Checkbox("Ghost", &player.m_mov.ghost);
+		ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
+
+		ImGui::Text("Other Settings");
+
+		ImGui::DragScalar("Jump Height", ImGuiDataType_Double, &player.m_mov.jump_height);
+		ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
+		ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
+
+
+	}
+	ImGui::End();
+}
 
 
 
