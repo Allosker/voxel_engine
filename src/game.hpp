@@ -74,11 +74,11 @@ private: // Internal Communication/Logic
 
 	gfx::Camera camera{};
 
-
 	gfx::World world{};
 
 	gfx::Player player{ &camera };
 
+	bool showDebugMenus{};
 
 	m4f32 orthographic_proj_2D{ mpml::orthographic_projection(Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, 1.f) };
 
