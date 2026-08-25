@@ -143,7 +143,6 @@ void Game::inputs()
 {
 	static gfx::RayCastResult ray{};
 
-
 	while (auto event = window->poll_event())
 	{
 		if (auto focus_changed = event->get_if<Event::FocusChanged>())
@@ -159,6 +158,7 @@ void Game::inputs()
 
 		if (auto key = event->get_if<Event::KeyEvent>())
 		{
+
 			if (!runtime_settings.paused)
 				sys::InputManager::get().add_key_event(*key);
 
