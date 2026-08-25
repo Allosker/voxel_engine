@@ -1,5 +1,8 @@
 #include "mesh.hpp"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace gfx
 {
@@ -74,6 +77,20 @@ namespace gfx
 		unbind();
 
 		glDisable(GL_BLEND);
+	}
+
+	std::optional<gfx::Mesh> Mesh::load_from_file(const filepath& path)
+	{
+		Assimp::Importer import;
+		const aiScene* scene = import.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_FlipUVs);
+
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
+			return std::nullopt;
+		}
+		directory = path.substr(0, path.find_last_of('/'));
+
+		processNode(scene->mRootNode, scene);
 	}
 
 }

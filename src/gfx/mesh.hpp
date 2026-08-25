@@ -77,6 +77,8 @@ namespace gfx
 		// If called while a buffer already exists, erases the ancient one and creates a new one instead
 		void create_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept;
 
+		static std::vector<gfx::Mesh> load_from_file(const filepath& path);
+
 
 	private:
 		
