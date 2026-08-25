@@ -51,9 +51,6 @@ namespace gfx
 		{
 			update_position(world, dt);
 			resolve_collisions(world, dt);
-
-			if (m_mov.velocity.y == m_mov.y_padding)
-				m_mov.jumped_this_frame = false;
 		}
 
 
@@ -96,10 +93,6 @@ namespace gfx
 			bool ghost{ true };
 			bool moving_hor{};
 			bool moving_ver{};
-
-			bool jumped_this_frame{};
-
-			f64 y_padding{ 0.01 };
 
 		} m_mov;
 	

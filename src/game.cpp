@@ -83,13 +83,7 @@ DebugMessage Game::run()
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
 
-
-<<<<<<<
-
-	world.update_grid({0, 0, 0}, true);
-=======
 	world.update_grid({ 0, 0, 0 }, true);
->>>>>>>
 
 	while (world.get_voxel(gfx::World::to_voxelPos(player.get_pos())))
 	{

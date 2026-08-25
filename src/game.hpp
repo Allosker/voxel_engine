@@ -120,8 +120,6 @@ private: // Internal Communication/Logic
 	v2f32 last_mouse_window_pos{};
 	f32 yaw{}, pitch{};
 
-	bool was_f2_pressed{};
-
 	struct RenderSettings
 	{
 		u32 MSAA{ 8 };
