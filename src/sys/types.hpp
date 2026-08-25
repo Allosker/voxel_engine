@@ -112,7 +112,7 @@ using angle = mpml::Angle<f64>;
 using angle32 = mpml::Angle<f32>;
 
 
-// Small Utility Function to move into the MAths lib:
+// Small Utility Function to move into the Maths lib:
 
 template<std::integral I>
 inline I integer_div_floor(I a, I b) noexcept

@@ -2,7 +2,9 @@
 /* -- All Rights Reserved: Allosker 2026
 * https://github.com/Allosker/voxel_engine/blob/main/license.txt
 * ==============================================-
-*	Simple debug renderer -- code given by https://github.com/lapinozz
+*	Simple debug renderer -- 
+* ==============================================-
+* Code given by https://github.com/lapinozz
 * ==============================================-
 */
 

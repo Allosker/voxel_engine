@@ -44,12 +44,16 @@ private:
 
 	void add_shaders() noexcept
 	{
-		shaders.emplace("shader/world_chunks", gfx::Shader{ ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
+		shaders.emplace("shaders/world_chunks", gfx::Shader{ ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
+		shaders.emplace("shaders/twoD", gfx::Shader{ ASSET_PATH"shader/twoD.vert", ASSET_PATH"shader/twoD.frag" });
 	}
 
 	void add_textures() noexcept
 	{
 		textures.emplace("textures/voxels/stone", gfx::Texture{ ASSET_PATH"textures/voxels/stone.png" });
+		textures.emplace("textures/gui/inventory/small", gfx::Texture{ ASSET_PATH"textures/gui/inventory/small.png" });
+		textures.emplace("textures/gui/inventory/medium", gfx::Texture{ ASSET_PATH"textures/gui/inventory/medium.png" });
+		textures.emplace("textures/gui/inventory/big", gfx::Texture{ ASSET_PATH"textures/gui/inventory/big.png" });
 	}
 
 };

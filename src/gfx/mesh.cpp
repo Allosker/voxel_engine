@@ -62,18 +62,4 @@ namespace gfx
 		unbind();
 	}
 
-	void Mesh::draw_transparent(GLenum mode) const noexcept
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		bind();
-
-		glDrawElements(mode, m_nbIndices, GL_UNSIGNED_INT, 0);
-
-		unbind();
-
-		glDisable(GL_BLEND);
-	}
-
 }

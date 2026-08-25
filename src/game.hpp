@@ -22,6 +22,9 @@
 
 #include "gfx/player.hpp"
 
+#include "gfx/inventory.hpp"
+#include "gui/inventoryGUI.hpp"
+
 
 
 // Only one instance of the game must exist at a time
@@ -29,7 +32,7 @@ class Game
 {
 private:
 
-	Game() noexcept = default; // Singleton
+	Game() noexcept; // Singleton
 
 
 public:
@@ -65,7 +68,6 @@ private: // Internal Communication/Logic
 	void render_on_screen();
 
 
-public:
 
 
 	std::unique_ptr<Window> window;
@@ -77,6 +79,13 @@ public:
 	gfx::Player player{ &camera };
 
 	bool showDebugMenus{};
+
+	m4f32 orthographic_proj_2D{ mpml::orthographic_projection(Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, 1.f) };
+
+
+	gfx::Inventory    inv{};
+	gui::InventoryGUI gui_inv{};
+
 
 	class DeltaTime
 	{

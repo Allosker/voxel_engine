@@ -37,23 +37,23 @@ namespace gfx
 
 		// = Getters
 
-		GLuint ID() const noexcept;
+		GLuint id() const noexcept;
 
-		i32 getUniformLocation(std::string_view name) const noexcept;
+		i32 get_uni_loc(std::string_view name) const noexcept;
 
 
 		// = Setters
 
-		void setValue(std::string_view name, float value) const noexcept;
+		void set_value(std::string_view name, float value) const noexcept;
 
-		void setValue(std::string_view name, const v2f32& value) const noexcept;
-		void setValue(std::string_view name, const v3f32& value) const noexcept;
-		void setValue(std::string_view name, const v4f32& value) const noexcept;
+		void set_value(std::string_view name, const v2f32& value) const noexcept;
+		void set_value(std::string_view name, const v3f32& value) const noexcept;
+		void set_value(std::string_view name, const v4f32& value) const noexcept;
 
-		void setValue(std::string_view name, const m3f32& value) const noexcept;
-		void setValue(std::string_view name, const m4f32& value) const noexcept;
+		void set_value(std::string_view name, const m3f32& value) const noexcept;
+		void set_value(std::string_view name, const m4f32& value) const noexcept;
 
-		void setValueLocation(GLint location, const m4f32& value) const noexcept;
+		void set_value_loc(GLint location, const m4f32& value) const noexcept;
 
 
 	private:

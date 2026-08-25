@@ -140,12 +140,12 @@ namespace gfx
 	// Getters
 	// =====================
 
-	GLuint Shader::ID() const noexcept
+	GLuint Shader::id() const noexcept
 	{
 		return m_id;
 	}
 
-	std::int32_t Shader::getUniformLocation(std::string_view name) const noexcept
+	std::int32_t Shader::get_uni_loc(std::string_view name) const noexcept
 	{
 		return glGetUniformLocation(m_id, name.data());
 	}
@@ -155,37 +155,37 @@ namespace gfx
 	// Setters
 	// =====================
 
-	void Shader::setValue(std::string_view name, float value) const noexcept
+	void Shader::set_value(std::string_view name, float value) const noexcept
 	{
 		glUniform1f(glGetUniformLocation(m_id, name.data()), value);
 	}
 
-	void Shader::setValue(std::string_view name, const v2f32& value) const noexcept
+	void Shader::set_value(std::string_view name, const v2f32& value) const noexcept
 	{
 		glUniform2fv(glGetUniformLocation(m_id, name.data()), 1, value.data_ptr());
 	}
 
-	void Shader::setValue(std::string_view name, const v3f32& value) const noexcept
+	void Shader::set_value(std::string_view name, const v3f32& value) const noexcept
 	{
 		glUniform3fv(glGetUniformLocation(m_id, name.data()), 1, value.data_ptr());
 	}
 
-	void Shader::setValue(std::string_view name, const v4f32& value) const noexcept
+	void Shader::set_value(std::string_view name, const v4f32& value) const noexcept
 	{
 		glUniform4fv(glGetUniformLocation(m_id, name.data()), 1, value.data_ptr());
 	}
 
-	void Shader::setValue(std::string_view name, const m3f32& value) const noexcept
+	void Shader::set_value(std::string_view name, const m3f32& value) const noexcept
 	{
 		glUniformMatrix3fv(glGetUniformLocation(m_id, name.data()), 1, true, value.data_ptr());
 	}
 
-	void Shader::setValue(std::string_view name, const m4f32& value) const noexcept
+	void Shader::set_value(std::string_view name, const m4f32& value) const noexcept
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name.data()), 1, false, value.data_ptr());
 	}
 
-	void Shader::setValueLocation(GLint location, const m4f32& value) const noexcept
+	void Shader::set_value_loc(GLint location, const m4f32& value) const noexcept
 	{
 		glUniformMatrix4fv(location, 1, false, value.data_ptr());
 	}

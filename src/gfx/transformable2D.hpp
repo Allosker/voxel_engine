@@ -37,7 +37,7 @@ namespace gfx
 
 		// = Getters
 
-		const m4f32& getTransformation() noexcept
+		const m4f32& get_transform() noexcept
 		{
 			// Recompute the combined transform if needed
 			if (m_transformNeedUpdate)
@@ -66,53 +66,53 @@ namespace gfx
 			return m_transformations;
 		}
 
-		v2f32 getSize() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y }; }
+		v2f32 get_size() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y }; }
 
-		v2f32 getBaseSize() const noexcept { return { m_baseSize.x, m_baseSize.y }; }
+		v2f32 get_base_size() const noexcept { return { m_baseSize.x, m_baseSize.y }; }
 
-		angle32 getRotation() const noexcept { return m_rotation; }
+		angle32 get_rotation() const noexcept { return m_rotation; }
 
-		types::pos2d getPosition() const noexcept { return m_position; }
+		types::pos2d get_pos() const noexcept { return m_position; }
 
-		v2f32 getOrigin() const noexcept { return m_origin; }
+		v2f32 get_ori() const noexcept { return m_origin; }
 	
 
 		// = Setters
 
-		virtual void setPosition(types::pos2d pos) noexcept
+		virtual void set_pos(types::pos2d pos) noexcept
 		{
 			m_position = pos;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setScale(v2f32 scale) noexcept
+		virtual void set_scale(v2f32 scale) noexcept
 		{
 			m_scale = scale;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setSize(v2f32 size) noexcept
+		virtual void set_size(v2f32 size) noexcept
 		{
 			if (m_baseSize != 0)
-				setScale({ size.x / m_baseSize.x, size.y / m_baseSize.y });
+				set_scale({ size.x / m_baseSize.x, size.y / m_baseSize.y });
 			else
 				m_baseSize = size;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setBaseSize(v2f32 size) noexcept
+		virtual void set_base_size(v2f32 size) noexcept
 		{
 			m_baseSize = size;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setOrigin(types::pos2d ori) noexcept
+		virtual void set_ori(types::pos2d ori) noexcept
 		{
 			m_origin = ori;
 			m_transformNeedUpdate = true;
 		}
 
-		virtual void setRotation(angle32 rotation) noexcept
+		virtual void set_rotation(angle32 rotation) noexcept
 		{
 			m_rotation = rotation;
 			m_transformNeedUpdate = true;
@@ -121,17 +121,17 @@ namespace gfx
 
 		void move(v2f32 offset) noexcept
 		{
-			setPosition(m_position + offset);
+			set_pos(m_position + offset);
 		}
 
 		void scale(v2f32 factor) noexcept
 		{
-			setScale({ m_scale.x * factor.x, m_scale.y * factor.y });
+			set_scale({ m_scale.x * factor.x, m_scale.y * factor.y });
 		}
 
 		void rotate(angle32 theta) noexcept
 		{
-			setRotation(m_rotation + theta);
+			set_rotation(m_rotation + theta);
 		}
 
 
