@@ -72,11 +72,11 @@ public:
 
 	gfx::Camera camera{};
 
-
 	gfx::World world{};
 
 	gfx::Player player{ &camera };
 
+	bool showDebugMenus{};
 
 	class DeltaTime
 	{
@@ -110,8 +110,6 @@ public:
 
 	v2f32 last_mouse_window_pos{};
 	f32 yaw{}, pitch{};
-
-	bool was_f2_pressed{};
 
 	struct RenderSettings
 	{

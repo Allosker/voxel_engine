@@ -84,7 +84,7 @@ namespace gfx
 
 		gfx::TerrainGenContext/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
 
-		f64 gravity{ -9.81 };
+		f64 gravity{ -32 };
 
 
 	private:
