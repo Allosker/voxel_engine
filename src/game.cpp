@@ -411,7 +411,7 @@ void Game::debug_imgui()
 	if (ImGui::Begin("Player & World", &show_player))
 	{
 		ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
-		ImGui::DragScalar("Speed", ImGuiDataType_Double, &player.m_mov.speed);
+		ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.m_mov.acceleration);
 		ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
 
 		ImGui::Checkbox("Flying", &player.m_mov.flying);
@@ -420,7 +420,7 @@ void Game::debug_imgui()
 
 		ImGui::Text("Other Settings");
 
-		ImGui::DragScalar("Jump Height", ImGuiDataType_Double, &player.m_mov.jump_height);
+		ImGui::DragScalar("Jump Velocity", ImGuiDataType_Double, &player.m_mov.jump_velocity);
 		ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
 		ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
 

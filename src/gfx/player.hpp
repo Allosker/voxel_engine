@@ -85,12 +85,14 @@ namespace gfx
 		{
 			v3f64 velocity{};
 
-			f64 speed{ 20. };
-			f64 jump_height{ 20. };
+			f64 acceleration{ 20. };
+			f64 jump_velocity{ 8.4 };
 
 			f64 max_speed{ 5. };
 
 			f64 friction{ 10. };
+
+			bool isOnGround{};
 
 			bool flying{ true };
 			bool ghost{ true };
