@@ -11,6 +11,22 @@
 
 namespace phy
 {
+	class HitboxAABB;
+
+	/// <summary> Consider two cases:
+	/// <para>- Intersecting -> MTV </para>
+	/// <para>- Not Intersecting -> empty vector </para>
+	/// </summary>
+	/// <returns>The MTV (minimum translation vector) to stop intersecting with the current AABB</returns>
+	bool intersects(const HitboxAABB& a, const HitboxAABB& b) noexcept;
+
+	/// <summary>
+	/// Exclusive bounds, we do not wish to consider two overlapping hitboxes to be intersecting 
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns>Whether the two hitboxes intersect</returns>
+	v3f64 get_MTV(const HitboxAABB& a, const HitboxAABB& b) noexcept;
+
 
 	/// <summary>
 	/// Basic AABB hitbox that considers an origin and a size, positive direction goes towards +inf
@@ -55,83 +71,6 @@ namespace phy
 		{
 			set_pos(get_pos() + offset);
 		}
-
-		/// <summary>
-		/// Exclusive bounds, we do not wish to consider two overlapping hitboxes to be intersecting 
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns>Whether the two hitboxes intersect</returns>
-		bool intersects(const HitboxAABB& other) const noexcept
-		{
-			return
-				get_min().x < other.get_max().x && get_max().x > other.get_min().x &&
-
-				get_min().y < other.get_max().y && get_max().y > other.get_min().y &&
-
-				get_min().z < other.get_max().z && get_max().z > other.get_min().z;
-		}
-
-		/// <summary> Consider two cases:
-		/// <para>- Intersecting -> MTV </para>
-		/// <para>- Not Intersecting -> empty vector </para>
-		/// </summary>
-		/// <returns>The MTV (minimum translation vector) to stop intersecting with the current AABB</returns>
-		v3f64 get_MTV(const HitboxAABB& other) const noexcept
-		{
-			const f64 right{ get_max().x - other.get_min().x };
-			const f64 down { get_max().y - other.get_min().y };
-			const f64 back { get_max().z - other.get_min().z };
-
-			const f64 left { other.get_max().x - get_min().x };
-			const f64 up   { other.get_max().y - get_min().y };
-			const f64 front{ other.get_max().z - get_min().z };
-
-			v3f64 ret{};
-			f64 bestDist{ -1 };
-
-
-			if (left > 0 && (left < bestDist || bestDist < 0))
-			{
-				bestDist = left;
-				ret = -v3f64{ left, 0, 0 };
-			}
-
-			if (right > 0 && (right < bestDist || bestDist < 0))
-			{
-				bestDist = right;
-				ret = v3f64{ right, 0, 0 };
-			}
-
-
-			if (up > 0 && (up < bestDist || bestDist < 0))
-			{
-				bestDist = up;
-				ret = -v3f64{ 0, up, 0 };
-			}
-
-			if (down > 0 && (down < bestDist || bestDist < 0))
-			{
-				bestDist = down;
-				ret = v3f64{ 0, down, 0 };
-			}
-
-
-			if (front > 0 && (front < bestDist || bestDist < 0))
-			{
-				bestDist = front;
-				ret = -v3f64{ 0, 0, front };
-			}
-
-			if (back > 0 && (back < bestDist || bestDist < 0))
-			{
-				bestDist = back;
-				ret = v3f64{ 0, 0, back };
-			}
-
-
-			return ret;
-		}
-		
 
 
 	private:

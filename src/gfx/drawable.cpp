@@ -13,13 +13,13 @@ namespace gfx
 
 
 		m_shader.bind();
-		m_shader.setValue("vp", m_camera->get_VP());
+		m_shader.set_value("vp", m_camera->get_VP());
 
 		for (const auto& i : m_contexts)
 		{
 			if (!i.mesh) continue;
 
-			m_shader.setValue("model", i.model);
+			m_shader.set_value("model", i.model);
 
 			if (i.texture)
 				i.texture->bind();

@@ -58,12 +58,15 @@ static DebugMessage init_imgui(Window& window)
 	return DebugMessage{ .msg{"Info::ImGui_Init::Successful"}, .severity{DebugMessage::Info} };
 }
 
+Game::Game() noexcept
+	: window{ init_glfw(true, render_settings.MSAA) }
+{
+}
+
 DebugMessage Game::run()
 {
-	window = init_glfw(true, render_settings.MSAA);
 	if (!window)
 		return DebugMessage{ .msg{"Error::Cannot initialise window"}, .severity{DebugMessage::Critical} };
-	 
 
 	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
@@ -74,23 +77,12 @@ DebugMessage Game::run()
 
 	AssetsManager::get(); // load all assets
 
+	AssetsManager::get().shaders.at("shaders/twoD").bind();
+	AssetsManager::get().shaders.at("shaders/twoD").set_value("ortho", orthographic_proj_2D);
+	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
-	// Temporary
 
-	gfx::Mesh mesh
-	{
-		std::vector<gfx::Vertex>
-		{
-			{ {-0.5, -0.5, -1}, {0, 0} },
-			{ { 0.5, -0.5, -1}, {1, 0} },
-			{ { 0.5,  0.5, -1}, {1, 1} },
-			{ {-0.5,  0.5, -1}, {0, 1} }
-		},
-		{
-			0, 1, 2,
-			0, 2, 3
-		}
-	};
+
 
 	world.update_grid({0, 0, 0}, true);
 
@@ -100,6 +92,7 @@ DebugMessage Game::run()
 	}
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
+
 
 	// Main Loop
 	while (window->isOpen())
@@ -287,6 +280,9 @@ void Game::logic()
 	world.update_grid(player_loc);
 
 	player.update(world, delta_time.get());
+
+	gui_inv.update(inv);
+
 }
 
 
@@ -443,19 +439,26 @@ void Game::render_on_screen()
 	glEnable(GL_DEPTH_TEST);
 
 
-	AssetsManager::get().shaders.at("shader/world_chunks").bind();
+	AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
-	AssetsManager::get().shaders.at("shader/world_chunks").setValue("vp", camera.get_VP());
-	AssetsManager::get().shaders.at("shader/world_chunks").setValue("model", m4f32::Identity);
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32::Identity);
 
-	AssetsManager::get().textures.at("textures/voxels/stone").bind();
+		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-	world.draw();
+			world.draw();	
 
-	AssetsManager::get().textures.at("textures/voxels/stone").unbind();
-	AssetsManager::get().shaders.at("shader/world_chunks").unbind();
+		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
+
+	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
 
+
+	AssetsManager::get().shaders.at("shaders/twoD").bind();
+
+		gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
+
+	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
 
 	/*= Debug Draws =*/

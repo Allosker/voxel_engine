@@ -53,8 +53,6 @@ namespace gfx
 		
 		virtual void draw(GLenum mode = GL_TRIANGLES) const noexcept;
 
-		virtual void draw_transparent(GLenum mode = GL_TRIANGLES) const noexcept;
-
 		// Only binds VAO/EBO
 		void bind() const noexcept
 		{
@@ -118,7 +116,7 @@ namespace gfx
 	template<typename T>
 	inline void Mesh::create_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept
 	{
-		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex> || std::is_same_v<T, VertexRGBA>) && "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
+		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, VertexRGBA>) && "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
 		if (m_vao || m_ebo || m_vao)
 		{
 			glDeleteBuffers(GL_ELEMENT_ARRAY_BUFFER, &m_ebo);

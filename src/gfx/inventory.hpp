@@ -18,6 +18,8 @@ namespace gfx
 
 	class Inventory
 	{
+	public:
+
 		struct Stage
 		{
 			// In Slots
@@ -25,10 +27,18 @@ namespace gfx
 			u16 count_per_slot{};
 		};
 
+		enum Size : size_t
+		{
+			Small,
+			Medium,
+			Big
+		};
+
+
 	public:
 
 		Inventory()
-			: m_stage{ &small }
+			: m_size{ Small }
 		{
 		}
 
@@ -36,19 +46,25 @@ namespace gfx
 		/// Sets the stage pointer to another stage; therefore, the stage passed in must be one of the three predefined ones
 		/// </summary>
 		/// <param name="stage"></param>
-		void set_stage(const Stage& stage) noexcept;
+		void set_stage(Size stage) noexcept;
+
+		Size get_size() const noexcept { return m_size; }
 
 
 	public:
 
-		constexpr static Stage small	{ .size{ 6 , 4 }, .count_per_slot{ 100 } };
-		constexpr static Stage medium	{ .size{ 8 , 5 }, .count_per_slot{ 100 } };
-		constexpr static Stage big		{ .size{ 12, 6 }, .count_per_slot{ 100 } };
+		static constexpr std::array<Stage, 3> g_stages
+		{
+			Stage
+			{ .size{ 6 , 4 }, .count_per_slot{ 100 } },
+			{ .size{ 8 , 5 }, .count_per_slot{ 100 } },
+			{ .size{ 12, 6 }, .count_per_slot{ 100 } }
+		};
 
 
 	private:
 
-		const Stage* m_stage;
+		Size m_size;
 
 		std::vector<ItemStack> m_item_stacks;
 

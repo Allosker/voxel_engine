@@ -5,10 +5,11 @@ namespace gfx
 
 
 
-	void Inventory::set_stage(const Stage& stage) noexcept
+	void Inventory::set_stage(Size size) noexcept
 	{
-		m_stage = &stage;
-		m_item_stacks.resize(stage.size.x * stage.size.y);
+		m_size = size;
+		const auto& new_stage = g_stages[size];
+		m_item_stacks.resize(new_stage.size.x * new_stage.size.y);
 	}
 
 

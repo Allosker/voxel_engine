@@ -32,13 +32,30 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 
 
 		case Keys::Space:
-			m_mov.velocity += v3f64{ 0, m_cam->get_up().y, 0. } * m_mov.jump_height * dt;
-			m_mov.moving_ver = true;
+			if (m_mov.flying)
+			{
+				if (m_mov.velocity.y < 0.)
+					m_mov.velocity.y = 0.;
+				m_mov.velocity.y += m_mov.jump_height * dt;
+				m_mov.moving_ver = true;
+			}
+			else if (!m_mov.jumped_this_frame)
+			{
+				m_mov.velocity += v3f64{ 0,  m_mov.jump_height, 0. };
+				m_mov.moving_ver = true;
+
+				m_mov.jumped_this_frame = true;
+			}
 			break;
 
 		case Keys::Left_shift:
-			m_mov.velocity -= v3f64{ 0, m_cam->get_up().y, 0. } * m_mov.jump_height * dt;
-			m_mov.moving_ver = true;
+			if (m_mov.flying)
+			{
+				if (m_mov.velocity.y > 0.)
+					m_mov.velocity.y = 0.;
+				m_mov.velocity.y -= m_cam->get_up().y * m_mov.jump_height * dt;
+				m_mov.moving_ver = true;
+			}
 			break;
 	}
 }
@@ -61,7 +78,7 @@ void gfx::Player::update_position(const World& world, f64 dt) noexcept
 		m_mov.velocity.z *= (1 - m_mov.friction * dt);
 	}
 
-	if (!m_mov.flying && !m_mov.moving_ver)
+	if (!m_mov.flying && !m_mov.moving_ver && m_mov.velocity.y != m_mov.y_padding)
 		m_mov.velocity.y += world.gravity * dt;
 	else if (!m_mov.moving_ver)
 		m_mov.velocity.y = 0.;
@@ -82,17 +99,23 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 
 	std::vector<types::voxel_pos> voxel_positions;
 
-	const auto flooredPosMin{ World::to_voxelPos(m_hitbox.get_min()) };
-	const auto flooredPosMax{ World::to_voxelPos(m_hitbox.get_max()) };
+	auto hitbox = m_hitbox;
+	hitbox.move(get_pos());
+
+	if (debug.show_hitbox)
+		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0 }, 0., false);
+
+	const auto flooredPosMin{ World::to_voxelPos(hitbox.get_min()) };
+	const auto flooredPosMax{ World::to_voxelPos(hitbox.get_max()) };
 
 
 
 	const Chunk* chunk = nullptr;
 	const Chunk* outter_chunk = nullptr;
 
-	for (i64 x{ flooredPosMin.x }; x <= flooredPosMax.x; x++)
-	for (i64 y{ flooredPosMin.y }; y <= flooredPosMax.y; y++)
-	for (i64 z{ flooredPosMin.z }; z <= flooredPosMax.z; z++)
+	for (i64 x{ flooredPosMin.x }; x <= flooredPosMax.x + 1; x++)
+	for (i64 y{ flooredPosMin.y }; y <= flooredPosMax.y + 1; y++)
+	for (i64 z{ flooredPosMin.z }; z <= flooredPosMax.z + 1; z++)
 	{
 		const types::voxel_pos pos{ x, y, z };
 
@@ -106,19 +129,24 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 		if (const auto* vptr{ chunk->at_ptr(Chunk::to_voxelLoc(*chunk, pos)) };
 			vptr && VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
 		{
-			phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, { 0.5 } };
+			phy::HitboxAABB voxel{ 0.5, { 0.5 } };
+			voxel.move(static_cast<types::pos>(pos));
+
 			aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 1, 1, 1 }, 0., false);
 
 
-			if (m_hitbox.intersects(voxel))
+			if (phy::intersects(hitbox, voxel))
 			{
-				auto offset = m_hitbox.get_MTV(voxel);
+				auto offset = phy::get_MTV(hitbox, voxel);
 
 				if (offset.x == 0. && offset.y == 0. && offset.z == 0.) continue;
 
 
+				if (VoxelTypeManager::get().get_type(world.get_voxel(World::to_voxelPos(static_cast<types::pos>(pos) - offset.normal())).type_id).has_bounds)
+					offset = {};
+
 				if (offset.y != 0)
-					m_mov.velocity.y = 0;
+					m_mov.velocity.y = 0 + m_mov.y_padding;
 
 				if (offset.x != 0)
 					m_mov.velocity.x = 0;

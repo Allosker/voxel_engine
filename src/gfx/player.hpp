@@ -27,7 +27,7 @@ namespace gfx
 	public:
 
 		Player(Camera* cam)
-			: m_cam{ cam }, m_hitbox{ cam->get_pos() + v3f64{ 0., -0.8, 0. }, { 0.25, 0.9, 0.25 }}
+			: m_cam{ cam }, m_hitbox{ v3f64{ 0., -0.8, 0. }, { 0.25, 0.9, 0.25 }}
 		{ }
 
 
@@ -41,8 +41,6 @@ namespace gfx
 		void set_pos(const types::pos& new_pos) noexcept
 		{
 			m_trans.set_pos(new_pos);
-
-			m_hitbox.set_pos(m_trans.get_pos() + v3f64{ 0., -0.8, 0. });
 			m_cam->set_pos(m_trans.get_pos());
 		}
 
@@ -54,8 +52,8 @@ namespace gfx
 			update_position(world, dt);
 			resolve_collisions(world, dt);
 
-			if (debug.show_hitbox)
-				aabb_min_max((v3f32)m_hitbox.get_min(), (v3f32)m_hitbox.get_max(), { 1, 0, 0 }, 0., false);
+			if (m_mov.velocity.y == m_mov.y_padding)
+				m_mov.jumped_this_frame = false;
 		}
 
 
@@ -86,7 +84,7 @@ namespace gfx
 			v3f64 velocity{};
 
 			f64 speed{ 20. };
-			f64 jump_height{ 20. };
+			f64 jump_height{ 8. };
 
 			f64 max_speed{ 5. };
 
@@ -96,6 +94,10 @@ namespace gfx
 			bool ghost{ true };
 			bool moving_hor{};
 			bool moving_ver{};
+
+			bool jumped_this_frame{};
+
+			f64 y_padding{ 0.01 };
 
 		} m_mov;
 	
