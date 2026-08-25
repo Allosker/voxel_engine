@@ -11,6 +11,8 @@
 
 #include "sys/window.hpp"
 
+#include <imgui.h>
+
 
 inline void framebuffersize_callback(GLFWwindow* window, int width, int height) noexcept
 {
@@ -43,6 +45,12 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 inline void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) noexcept
 {
+	ImGuiIO& io{ ImGui::GetIO() };
+	io.AddMouseButtonEvent(button, action == GLFW_PRESS ? true : false);
+
+	if (io.WantCaptureMouse) return;
+
+
 	auto* current_window = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
 	if (action == GLFW_PRESS)

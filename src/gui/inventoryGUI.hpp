@@ -41,6 +41,8 @@ namespace gui
 				},
 				GL_STATIC_DRAW
 			);
+
+			m_trans.set_scale({0.5f, 0.5f});
 		}
 
 		void update(const gfx::Inventory& inv) noexcept

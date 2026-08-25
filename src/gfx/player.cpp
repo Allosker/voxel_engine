@@ -150,9 +150,7 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 					m_mov.velocity.z = 0;
 
 				if (offset.y < 0)
-				{
 					m_mov.isOnGround = true;
-				}
 
 				set_pos(get_pos() - offset);
 			}
