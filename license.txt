@@ -1,7 +1,10 @@
 Copyright (c) 2026 Allosker. All rights reserved. 
 
-This source code and any accidental binaries are the sole property of Allosker.
+This software and its source code are proprietary to Allosker.
+Third-party components: This license applies only to original code owned by Allosker.
+Third-party software included with or used by this project is not covered by this license and remains subject to its respective license terms, as identified in THIRD_PARTY_NOTICES.txt.
+https://github.com/Allosker/voxel_engine/blob/main/THIRD_PARTY_NOTICES.txt
 
-No one may use, copy, modify, merge, publish, distribute, sublicense, or sell copies of this software for any purpose without written explicit permission of the right holder.
+No one may use, copy, modify, merge, publish, distribute, sublicense, or sell copies of this software for any purpose without prior written permission of the copyright holder.
 
 This code is provided "as-is", without warranty of any kind.
