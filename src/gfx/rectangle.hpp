@@ -42,6 +42,8 @@ namespace gfx
 
 		const phy::HitboxAABB2D& get_hitbox() const noexcept { return m_hitbox; }
 
+		phy::HitboxAABB2D get_hitbox() const noexcept { return m_hitbox; }
+
 
 		/// <summary>
 		/// If there is no attached texture, we do not draw the object, since the object is defined by its texture

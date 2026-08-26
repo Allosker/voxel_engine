@@ -7,7 +7,9 @@
 */
 
 #include "gfx/inventory.hpp"
+#include "gfx/shader.hpp"
 #include "sys/assetsManager.hpp"
+#include "gfx/rectangle.hpp"
 
 
 namespace gui
@@ -18,11 +20,12 @@ namespace gui
 	public:
 
 		InventoryGUI()
-			: m_size{ gfx::Inventory::Size::Small }
-		{
+			: m_size{ gfx::Inventory::Size::Small }, m_rec{ {} }
+		{  
 			set_texture(m_size);
 
-			m_trans.set_scale(1.5f);
+			m_rec.get_hitbox()
+			
 		}
 
 		void update(const gfx::Inventory& inv) noexcept
@@ -79,9 +82,7 @@ namespace gui
 
 	private:
 
-		gfx::Transformable2D m_trans;
-		const gfx::Texture* m_tex;
-		gfx::Mesh m_mesh{};
+		gfx::Rectangle m_rec;
 
 		gfx::Inventory::Size m_size{};
 
