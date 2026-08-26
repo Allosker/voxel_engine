@@ -11,8 +11,7 @@ namespace gfx
 	// Construction/Destruction
 	// =====================
 
-	Shader::Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader)
-	try
+	Shader::Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader) noexcept
 	{
 		std::string vertCode{}, fragCode{}, geomCode{};
 
@@ -50,50 +49,7 @@ namespace gfx
 		if (!geomShader.empty())
 			geomCode = gSStream.str();
 
-		// Compile/Link shaders
-
-		const char* vCode{ vertCode.c_str() };
-		const char* fCode{ fragCode.c_str() };
-		const char* gCode{ geomCode.c_str() };
-
-		// Create
-		GLuint v_ID{ glCreateShader(GL_VERTEX_SHADER) }, f_ID{ glCreateShader(GL_FRAGMENT_SHADER) }, g_ID{};
-		if (!geomShader.empty())
-			g_ID = glCreateShader(GL_GEOMETRY_SHADER);
-
-		glShaderSource(v_ID, 1, &vCode, nullptr);
-		glShaderSource(f_ID, 1, &fCode, nullptr);
-		if (!geomShader.empty())
-			glShaderSource(g_ID, 1, &gCode, nullptr);
-
-
-		// Compile
-		compile(v_ID, "vertex");
-		compile(f_ID, "fragment");
-		if (!geomShader.empty())
-			compile(g_ID, "geometry");
-
-
-		// Link Shaders 
-		m_id = glCreateProgram();
-
-		glAttachShader(m_id, v_ID);
-		glAttachShader(m_id, f_ID);
-		if (!geomShader.empty())
-			glAttachShader(m_id, g_ID);
-
-		link(m_id);
-
-
-		// Delete
-		glDeleteShader(v_ID);
-		glDeleteShader(f_ID);
-		if (!geomShader.empty())
-			glDeleteShader(g_ID);
-	}
-	catch (...)
-	{
-		throw;
+		init(vertCode, fragCode, geomCode);
 	}
 
 
@@ -145,7 +101,7 @@ namespace gfx
 		return m_id;
 	}
 
-	std::int32_t Shader::get_uni_loc(std::string_view name) const noexcept
+	GLuint Shader::get_uni_loc(std::string_view name) const noexcept
 	{
 		return glGetUniformLocation(m_id, name.data());
 	}
@@ -227,6 +183,50 @@ namespace gfx
 
 			throw std::runtime_error(std::string{ "ERROR::SHADER::LINKAGE_FAILED::Shader_Program::" } + infoLog + '\n');
 		}
+	}
+
+	void Shader::init(std::string_view vert, std::string_view frag, std::string_view geom) noexcept
+	{
+		// Compile/Link shaders
+
+		const char* vCode{ vert.data() };
+		const char* fCode{ frag.data() };
+		const char* gCode{ geom.data() };
+
+		// Create
+		GLuint v_ID{ glCreateShader(GL_VERTEX_SHADER) }, f_ID{ glCreateShader(GL_FRAGMENT_SHADER) }, g_ID{};
+		if (!geom.empty())
+			g_ID = glCreateShader(GL_GEOMETRY_SHADER);
+
+		glShaderSource(v_ID, 1, &vCode, nullptr);
+		glShaderSource(f_ID, 1, &fCode, nullptr);
+		if (!geom.empty())
+			glShaderSource(g_ID, 1, &gCode, nullptr);
+
+
+		// Compile
+		compile(v_ID, "vertex");
+		compile(f_ID, "fragment");
+		if (!geom.empty())
+			compile(g_ID, "geometry");
+
+
+		// Link Shaders 
+		m_id = glCreateProgram();
+
+		glAttachShader(m_id, v_ID);
+		glAttachShader(m_id, f_ID);
+		if (!geom.empty())
+			glAttachShader(m_id, g_ID);
+
+		link(m_id);
+
+
+		// Delete
+		glDeleteShader(v_ID);
+		glDeleteShader(f_ID);
+		if (!geom.empty())
+			glDeleteShader(g_ID);
 	}
 
 }

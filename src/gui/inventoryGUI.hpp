@@ -7,9 +7,11 @@
 */
 
 #include "gfx/inventory.hpp"
+#include "gfx/rectangle.hpp"
 #include "gfx/shader.hpp"
 #include "sys/assetsManager.hpp"
-#include "gfx/rectangle.hpp"
+
+#include "gfx/debugRenderer.hpp"
 
 
 namespace gui
@@ -24,8 +26,7 @@ namespace gui
 		{  
 			set_texture(m_size);
 
-			m_rec.get_hitbox()
-			
+			m_rec.get_hitbox().set_extent(m_rec.get_texture()->get_size());
 		}
 
 		void update(const gfx::Inventory& inv) noexcept
@@ -36,6 +37,7 @@ namespace gui
 				set_texture(m_size);
 			}
 
+			gfx::aabb2D_min_max(m_rec.get_hitbox().get_min(), m_rec.get_hitbox().get_max(), { 1., 1., 1.}, 0.f, true);
 
 		}
 
@@ -43,15 +45,7 @@ namespace gui
 
 		void draw(const gfx::Shader& shader) noexcept
 		{
-			shader.set_value("model", m_trans.get_transform());
-
-
-			m_tex->bind();
-
-				m_mesh.draw();
-
-			m_tex->unbind();
-
+			m_rec.draw(shader);
 		}
 
 
@@ -63,15 +57,15 @@ namespace gui
 			switch (size)
 			{
 				case gfx::Inventory::Size::Small:
-					m_tex = &AssetsManager::get().textures.at("textures/gui/inventory/small");
+					m_rec.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/small"));
 					break;
 
 				case gfx::Inventory::Size::Medium:
-					m_tex = &AssetsManager::get().textures.at("textures/gui/inventory/medium");
+					m_rec.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/medium"));
 					break;
 
 				case gfx::Inventory::Size::Big:
-					m_tex = &AssetsManager::get().textures.at("textures/gui/inventory/big");
+					m_rec.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/big"));
 					break;
 
 				default:

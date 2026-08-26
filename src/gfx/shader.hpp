@@ -20,7 +20,20 @@ namespace gfx
 
 		// = Construction/Destruction
 
-		Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader = "");
+		Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader = "") noexcept;
+
+		Shader(std::string_view vert, std::string_view frag, std::string_view geom = "") noexcept
+		{
+			init(vert, frag, geom);
+		}
+
+		Shader(const char* vert, const char* frag, const char* geom = "") noexcept
+		{
+			std::string v{ vert };
+			std::string f{ frag };
+			std::string g{ geom };
+			init(v, f, g);
+		}
 
 		Shader(Shader&& other) noexcept;
 		Shader& operator=(Shader&& other) noexcept;
@@ -39,7 +52,7 @@ namespace gfx
 
 		GLuint id() const noexcept;
 
-		i32 get_uni_loc(std::string_view name) const noexcept;
+		GLuint get_uni_loc(std::string_view name) const noexcept;
 
 
 		// = Setters
@@ -61,6 +74,9 @@ namespace gfx
 		void compile(GLuint s_id, std::string_view name);
 
 		void link(GLuint s_id);
+
+		void init(std::string_view vert, std::string_view frag, std::string_view geom) noexcept;
+
 
 		GLuint m_id;
 

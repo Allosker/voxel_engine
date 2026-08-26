@@ -4,19 +4,19 @@
 * ==============================================-
 *	Operate as the master of the game, manages all big components and allows communication from one to another
 * ==============================================-
-*/ 
+*/
 
-#include "sys/opengl_debug.hpp"
-#include "sys/assetsManager.hpp"
+#include <memory>
+
 #include "gfx/debugRenderer.hpp"
+#include "sys/assetsManager.hpp"
+#include "sys/opengl_debug.hpp"
 
 #include "sys/window.hpp"
 
 #include "gfx/camera.hpp"
 
 #include "gfx/mesh.hpp"
-#include "gfx/shader.hpp"
-#include "gfx/texture.hpp"
 
 #include "gfx/world.hpp"
 
@@ -24,7 +24,6 @@
 
 #include "gfx/inventory.hpp"
 #include "gui/inventoryGUI.hpp"
-
 
 
 // Only one instance of the game must exist at a time
@@ -59,10 +58,10 @@ private: // Internal Communication/Logic
 	void logic();
 
 	void debug();
-		
-		// - Debug Specific
-		
-		void debug_imgui();
+
+	// - Debug Specific
+
+	void debug_imgui();
 
 
 	void render_on_screen();

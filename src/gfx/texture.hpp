@@ -44,11 +44,11 @@ namespace gfx
 
 	// = Actors
 
-		void loadTexture(const filepath& tex_path);
+		void load(const filepath& tex_path);
 
 		void update(const Image& image) noexcept;
 
-		void deleteTexture() const noexcept;
+		void unload() const noexcept;
 
 		void bind() const noexcept;
 
@@ -57,9 +57,9 @@ namespace gfx
 
 	// = Getters
 
-		GLuint ID() const noexcept { return m_id; }
+		GLuint id() const noexcept { return m_id; }
 
-		v2f32 getSize() const noexcept { return v2f32{ static_cast<float>(m_width), static_cast<float>(m_height) }; }
+		v2f32 get_size() const noexcept { return v2f32{ static_cast<float>(m_width), static_cast<float>(m_height) }; }
 
 
 	private:

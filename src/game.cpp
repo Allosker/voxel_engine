@@ -18,8 +18,12 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 
 	glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
 
-
-	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 1920, 1080 }, "test");
+	/* Three Base Resolutions possible: 
+	* 640, 360
+	* 1920, 1080
+	* 2560, 1440
+	*/
+	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 640, 360 }, "test");
 	window->toggle_cursor();
 
 	if (AA)
@@ -405,7 +409,7 @@ void Game::debug_imgui()
 
 			static float scale{ 10.f };
 			ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
-			ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
+			ImGui::Image(noise_texture.id(), ImVec2(noise_texture.get_size().x * scale, noise_texture.get_size().y * scale));
 		}
 		ImGui::End();
 	}
@@ -453,14 +457,19 @@ void Game::render_on_screen()
 
 		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-			world.draw();	
+			world.draw();
 
 		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
 	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
 
+	/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
+
 	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -475,7 +484,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render(camera.get_VP());
+	gfx::DebugRenderer::get().render2D(orthographic_proj_2D);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
