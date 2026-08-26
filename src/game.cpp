@@ -480,7 +480,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render(camera.get_VP());
+	gfx::DebugRenderer::get().render(camera.get_VP(), orthographic_proj_2D);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

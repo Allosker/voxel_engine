@@ -37,7 +37,7 @@ namespace gui
 				set_texture(m_size);
 			}
 
-			gfx::aabb_min_max(v3f32{ m_rec.get_hitbox().get_min(), 0.f }, v3f32{ m_rec.get_hitbox().get_max(), 0.f }, { 1., 1., 1.}, 0.f, true);
+			gfx::aabb2D_min_max(m_rec.get_hitbox().get_min(), m_rec.get_hitbox().get_max(), { 1., 1., 1.}, 0.f, true);
 
 		}
 

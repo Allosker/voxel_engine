@@ -8,7 +8,7 @@
 * ==============================================-
 */
 
-#include <unordered_map>
+#include <vector>
 
 #include "gfx/mesh.hpp"
 #include "gfx/shader.hpp"
@@ -19,7 +19,9 @@
 
 namespace gfx
 {
-
+	/// <summary>
+	/// Simple debug renderer, everything is considered by default to be 3D unless said otherwise
+	/// </summary>
 	class DebugRenderer
 	{
 		static constexpr const char* linePoint3DVertShaderSrc = "\n"
@@ -68,7 +70,7 @@ namespace gfx
 		DebugRenderer()
 			: shader_3D{ linePoint3DVertShaderSrc, linePointFragShaderSrc }, shader_2D{ linePoint2DVertShaderSrc, linePointFragShaderSrc }
 		{
-			m_lines_2D.mesh.create_buffer<Vertex2D>(false);
+			m_lines_2D.mesh.create_buffer<Vertex2DRGBA>(false);
 
 			m_lines_world.mesh.create_buffer<VertexRGBA>(false);
 			m_lines_foreground.mesh.create_buffer<VertexRGBA>(false);
@@ -106,7 +108,17 @@ namespace gfx
 		}
 
 		
+		void add_2D_line(v2f32 start, v2f32 end, v3f32 color, f32 duration = 0.f)
+		{
+			m_lines_2D.data.push_back({ start, color });
+			m_lines_2D.data.push_back({ end, color });
 
+			const auto dur = m_time + duration;
+			m_lines_2D.pendings.push_back(dur);
+			m_lines_2D.pendings.push_back(dur);
+
+			m_lines_2D.dirty = true;
+		}
 
 		void addLine(v3f32 start, v3f32 end, v3f32 color, f32 duration = 0.f, bool foreground = true)
 		{
@@ -115,7 +127,7 @@ namespace gfx
 			list.data.push_back({ start, color });
 			list.data.push_back({ end, color });
 
-			const auto dur = duration < 0.f ? -1.f : m_time + duration;
+			const auto dur = m_time + duration;
 			list.pendings.push_back(dur);
 			list.pendings.push_back(dur);
 
@@ -142,7 +154,7 @@ namespace gfx
 		{
 			m_time = current_time;
 
-			const auto update_list = [&](VertexList<VertexRGBA>& list) -> void
+			const auto update_list = [&](auto& list) -> void
 			{
 				size_t j{};
 				for (auto i{ list.pendings.begin() }; i != list.pendings.end();)
@@ -166,15 +178,17 @@ namespace gfx
 			update_list(m_lines_foreground);
 			update_list(m_triangles_world);
 			update_list(m_triangles_foreground);
+
+			update_list(m_lines_2D);
 		}
 
-		void render(m4f32 vp_3D)
+		void render(const m4f32& vp_3D, const m4f32& ortho_2D)
 		{
-			const auto render_list = [&](VertexList<VertexRGBA>& list, GLenum draw_mode)
+			const auto render_list = [&](auto& list, GLenum draw_mode)
 			{
 				if (list.dirty)
 				{
-					list.mesh.update_buffer(list.data, GL_STREAM_DRAW);
+					list.mesh.update_buffer(list.data, GL_DYNAMIC_DRAW);
 					list.dirty = false;
 				}
 				
@@ -198,6 +212,16 @@ namespace gfx
 			render_list(m_triangles_foreground, GL_TRIANGLES);
 
 			shader_3D.unbind();
+
+
+			shader_2D.bind();
+
+			shader_2D.set_value_loc(shader_2D_ortho_loc, ortho_2D);
+
+
+			render_list(m_lines_2D, GL_LINES);
+
+			shader_2D.unbind();
 		}
 
 
@@ -205,7 +229,7 @@ namespace gfx
 
 		f32 m_time{};
 
-		VertexList<Vertex2D> m_lines_2D;
+		VertexList<Vertex2DRGBA> m_lines_2D;
 
 		VertexList<VertexRGBA> m_lines_world;
 		VertexList<VertexRGBA> m_lines_foreground;
@@ -307,6 +331,32 @@ namespace gfx
 		renderer.addLine(corners[1], corners[5], color, duration, foreground);
 		renderer.addLine(corners[2], corners[6], color, duration, foreground);
 		renderer.addLine(corners[3], corners[7], color, duration, foreground);
+	}
+
+	/// <param name="min"></param>
+	/// <param name="max"></param>
+	/// <param name="color"></param>
+	/// <param name="duration"></param>
+	/// <param name="foreground"></param>
+	inline void aabb2D_min_max(v2f32 min, v2f32 max, v3f32 color, float duration = 0.f, bool foreground = true)
+	{
+		const v2f32 corners[] = {
+			{min.x, min.y }, // base corner
+			{min.x, max.y }, // upper base
+			{max.x, max.y }, // upper left
+			{max.x, min.y }, // lower left
+						  
+			{min.x, min.y }, // front
+			{min.x, max.y }, // upper front
+			{max.x, max.y }, // opposite
+		};
+
+		auto& renderer = gfx::DebugRenderer::get();
+
+		renderer.add_2D_line(corners[0], corners[1], color, duration);
+		renderer.add_2D_line(corners[1], corners[2], color, duration);
+		renderer.add_2D_line(corners[2], corners[3], color, duration);
+		renderer.add_2D_line(corners[3], corners[0], color, duration);
 	}
 
 
