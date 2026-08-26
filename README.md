@@ -1,7 +1,7 @@
 # Voxel Engine
 ---
 
-Prior to reading this file, make sure you have taken notice of its [license](https://github.com/Allosker/voxel_engine/blob/main/license.txt " read carefully ").
+Prior to reading this file, make sure you have taken notice of the project's [license](https://github.com/Allosker/voxel_engine/blob/main/license.txt " read carefully ").
 
 --- 
 
