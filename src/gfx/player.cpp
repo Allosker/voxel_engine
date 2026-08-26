@@ -34,18 +34,24 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 	case Keys::Space:
 		if (m_mov.flying)
 		{
-			m_mov.velocity += v3f64{ 0, m_cam->get_up().y, 0. } * m_mov.acceleration * dt;
+			if (m_mov.velocity.y < 0.)
+				m_mov.velocity.y = 0.;
+
+			m_mov.velocity.y += m_cam->get_up().y * m_mov.acceleration * dt;
 			m_mov.moving_ver = true;
 		}
 		else if (m_mov.isOnGround)
 		{
-			m_mov.velocity += v3f64{ 0, m_cam->get_up().y, 0. } * m_mov.jump_velocity;
+			m_mov.velocity.y += m_cam->get_up().y * m_mov.jump_velocity;
 		}
 		break;
 
 	case Keys::Left_shift:
 		if (m_mov.flying)
 		{
+			if (m_mov.velocity.y > 0.)
+				m_mov.velocity.y = 0.;
+
 			m_mov.velocity -= v3f64{ 0, m_cam->get_up().y, 0. } * m_mov.acceleration * dt;
 			m_mov.moving_ver = true;
 		}
@@ -94,55 +100,61 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 
 	std::vector<types::voxel_pos> voxel_positions;
 
-	const auto flooredPosMin{ World::to_voxelPos(m_hitbox.get_min()) };
-	const auto flooredPosMax{ World::to_voxelPos(m_hitbox.get_max()) };
+	auto hitbox = m_hitbox;
+	hitbox.move(get_pos());
+	if (debug.show_hitbox)
+		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0 }, 0., false);
+
 
 	const Chunk* chunk = nullptr;
 	const Chunk* outter_chunk = nullptr;
 
-	for (i64 x{ flooredPosMin.x }; x <= flooredPosMax.x; x++)
-		for (i64 y{ flooredPosMin.y }; y <= flooredPosMax.y; y++)
-			for (i64 z{ flooredPosMin.z }; z <= flooredPosMax.z; z++)
+	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
+	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
+	for (i64 x{ floored_pos_min.x }; x <= floored_pos_max.x; x++)
+	for (i64 y{ floored_pos_min.y }; y <= floored_pos_max.y; y++)
+	for (i64 z{ floored_pos_min.z }; z <= floored_pos_max.z; z++)
+	{
+		const types::voxel_pos pos{ x, y, z };
+
+		const auto chunk_loc = World::to_chunkLoc(pos);
+		chunk = world.get_chunkGrid().at_chunk(chunk_loc);
+
+		if (!chunk)
+			continue;
+
+
+		if (const auto* vptr{ chunk->at_ptr(Chunk::to_voxelLoc(*chunk, pos)) };
+			vptr && VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
+		{
+			phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, { 0.5 } };
+			aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 1, 1, 1 }, 0., false);
+					
+
+			if (phy::intersects(hitbox, voxel))
 			{
-				const types::voxel_pos pos{ x, y, z };
+				auto offset =phy::get_MTV(hitbox, voxel);
 
-				const auto chunk_loc = World::to_chunkLoc(pos);
-				chunk = world.get_chunkGrid().at_chunk(chunk_loc);
-
-				if (!chunk)
-					continue;
+				if (offset.x == 0. && offset.y == 0. && offset.z == 0.) continue;
 
 
-				if (const auto* vptr{ chunk->at_ptr(Chunk::to_voxelLoc(*chunk, pos)) };
-					vptr && VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
-				{
-					phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, { 0.5 } };
-					aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 1, 1, 1 }, 0., false);
+				if (VoxelTypeManager::get().get_type(world.get_voxel(World::to_voxelPos(static_cast<types::pos>(pos) - offset.normal()))).has_bounds)
+					offset = {};
 
+				if (offset.y != 0)
+					m_mov.velocity.y = 0;
 
-					if (m_hitbox.intersects(voxel))
-					{
-						auto offset = m_hitbox.get_MTV(voxel);
+				if (offset.x != 0)
+					m_mov.velocity.x = 0;
 
-						if (offset.x == 0. && offset.y == 0. && offset.z == 0.) continue;
+				if (offset.z != 0)
+					m_mov.velocity.z = 0;
 
+				if (offset.y < 0)
+					m_mov.isOnGround = true;
 
-						if (offset.y != 0)
-							m_mov.velocity.y = 0;
-
-						if (offset.x != 0)
-							m_mov.velocity.x = 0;
-
-						if (offset.z != 0)
-							m_mov.velocity.z = 0;
-
-						if (offset.y < 0)
-						{
-							m_mov.isOnGround = true;
-						}
-
-						set_pos(get_pos() - offset);
-					}
-				}
+				set_pos(get_pos() - offset);
 			}
+		}
+	}
 }

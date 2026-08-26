@@ -18,8 +18,12 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 
 	glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
 
-
-	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 640, 480 }, "test");
+	/* Three Base Resolutions possible: 
+	* 640, 360
+	* 1920, 1080
+	* 2560, 1440
+	*/
+	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 640, 360 }, "test");
 	window->toggle_cursor();
 
 	if (AA)
@@ -58,9 +62,13 @@ static DebugMessage init_imgui(Window& window)
 	return DebugMessage{ .msg{"Info::ImGui_Init::Successful"}, .severity{DebugMessage::Info} };
 }
 
+Game::Game() noexcept
+	: window{ init_glfw(true, render_settings.MSAA) }
+{
+}
+
 DebugMessage Game::run()
 {
-	window = init_glfw(true, render_settings.MSAA);
 	if (!window)
 		return DebugMessage{ .msg{"Error::Cannot initialise window"}, .severity{DebugMessage::Critical} };
 
@@ -74,23 +82,10 @@ DebugMessage Game::run()
 
 	AssetsManager::get(); // load all assets
 
+	AssetsManager::get().shaders.at("shaders/twoD").bind();
+	AssetsManager::get().shaders.at("shaders/twoD").set_value("ortho", orthographic_proj_2D);
+	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
-	// Temporary
-
-	gfx::Mesh mesh
-	{
-		std::vector<gfx::Vertex>
-		{
-			{ {-0.5, -0.5, -1}, {0, 0} },
-			{ { 0.5, -0.5, -1}, {1, 0} },
-			{ { 0.5,  0.5, -1}, {1, 1} },
-			{ {-0.5,  0.5, -1}, {0, 1} }
-		},
-		{
-			0, 1, 2,
-			0, 2, 3
-		}
-	};
 
 	world.update_grid({ 0, 0, 0 }, true);
 
@@ -100,6 +95,7 @@ DebugMessage Game::run()
 	}
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
+
 
 	// Main Loop
 	while (window->isOpen())
@@ -151,7 +147,6 @@ void Game::inputs()
 {
 	static gfx::RayCastResult ray{};
 
-
 	while (auto event = window->poll_event())
 	{
 		if (auto focus_changed = event->get_if<Event::FocusChanged>())
@@ -167,6 +162,7 @@ void Game::inputs()
 
 		if (auto key = event->get_if<Event::KeyEvent>())
 		{
+
 			if (!runtime_settings.paused)
 				sys::InputManager::get().add_key_event(*key);
 
@@ -290,6 +286,9 @@ void Game::logic()
 	world.update_grid(player_loc);
 
 	player.update(world, delta_time.get());
+
+	gui_inv.update(inv);
+
 }
 
 
@@ -330,103 +329,115 @@ void Game::debug_imgui()
 	}
 	ImGui::EndMainMenuBar();
 
-	if (ImGui::Begin("General", &show_general))
+	if (show_general)
 	{
-		const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
-
-		ImGui::Text("FPS: %f", fps);
-
-		const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
-		ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
-
-		if (auto* c = world.get_chunkGrid().at_chunk(player_loc))
+		if (ImGui::Begin("General", &show_general))
 		{
-			const auto camInChunk = gfx::Chunk::to_voxelLoc(*c, camVoxelPos);
-			ImGui::Text("Pos Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
-			ImGui::Text("Pos In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
+			const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
+
+			ImGui::Text("FPS: %f", fps);
+
+			const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
+			ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);
+
+			if (auto* c = world.get_chunkGrid().at_chunk(player_loc))
+			{
+				const auto camInChunk = gfx::Chunk::to_voxelLoc(*c, camVoxelPos);
+				ImGui::Text("Pos Location: %d %d %d", player_loc.x, player_loc.y, player_loc.z);
+				ImGui::Text("Pos In Chunk: %d %d %d", camInChunk.x, camInChunk.y, camInChunk.z);
+			}
+			else
+				ImGui::Text("No chunk at location");
+
+			ImGui::Text("Pos Discrete: %f %f %f", player.get_pos().x, player.get_pos().y, player.get_pos().z);
+
+
+			ImGui::BeginGroup();
+			{
+				const u32 max{ 8 };
+				const u32 min{ 1 };
+
+				ImGui::SliderScalar("Render Distance", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
+				ImGui::SliderScalar("Render Height", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
+
+			}
+			ImGui::EndGroup();
+
+
 		}
-		else
-			ImGui::Text("No chunk at location");
-
-		ImGui::Text("Pos Discrete: %f %f %f", player.get_pos().x, player.get_pos().y, player.get_pos().z);
-
-
-		ImGui::BeginGroup();
-		{
-			const u32 max{ 8 };
-			const u32 min{ 1 };
-
-			ImGui::SliderScalar("Render Distance", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
-			ImGui::SliderScalar("Render Height", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_height, &min, &max);
-
-		}
-		ImGui::EndGroup();
-
+		ImGui::End();
 	}
-	ImGui::End();
 
-	if (ImGui::Begin("Terrain Generation", &show_tg))
+	if (show_tg)
 	{
-		static gfx::Image noise_image{ v2i32{}, GL_RED };
-		static gfx::Texture noise_texture{ noise_image };
-
-		static i32 renderdistance{};
-		const i32 l1{ 0 }, l2{ 100 };
-		ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
-
-		auto pos = static_cast<v3i32>(camera.get_pos());
-		v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
-		v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };
-
-		if (compute_noise_map)
+		if (ImGui::Begin("Terrain Generation", &show_tg))
 		{
-			compute_noise_map = false;
+			static gfx::Image noise_image{ v2i32{}, GL_RED };
+			static gfx::Texture noise_texture{ noise_image };
 
-			v3i32 gap{ max - min };
+			static i32 renderdistance{};
+			const i32 l1{ 0 }, l2{ 100 };
+			ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
 
-			noise_image = gfx::Image{ (v2u32)v2i32 { gap.x, gap.z }, GL_RGB };
+			auto pos = static_cast<v3i32>(camera.get_pos());
+			v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
+			v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };
+
+			if (compute_noise_map)
+			{
+				compute_noise_map = false;
+
+				v3i32 gap{ max - min };
+
+				noise_image = gfx::Image{ (v2u32)v2i32 { gap.x, gap.z }, GL_RGB };
 
 
-			for (i32 x{ min.x }; x < max.x; x++)
-				for (i32 z{ min.z }; z < max.z; z++)
-				{
-					auto t = gfx::continentalness(world.terrain_context, z, x);
+				for (i32 x{ min.x }; x < max.x; x++)
+					for (i32 z{ min.z }; z < max.z; z++)
+					{
+						auto t = gfx::continentalness(world.terrain_context, z, x);
 
-					i32 grayscale = t * 255;
+						i32 grayscale = t * 255;
 
-					noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel()) = grayscale;
-					noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 1) = grayscale;
-					noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 2) = grayscale;
-				}
+						noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel()) = grayscale;
+						noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 1) = grayscale;
+						noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 2) = grayscale;
+					}
 
-			noise_texture.update(noise_image);
+				noise_texture.update(noise_image);
+			}
+
+			static float scale{ 10.f };
+			ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
+			ImGui::Image(noise_texture.id(), ImVec2(noise_texture.get_size().x * scale, noise_texture.get_size().y * scale));
 		}
-
-		static float scale{ 10.f };
-		ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
-		ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
+		ImGui::End();
 	}
-	ImGui::End();
 
-	if (ImGui::Begin("Player & World", &show_player))
+	if (show_player)
 	{
-		ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
-		ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.m_mov.acceleration);
-		ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
+		if (ImGui::Begin("Player & World", &show_player))
+		{
+			ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
+			ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.m_mov.acceleration);
+			ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
 
-		ImGui::Checkbox("Flying", &player.m_mov.flying);
-		ImGui::Checkbox("Ghost", &player.m_mov.ghost);
-		ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
+			ImGui::Checkbox("Flying", &player.m_mov.flying);
+			ImGui::Checkbox("Ghost", &player.m_mov.ghost);
+			ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
 
-		ImGui::Text("Other Settings");
+			ImGui::Text("Other Settings");
 
-		ImGui::DragScalar("Jump Velocity", ImGuiDataType_Double, &player.m_mov.jump_velocity);
-		ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
-		ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
+			ImGui::DragScalar("Jump Velocity", ImGuiDataType_Double, &player.m_mov.jump_velocity);
+			ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
+			ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
 
 
+		}
+		ImGui::End();
 	}
-	ImGui::End();
+
+
 }
 
 
@@ -439,24 +450,41 @@ void Game::render_on_screen()
 	glEnable(GL_DEPTH_TEST);
 
 
-	AssetsManager::get().shaders.at("shader/world_chunks").bind();
+	AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
-	AssetsManager::get().shaders.at("shader/world_chunks").setValue("vp", camera.get_VP());
-	AssetsManager::get().shaders.at("shader/world_chunks").setValue("model", m4f32::Identity);
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32::Identity);
 
-	AssetsManager::get().textures.at("textures/voxels/stone").bind();
+		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-	world.draw();
+			world.draw();
 
-	AssetsManager::get().textures.at("textures/voxels/stone").unbind();
-	AssetsManager::get().shaders.at("shader/world_chunks").unbind();
+		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
+
+	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
 
+	/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	AssetsManager::get().shaders.at("shaders/twoD").bind();
+
+		gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
+
+	AssetsManager::get().shaders.at("shaders/twoD").unbind();
+
+	glDisable(GL_BLEND);
 
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render(camera.get_VP());
+	gfx::DebugRenderer::get().render2D(orthographic_proj_2D);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

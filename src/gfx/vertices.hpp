@@ -32,4 +32,10 @@ namespace gfx
 		v2f32 uvs;
 	};
 
+	struct Vertex2DRGBA
+	{
+		v2f32 pos;
+		v4f32 color;
+	};
+
 }
