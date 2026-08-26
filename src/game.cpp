@@ -18,8 +18,12 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 
 	glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
 
-
-	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 1920, 1080 }, "test");
+	/* Three Base Resolutions possible: 
+	* 640, 360
+	* 1920, 1080
+	* 2560, 1440
+	*/
+	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 640, 360 }, "test");
 	window->toggle_cursor();
 
 	if (AA)

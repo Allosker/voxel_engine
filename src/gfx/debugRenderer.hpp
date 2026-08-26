@@ -2,14 +2,19 @@
 /* -- All Rights Reserved: Allosker 2026
 * https://github.com/Allosker/voxel_engine/blob/main/license.txt
 * ==============================================-
-*	Simple debug renderer -- 
+*	Simple debug renderer --
 * ==============================================-
 * Code given by https://github.com/lapinozz
 * ==============================================-
 */
 
-#include "sys/graphics.hpp"
+#include <unordered_map>
+
+#include "gfx/mesh.hpp"
+#include "gfx/shader.hpp"
+#include "sys/types.hpp"
 #include "vertices.hpp"
+#include "sys/graphics.hpp"
 
 
 namespace gfx
@@ -17,23 +22,38 @@ namespace gfx
 
 	class DebugRenderer
 	{
-		static constexpr const char* linePointVertShaderSrc = "\n"
-			"#version 150\n"
+		static constexpr const char* linePoint3DVertShaderSrc = "\n"
+			"#version 460 core\n"
 			"\n"
-			"in vec3 in_Position;\n"
-			"in vec4 in_Color;\n"
+			"layout (location = 0) in vec3 in_Position;\n"
+			"layout (location = 1) in vec4 in_Color;\n"
 			"\n"
 			"out vec4 v_Color;\n"
-			"uniform mat4 u_MvpMatrix;\n"
+			"uniform mat4 vp;\n"
 			"\n"
 			"void main()\n"
 			"{\n"
-			"    gl_Position  = u_MvpMatrix * vec4(in_Position, 1.0);\n"
+			"    gl_Position  = vp * vec4(in_Position, 1.0);\n"
 			"    v_Color      = in_Color;\n"
 			"}\n";
 
+		static constexpr const char* linePoint2DVertShaderSrc = "\n"
+			"#version 460 core\n"
+			"\n"
+			"layout (location = 0) in vec2 in_Position;\n"
+			"layout (location = 1) in vec2 in_Color;\n"
+			"\n"
+			"out vec4 v_Color;\n"
+			"uniform mat4 ortho;\n"
+			"\n"
+			"void main()\n"
+			"{\n"
+			"    gl_Position  = ortho * vec4(in_Position, 0., 1.);\n"
+			"    v_Color      = vec4(1.,1.,1.,1.);\n"
+			"}\n";
+
 		static constexpr const char* linePointFragShaderSrc = "\n"
-			"#version 150\n"
+			"#version 460 core\n"
 			"\n"
 			"in  vec4 v_Color;\n"
 			"out vec4 out_FragColor;\n"
@@ -43,80 +63,41 @@ namespace gfx
 			"    out_FragColor = v_Color;\n"
 			"}\n";
 
+
+
 		DebugRenderer()
+			: shader_3D{ linePoint3DVertShaderSrc, linePointFragShaderSrc }, shader_2D{ linePoint2DVertShaderSrc, linePointFragShaderSrc }
 		{
-			linesWorld.primitiveSize = 2;
-			linesWorld.primitiveSize = 2;
-			trianglesWorld.primitiveSize = 3;
-			trianglesForeground.primitiveSize = 3;
+			m_lines_2D.mesh.create_buffer<Vertex2D>(false);
 
-			GLuint linePointVS = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(linePointVS, 1, &linePointVertShaderSrc, nullptr);
-			glCompileShader(linePointVS);
+			m_lines_world.mesh.create_buffer<VertexRGBA>(false);
+			m_lines_foreground.mesh.create_buffer<VertexRGBA>(false);
 
-			GLint linePointFS = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(linePointFS, 1, &linePointFragShaderSrc, nullptr);
-			glCompileShader(linePointFS);
+			m_triangles_world.mesh.create_buffer<VertexRGBA>(false);
+			m_triangles_foreground.mesh.create_buffer<VertexRGBA>(false);
 
-			shaderProgram = glCreateProgram();
-			glAttachShader(shaderProgram, linePointVS);
-			glAttachShader(shaderProgram, linePointFS);
 
-			glBindAttribLocation(shaderProgram, 0, "in_Position");
-			glBindAttribLocation(shaderProgram, 1, "in_Color");
-			glLinkProgram(shaderProgram);
-
-			shaderMatrixLocation = glGetUniformLocation(shaderProgram, "u_MvpMatrix");
-
-			const auto& setupArrayList = [&](VertexList& list)
-				{
-					glGenVertexArrays(1, &list.VAO);
-					glGenBuffers(1, &list.VBO);
-
-					glBindVertexArray(list.VAO);
-					glBindBuffer(GL_ARRAY_BUFFER, list.VBO);
-
-					// RenderInterface will never be called with a batch larger than
-					// DEBUG_DRAW_VERTEX_BUFFER_SIZE vertexes, so we can allocate the same amount here.
-					glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STREAM_DRAW);
-
-					// Set the ::data::vertex format expected by 3D points and lines:
-					std::size_t offset = 0;
-
-					glEnableVertexAttribArray(0); // in_Position (vec3)
-					glVertexAttribPointer(
-						/* index     = */ 0,
-						/* size      = */ 3,
-						/* type      = */ GL_FLOAT,
-						/* normalize = */ GL_FALSE,
-						/* stride    = */ sizeof(gfx::VertexRGBA),
-						/* offset    = */ reinterpret_cast<void*>(offset));
-					offset += sizeof(float) * 3;
-
-					glEnableVertexAttribArray(1); // in_Color (vec4)
-					glVertexAttribPointer(
-						/* index     = */ 1,
-						/* size      = */ 4,
-						/* type      = */ GL_FLOAT,
-						/* normalize = */ GL_FALSE,
-						/* stride    = */ sizeof(gfx::VertexRGBA),
-						/* offset    = */ reinterpret_cast<void*>(offset));
-
-					// VAOs can be a pain in the neck if left enabled...
-					glBindVertexArray(0);
-					glBindBuffer(GL_ARRAY_BUFFER, 0);
-				};
-
-			setupArrayList(linesWorld);
-			setupArrayList(linesForeground);
-			setupArrayList(trianglesWorld);
-			setupArrayList(trianglesForeground);
+			shader_3D_vp_loc = shader_3D.get_uni_loc("vp");
+			shader_2D_ortho_loc = shader_2D.get_uni_loc("ortho");
 		}
+
+		template<typename T>
+		struct VertexList
+		{
+			/// <summary>
+			/// First is the time the resource was allocated
+			/// <para> Second is the resource (vertex) pushed at the time of allocation </para>
+			/// </summary>
+			std::vector<T> data;
+			std::vector<f32> pendings;
+
+			Mesh mesh;
+
+			bool dirty{};
+		};
 
 
 	public:
-
-		
 
 		static DebugRenderer& get()
 		{
@@ -124,152 +105,120 @@ namespace gfx
 			return instance;
 		}
 
-		struct VertexList
+		
+
+
+		void addLine(v3f32 start, v3f32 end, v3f32 color, f32 duration = 0.f, bool foreground = true)
 		{
-			int primitiveSize{};
+			auto& list = foreground ? m_lines_foreground : m_lines_world;
 
-			std::vector<gfx::VertexRGBA> vertices;
-			std::vector<float> pendings;
+			list.data.push_back({ start, color });
+			list.data.push_back({ end, color });
 
-			GLuint VAO{};
-			GLuint VBO{};
-
-			bool dirty{};
-		};
-
-		void addLine(v3f32 start, v3f32 end, v3f32 color, float duration = 0.f, bool foreground = true)
-		{
-			auto& list = foreground ? linesForeground : linesWorld;
-
-			list.vertices.push_back({ start, color });
-			list.vertices.push_back({ end, color });
-
-			list.pendings.push_back(duration < 0.f ? -1.f : time + duration);
+			const auto dur = duration < 0.f ? -1.f : m_time + duration;
+			list.pendings.push_back(dur);
+			list.pendings.push_back(dur);
 
 			list.dirty = true;
 		}
 
 		void addTriangle(v3f32 p1, v3f32 p2, v3f32 p3, v3f32 color, float duration = 0.f, bool foreground = true)
 		{
-			auto& list = foreground ? trianglesForeground : trianglesWorld;
+			auto& list = foreground ? m_triangles_foreground : m_triangles_world;
 
-			list.vertices.push_back({ p1, color });
-			list.vertices.push_back({ p2, color });
-			list.vertices.push_back({ p3, color });
+			list.data.push_back({ p1, color });
+			list.data.push_back({ p2, color });
+			list.data.push_back({ p3, color });
 
-			list.pendings.push_back(duration < 0.f ? -1.f : time + duration);
+			const auto dur = duration < 0.f ? -1.f : m_time + duration;
+			list.pendings.push_back(dur);
+			list.pendings.push_back(dur);
+			list.pendings.push_back(dur);
 
 			list.dirty = true;
 		}
 
-		void update(float currentTime)
+		void update(f32 current_time)
 		{
-			time = currentTime;
+			m_time = current_time;
 
-			const auto updateList = [&](VertexList& list)
+			const auto update_list = [&](VertexList<VertexRGBA>& list) -> void
+			{
+				size_t j{};
+				for (auto i{ list.pendings.begin() }; i != list.pendings.end();)
 				{
-					for (int x = 0; x < list.pendings.size(); x++)
+					if (*i <= 0.f || *i < current_time)
 					{
-						float endTime = list.pendings[x];
-						if (endTime < 0.f || endTime > currentTime)
-							continue;
-
-						std::swap(list.pendings[x], list.pendings.back());
-						list.pendings.resize(list.pendings.size() - 1);
-
-						for (int y = 0; y < list.primitiveSize; y++)
-							std::swap(list.vertices[x * list.primitiveSize + y], list.vertices[list.vertices.size() - list.primitiveSize + y]);
-
-						list.vertices.resize(list.vertices.size() - list.primitiveSize);
+						i = list.pendings.erase(i);
+						list.data.erase(list.data.begin() + j);
 
 						list.dirty = true;
-					}
-				};
-
-			updateList(linesWorld);
-			updateList(linesForeground);
-			updateList(trianglesWorld);
-			updateList(trianglesForeground);
-		}
-		
-		void erase_all()
-		{
-			const auto eraseList = [&](VertexList& list)
-				{
-					for (int x = 0; x < list.pendings.size(); x++)
-					{
-						std::vector<gfx::VertexRGBA> vertices;
-						std::vector<float> pendings;
-
-						list.vertices.swap(vertices);
-						list.pendings.swap(pendings);
-
-						list.dirty = true;
-					}
-				};
-
-			eraseList(linesWorld);
-			eraseList(linesForeground);
-			eraseList(trianglesWorld);
-			eraseList(trianglesForeground);
-		}
-
-		void render(m4f32 mvpMatrix)
-		{
-			glDisable(GL_CULL_FACE);
-
-			const auto renderList = [&](VertexList& list, bool depthEnabled, GLenum type)
-				{
-					glBindVertexArray(list.VAO);
-					glUseProgram(shaderProgram);
-
-					glUniformMatrix4fv(shaderMatrixLocation, 1, GL_FALSE, mvpMatrix.data.data());
-
-					if (depthEnabled)
-					{
-						glEnable(GL_DEPTH_TEST);
 					}
 					else
 					{
-						glDisable(GL_DEPTH_TEST);
+						i++;
+						j++;
 					}
+				}
+			};
 
-					// NOTE: Could also use glBufferData to take advantage of the buffer orphaning trick...
-					glBindBuffer(GL_ARRAY_BUFFER, list.VBO);
+			update_list(m_lines_world);
+			update_list(m_lines_foreground);
+			update_list(m_triangles_world);
+			update_list(m_triangles_foreground);
+		}
 
-					if (list.dirty)
-					{
-						glBufferData(GL_ARRAY_BUFFER, list.vertices.size() * sizeof(gfx::VertexRGBA), list.vertices.data(), GL_DYNAMIC_DRAW);
-						list.dirty = false;
-					}
+		void render(m4f32 vp_3D)
+		{
+			const auto render_list = [&](VertexList<VertexRGBA>& list, GLenum draw_mode)
+			{
+				if (list.dirty)
+				{
+					list.mesh.update_buffer(list.data, GL_STREAM_DRAW);
+					list.dirty = false;
+				}
+				
+				list.mesh.draw(draw_mode);
+			};
 
-					glDrawArrays(type, 0, list.vertices.size());
 
-					glUseProgram(0);
-					glBindVertexArray(0);
-					glBindBuffer(GL_ARRAY_BUFFER, 0);
-				};
+			glDisable(GL_CULL_FACE);
 
-			renderList(linesWorld, true, GL_LINES);
-			renderList(linesForeground, false, GL_LINES);
+			shader_3D.bind();
 
-			renderList(trianglesWorld, true, GL_TRIANGLES);
-			renderList(trianglesForeground, false, GL_TRIANGLES);
+			shader_3D.set_value_loc(shader_3D_vp_loc, vp_3D);
+
+
+			glEnable(GL_DEPTH_TEST);
+			render_list(m_lines_world, GL_LINES);
+			render_list(m_triangles_world, GL_TRIANGLES);
+
+			glDisable(GL_DEPTH_TEST);
+			render_list(m_lines_foreground, GL_LINES);
+			render_list(m_triangles_foreground, GL_TRIANGLES);
+
+			shader_3D.unbind();
 		}
 
 
 	private:
 
-		float time{};
+		f32 m_time{};
 
-		VertexList linesWorld;
-		VertexList linesForeground;
+		VertexList<Vertex2D> m_lines_2D;
 
-		VertexList trianglesWorld;
-		VertexList trianglesForeground;
+		VertexList<VertexRGBA> m_lines_world;
+		VertexList<VertexRGBA> m_lines_foreground;
 
-		GLuint shaderProgram;
-		GLint  shaderMatrixLocation;
+		VertexList<VertexRGBA> m_triangles_world;
+		VertexList<VertexRGBA> m_triangles_foreground;
+
+
+		Shader shader_3D;
+		Shader shader_2D;
+
+		GLint  shader_3D_vp_loc;
+		GLint  shader_2D_ortho_loc;
 	};
 
 

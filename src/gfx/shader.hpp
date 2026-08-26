@@ -27,6 +27,14 @@ namespace gfx
 			init(vert, frag, geom);
 		}
 
+		Shader(const char* vert, const char* frag, const char* geom = "") noexcept
+		{
+			std::string v{ vert };
+			std::string f{ frag };
+			std::string g{ geom };
+			init(v, f, g);
+		}
+
 		Shader(Shader&& other) noexcept;
 		Shader& operator=(Shader&& other) noexcept;
 
@@ -44,7 +52,7 @@ namespace gfx
 
 		GLuint id() const noexcept;
 
-		i32 get_uni_loc(std::string_view name) const noexcept;
+		GLuint get_uni_loc(std::string_view name) const noexcept;
 
 
 		// = Setters

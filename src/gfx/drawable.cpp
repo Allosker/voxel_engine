@@ -25,7 +25,7 @@ namespace gfx
 				i.texture->bind();
 
 			i.mesh->bind();
-			glDrawElements(i.draw_mode, i.mesh->getNumberIndices(), GL_UNSIGNED_INT, 0);
+			glDrawElements(i.draw_mode, i.mesh->get_nb_indices(), GL_UNSIGNED_INT, 0);
 			i.mesh->unbind();
 
 			if (i.texture)

@@ -101,7 +101,7 @@ namespace gfx
 		return m_id;
 	}
 
-	std::int32_t Shader::get_uni_loc(std::string_view name) const noexcept
+	GLuint Shader::get_uni_loc(std::string_view name) const noexcept
 	{
 		return glGetUniformLocation(m_id, name.data());
 	}
