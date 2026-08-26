@@ -102,7 +102,8 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 
 	auto hitbox = m_hitbox;
 	hitbox.move(get_pos());
-
+	if (debug.show_hitbox)
+		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0 }, 0., false);
 
 
 	const Chunk* chunk = nullptr;
@@ -150,9 +151,7 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 					m_mov.velocity.z = 0;
 
 				if (offset.y < 0)
-				{
 					m_mov.isOnGround = true;
-				}
 
 				set_pos(get_pos() - offset);
 			}

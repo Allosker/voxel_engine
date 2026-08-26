@@ -20,7 +20,7 @@ namespace gfx
 		glTexParameteri(m_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(m_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		loadTexture(tex_path);
+		load(tex_path);
 	}
 
 	Texture::Texture(const Image& image, Type type)
@@ -70,7 +70,7 @@ namespace gfx
 
 	Texture::~Texture() noexcept
 	{
-		deleteTexture();
+		unload();
 	}
 
 
@@ -78,7 +78,7 @@ namespace gfx
 	// Actors
 	// =====================
 
-	void Texture::loadTexture(const filepath& tex_path)
+	void Texture::load(const filepath& tex_path)
 	{
 		std::int32_t nrChannels{};
 
@@ -120,7 +120,7 @@ namespace gfx
 		glBindTexture(m_type, 0);
 	}
 
-	void Texture::deleteTexture() const noexcept
+	void Texture::unload() const noexcept
 	{
 		glDeleteTextures(1, &m_id);
 	}
