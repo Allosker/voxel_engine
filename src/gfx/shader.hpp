@@ -20,7 +20,12 @@ namespace gfx
 
 		// = Construction/Destruction
 
-		Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader = "");
+		Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader = "") noexcept;
+
+		Shader(std::string_view vert, std::string_view frag, std::string_view geom = "") noexcept
+		{
+			init(vert, frag, geom);
+		}
 
 		Shader(Shader&& other) noexcept;
 		Shader& operator=(Shader&& other) noexcept;
@@ -61,6 +66,9 @@ namespace gfx
 		void compile(GLuint s_id, std::string_view name);
 
 		void link(GLuint s_id);
+
+		void init(std::string_view vert, std::string_view frag, std::string_view geom) noexcept;
+
 
 		GLuint m_id;
 

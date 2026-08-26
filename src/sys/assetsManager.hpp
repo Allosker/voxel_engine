@@ -6,13 +6,13 @@
 * ==============================================-
 */
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
-#include "sys/graphics.hpp"
 
 #include "gfx/shader.hpp"
 #include "gfx/texture.hpp"
+#include "sys/types.hpp"
 
 
 // Loads all assets the first time "get()" is called.
@@ -21,7 +21,7 @@ class AssetsManager
 {
 public:
 
-	
+
 	static AssetsManager& get() noexcept
 	{
 		static AssetsManager instance{};
@@ -44,8 +44,8 @@ private:
 
 	void add_shaders() noexcept
 	{
-		shaders.emplace("shaders/world_chunks", gfx::Shader{ ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
-		shaders.emplace("shaders/twoD", gfx::Shader{ ASSET_PATH"shader/twoD.vert", ASSET_PATH"shader/twoD.frag" });
+		shaders.emplace("shaders/world_chunks", gfx::Shader{ (filepath)ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
+		shaders.emplace("shaders/twoD", gfx::Shader{ (filepath)ASSET_PATH"shader/twoD.vert", ASSET_PATH"shader/twoD.frag" });
 	}
 
 	void add_textures() noexcept

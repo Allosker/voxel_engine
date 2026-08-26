@@ -6,28 +6,29 @@
 * ==============================================-
 */
 
-#include "gfx/transformable2D.hpp"
 #include "gfx/mesh.hpp"
 #include "gfx/shader.hpp"
 #include "gfx/texture.hpp"
+#include "gfx/transformable2D.hpp"
 #include "gfx/vertices.hpp"
+#include "sys/types.hpp"
 
 #include "phy/hitboxAABB_2D.hpp"
 
 
 namespace gfx
 {
-	
+
 	class Rectangle
-	{	
+	{
 	public:
 
 		Rectangle(v2f32 extent)
 			: m_hitbox{ types::pos2d{}, extent }
 		{
-			m_mesh.create_buffer<Vertex2D>({}, {}, GL_STATIC_DRAW);
+			m_mesh.create_buffer<Vertex2D>();
 		}
-		
+
 		/// <summary>
 		/// Update the GPU buffer based on the size of the texture, so it is default-sized
 		/// </summary>
@@ -41,8 +42,9 @@ namespace gfx
 		Transformable2D& transform() noexcept { return m_trans; }
 
 		const phy::HitboxAABB2D& get_hitbox() const noexcept { return m_hitbox; }
+		phy::HitboxAABB2D& get_hitbox() noexcept { return m_hitbox; }
 
-		phy::HitboxAABB2D get_hitbox() const noexcept { return m_hitbox; }
+		const Texture* get_texture() const noexcept { return m_tex; }
 
 
 		/// <summary>

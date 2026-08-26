@@ -73,7 +73,7 @@ namespace gfx
 
 		template<typename T>
 		// If called while a buffer already exists, erases the ancient one and creates a new one instead
-		void create_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept;
+		void create_buffer() noexcept;
 
 
 	private:
@@ -93,6 +93,7 @@ namespace gfx
 	template<typename T>
 	inline void Mesh::update_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept
 	{
+		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, VertexRGBA>) && "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
 		assert((m_vao || m_vbo) && "ERROR::MESH::UPDATING_BUFFER::No VAO/VBO exist for the current mesh");
 
 		glBindVertexArray(m_vao);
@@ -114,7 +115,7 @@ namespace gfx
 	}
 
 	template<typename T>
-	inline void Mesh::create_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept
+	inline void Mesh::create_buffer() noexcept
 	{
 		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, VertexRGBA>) && "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
 		if (m_vao || m_ebo || m_vao)
@@ -127,8 +128,6 @@ namespace gfx
 		glCreateVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);
 		glGenBuffers(1, &m_ebo);
-
-		update_buffer(vertices, indices, draw_mode);
 
 
 		glBindVertexArray(m_vao);

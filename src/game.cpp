@@ -405,7 +405,7 @@ void Game::debug_imgui()
 
 			static float scale{ 10.f };
 			ImGui::SliderFloat("Noise scale: ", &scale, 0.0001f, 10.0f);
-			ImGui::Image(noise_texture.ID(), ImVec2(noise_texture.getSize().x * scale, noise_texture.getSize().y * scale));
+			ImGui::Image(noise_texture.id(), ImVec2(noise_texture.get_size().x * scale, noise_texture.get_size().y * scale));
 		}
 		ImGui::End();
 	}
@@ -462,11 +462,16 @@ void Game::render_on_screen()
 
 	glDisable(GL_DEPTH_TEST);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	AssetsManager::get().shaders.at("shaders/twoD").bind();
 
 		gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
 
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
+
+	glDisable(GL_BLEND);
 
 
 	/*= Debug Draws =*/
