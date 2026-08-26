@@ -457,12 +457,14 @@ void Game::render_on_screen()
 
 		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-			world.draw();	
+			world.draw();
 
 		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
 	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
+
+	/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -480,7 +482,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render(camera.get_VP(), orthographic_proj_2D);
+	gfx::DebugRenderer::get().render2D(orthographic_proj_2D);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

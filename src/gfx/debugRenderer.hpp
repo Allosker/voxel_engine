@@ -43,7 +43,7 @@ namespace gfx
 			"#version 460 core\n"
 			"\n"
 			"layout (location = 0) in vec2 in_Position;\n"
-			"layout (location = 1) in vec2 in_Color;\n"
+			"layout (location = 1) in vec4 in_Color;\n"
 			"\n"
 			"out vec4 v_Color;\n"
 			"uniform mat4 ortho;\n"
@@ -51,7 +51,7 @@ namespace gfx
 			"void main()\n"
 			"{\n"
 			"    gl_Position  = ortho * vec4(in_Position, 0., 1.);\n"
-			"    v_Color      = vec4(1.,1.,1.,1.);\n"
+			"    v_Color      = in_Color;\n"
 			"}\n";
 
 		static constexpr const char* linePointFragShaderSrc = "\n"
@@ -182,7 +182,7 @@ namespace gfx
 			update_list(m_lines_2D);
 		}
 
-		void render(const m4f32& vp_3D, const m4f32& ortho_2D)
+		void render3D(const m4f32& vp_3D)
 		{
 			const auto render_list = [&](auto& list, GLenum draw_mode)
 			{
@@ -202,24 +202,33 @@ namespace gfx
 
 			shader_3D.set_value_loc(shader_3D_vp_loc, vp_3D);
 
-
-			glEnable(GL_DEPTH_TEST);
-			render_list(m_lines_world, GL_LINES);
-			render_list(m_triangles_world, GL_TRIANGLES);
-
 			glDisable(GL_DEPTH_TEST);
 			render_list(m_lines_foreground, GL_LINES);
 			render_list(m_triangles_foreground, GL_TRIANGLES);
 
-			shader_3D.unbind();
+			glEnable(GL_DEPTH_TEST);
+			render_list(m_lines_world, GL_LINES);
+			render_list(m_triangles_world, GL_TRIANGLES);
+		}
 
+		void render2D(const m4f32& ortho_2D)
+		{
+			glDisable(GL_CULL_FACE);
+			glDisable(GL_DEPTH_TEST);
 
 			shader_2D.bind();
 
 			shader_2D.set_value_loc(shader_2D_ortho_loc, ortho_2D);
 
 
-			render_list(m_lines_2D, GL_LINES);
+			if (m_lines_2D.dirty)
+			{
+				m_lines_2D.mesh.update_buffer(m_lines_2D.data, GL_DYNAMIC_DRAW);
+				m_lines_2D.dirty = false;
+			}
+
+			m_lines_2D.mesh.draw(GL_LINES);
+
 
 			shader_2D.unbind();
 		}
@@ -345,10 +354,6 @@ namespace gfx
 			{min.x, max.y }, // upper base
 			{max.x, max.y }, // upper left
 			{max.x, min.y }, // lower left
-						  
-			{min.x, min.y }, // front
-			{min.x, max.y }, // upper front
-			{max.x, max.y }, // opposite
 		};
 
 		auto& renderer = gfx::DebugRenderer::get();
