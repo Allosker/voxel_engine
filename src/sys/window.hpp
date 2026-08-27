@@ -74,7 +74,16 @@ public:
 	GLFWwindow* get() noexcept { return m_window; }
 	const GLFWwindow* const get() const noexcept { return m_window; }
 
-	const mpml::Vector2<int>& getSize() const noexcept { return m_size; }
+	v2i32 getSize() const noexcept { return m_size; }
+
+	/// <returns>Empty vector if the cursor is hidden, the cursor position on screen otherwise</returns>
+	v2f64 get_cursor_pos() const noexcept
+	{
+		v2f64 cursor_pos{};
+		glfwGetCursorPos(m_window, &cursor_pos.x, &cursor_pos.y);
+
+		return cursor_pos;
+	}
 
 
 	// = Predicates
@@ -112,5 +121,6 @@ private:
 	v2i32 m_size{};
 
 	bool m_cursor_hidden{ true };
+
 
 };

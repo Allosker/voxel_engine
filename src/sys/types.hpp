@@ -16,8 +16,8 @@
 
 // Special Macros
 
-#define DELETE_COPY_INIT(Type) Type(Type&) noexcept = delete; Type& operator=(Type&) = delete;
-#define DEFAULT_COPY_INIT(Type) Type(Type&) noexcept = default; Type& operator=(Type&) = default;
+#define DELETE_COPY_INIT(Type) Type(const Type&) noexcept = delete; Type& operator=(Type&) = delete;
+#define DEFAULT_COPY_INIT(Type) Type(const Type&) noexcept = default; Type& operator=(Type&) = default;
 
 #define DEFAULT_MOVE_INIT(Type) Type(Type&&) noexcept = default; Type& operator=(Type&&) = default;
 

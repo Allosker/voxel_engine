@@ -68,6 +68,8 @@ namespace gfx
 
 		v2f32 get_size() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y }; }
 
+		v2f32 get_scale() const noexcept { return m_scale; }
+
 		v2f32 get_base_size() const noexcept { return { m_baseSize.x, m_baseSize.y }; }
 
 		angle32 get_rotation() const noexcept { return m_rotation; }

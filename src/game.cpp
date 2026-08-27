@@ -287,7 +287,8 @@ void Game::logic()
 
 	player.update(world, delta_time.get());
 
-	gui_inv.update(inv);
+
+	gui_inv.update(inv, Window::to_gui_coordinates(*window, window->get_cursor_pos()));
 
 }
 
