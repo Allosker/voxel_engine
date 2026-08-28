@@ -12,6 +12,8 @@
 
 #include "gfx/shader.hpp"
 #include "gfx/texture.hpp"
+#include "gfx/mesh.hpp"
+#include "gfx/model.hpp"
 #include "sys/types.hpp"
 
 
@@ -20,7 +22,6 @@
 class AssetsManager
 {
 public:
-
 
 	static AssetsManager& get() noexcept
 	{
@@ -31,7 +32,11 @@ public:
 
 	std::unordered_map<std::string, gfx::Texture>	textures;
 	std::unordered_map<std::string, gfx::Shader>	shaders;
+	std::unordered_map<std::string, gfx::Mesh>	    meshes;
+	std::unordered_map<std::string, gfx::Model>	    models;
 
+
+	void add_model(std::string id, const filepath& path);
 
 private:
 
@@ -39,6 +44,7 @@ private:
 	{
 		add_shaders();
 		add_textures();
+		add_models();
 	}
 
 
@@ -57,4 +63,8 @@ private:
 		textures.emplace("textures/gui/inventory/big", gfx::Texture{ ASSET_PATH"textures/gui/inventory/big.png" });
 	}
 
+	void add_models() noexcept
+	{
+		add_model("DamagedHelmet", ASSET_PATH "models/DamagedHelmet.glb");
+	}
 };

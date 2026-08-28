@@ -32,6 +32,7 @@ namespace gfx
 		Texture(const filepath& tex_path, Type type = tex2D);
 
 		Texture(const Image& image, Type type = tex2D);
+		Texture(u8* buffer, u32 size, Type type = tex2D);
 
 
 		DELETE_COPY_INIT(Texture);
@@ -45,6 +46,7 @@ namespace gfx
 	// = Actors
 
 		void load(const filepath& tex_path);
+		void load_from_memory(u8* buffer, u32 size);
 
 		void update(const Image& image) noexcept;
 

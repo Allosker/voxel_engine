@@ -144,7 +144,11 @@ DebugMessage Game::run()
 	};
 
 	gfx::Mesh cubeMesh(cubeVertices, cubeIndices, GL_STATIC_DRAW);
-	world.m_meshInstances.push_back(gfx::MeshInstance{&cubeMesh, &AssetsManager::get().shaders.at("shaders/world_chunks")});
+
+	auto& am = AssetsManager::get();
+
+	auto& model = am.models.begin()->second;
+	world.m_meshInstances.push_back(gfx::MeshInstance{model.mesh, &am.shaders.at("shaders/static_mesh"), model.textures[0]});
 	world.m_meshInstances.back().set_pos({1.0, 8.0, 2.0});
 
 	// Main Loop

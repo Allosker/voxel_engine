@@ -72,6 +72,7 @@ namespace gfx
 			return static_cast<types::voxel_pos>(types::pos{ std::floor(pos.x), std::floor(pos.y), std::floor(pos.z) });
 		}
 
+		void loadModel(const filepath path);
 
 	public:
 
