@@ -57,14 +57,14 @@ namespace gfx
 	// Actors 
 	// =====================
 
-	void Mesh::draw(GLenum mode) const noexcept
+	void Mesh::draw() const noexcept
 	{
 		bind();
 
 		if (m_ebo)
-			glDrawElements(mode, m_nb_indices, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, m_nb_indices, GL_UNSIGNED_INT, 0);
 		else
-			glDrawArrays(mode, 0, m_nb_elements);
+			glDrawArrays(GL_TRIANGLES, 0, m_nb_elements);
 
 		unbind();
 	}
@@ -75,19 +75,4 @@ namespace gfx
 		glDeleteBuffers(1, &m_ebo);
 		glDeleteVertexArrays(1, &m_vao);
 	}
-
-	std::optional<gfx::Mesh> Mesh::load_from_file(const filepath& path)
-	{
-		Assimp::Importer import;
-		const aiScene* scene = import.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_FlipUVs);
-
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			return std::nullopt;
-		}
-		directory = path.substr(0, path.find_last_of('/'));
-
-		processNode(scene->mRootNode, scene);
-	}
-
 }

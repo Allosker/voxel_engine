@@ -1,8 +1,10 @@
 #include "world.hpp"
 
 #include "debugRenderer.hpp"
-
+#include "camera.hpp"
 #include "rayTraversal.hpp"
+#include "meshInstance.hpp"
+#include "texture.hpp"
 
 
 namespace gfx
@@ -142,5 +144,51 @@ namespace gfx
 		return gfx::raycast(origin, dir, overworld, max_length);
 	}
 	
+
+	void World::draw(const Camera& camera) const noexcept
+	{
+		overworld.draw();
+
+		Shader* currentShader{};
+
+		for (auto& meshInstance : m_meshInstances)
+		{
+			if (!meshInstance.m_shader || !meshInstance.m_mesh)
+			{
+				continue;
+			}
+
+			if (meshInstance.m_shader != currentShader)
+			{
+				if (currentShader)
+				{
+					currentShader->unbind();
+				}
+
+				currentShader = meshInstance.m_shader;
+				currentShader->bind();
+
+				currentShader->set_value("vp", camera.get_VP());
+			}
+
+			if (meshInstance.m_texture)
+			{
+				meshInstance.m_texture->bind();
+			}
+
+			currentShader->set_value("model", meshInstance.get_transform());
+			meshInstance.m_mesh->draw();
+
+			if (meshInstance.m_texture)
+			{
+				meshInstance.m_texture->unbind();
+			}
+		}
+
+		if (currentShader)
+		{
+			currentShader->unbind();
+		}
+	}
 
 }
