@@ -151,16 +151,6 @@ DebugMessage Game::run()
 			AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
 
-			AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-
-			itemgui.draw({
-				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-				.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
-			});
-
-			AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
-
-
 			/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
 
 			glDisable(GL_DEPTH_TEST);
@@ -168,14 +158,17 @@ DebugMessage Game::run()
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			/*AssetsManager::get().shaders.at("shaders/twoD").bind();
+			AssetsManager::get().shaders.at("shaders/twoD").bind();
 
-			gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
+			gui_inv.draw(
+				{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } }, 
+				{ 
+					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
+					.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
+				}
+			);
 
-			AssetsManager::get().shaders.at("shaders/twoD").unbind();*/
-
-
-			
+			AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
 
 			glDisable(GL_BLEND);
@@ -542,7 +535,7 @@ void Game::render_on_screen()
 
 	AssetsManager::get().shaders.at("shaders/twoD").bind();
 
-		gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
+		//gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
 
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 

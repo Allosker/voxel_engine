@@ -9,7 +9,7 @@
 
 #include "gfx/mesh.hpp"
 #include "gfx/renderContext.hpp"
-
+#include "gfx/transformable3D.hpp"
 #include "gfx/voxel.hpp"
 
 
@@ -30,6 +30,7 @@ namespace gui
 	/// 
 	/// </summary>
 	class ItemStackGUI
+		: public gfx::Transformable3D
 	{
 		static constexpr std::array<std::array<v3f32, 6>, 6> g_model
 		{
@@ -132,18 +133,13 @@ namespace gui
 
 			m_mesh.create_buffer<gfx::Vertex>(false);
 			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);
-
-			m_trans.set_size(33.f);
-			m_trans.move(v3f64{ 1200, 500, 0 });
 			
 		}
 
 
 		void draw(const gfx::RenderContext& rc) noexcept
 		{
-			m_trans.set_rotation(glm::angleAxis<f32>(glfwGetTime(), v3f32{0, 1, 0}));
-
-			rc.sha->set_value("model", m_trans.get_transform());
+			rc.sha->set_value("model", get_transform());
 
 			rc.tex->bind();
 
@@ -156,8 +152,6 @@ namespace gui
 	private:
 
 		gfx::Mesh m_mesh;
-
-		gfx::Transformable3D m_trans{};
 
 
 	};

@@ -6,8 +6,8 @@
 * ==============================================-
 */
 
-#include <vector>
 #include <array>
+#include <vector>
 
 #include "sys/types.hpp"
 
@@ -28,9 +28,9 @@ namespace gfx
 			u16 count_per_slot{};
 		};
 
-		enum Size : size_t
+		enum Size : i8
 		{
-			None, // This class' Size var can never have this value
+			None = -1, // This class' Size var can never have this value
 			Small,
 			Medium,
 			Big

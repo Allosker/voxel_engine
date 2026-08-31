@@ -41,8 +41,11 @@ namespace gfx
 		/// Set the size of the frame buffer for building projection matrices
 		/// </summary>
 		/// <param name="new_size"></param>
-		void set_FBS(const v2f32& new_size) noexcept
+		void set_FBS(v2f32 new_size) noexcept
 		{
+			if (new_size.x == 0 || new_size.y == 0)
+				return;
+
 			m_framebuffer_size = new_size;
 
 			build_cam_matrix();
