@@ -158,6 +158,7 @@ namespace gfx
 
 		default:
 			assert("ERROR::CHUNKMESH::AO_CALCULATING::Cannot calculate AO for the given face, index out of bound");
+			return {};
 		}
 	}
 
@@ -313,10 +314,10 @@ namespace gfx
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
 
-		glVertexAttribPointer(0, v3f32::size, GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, position)));
+		glVertexAttribPointer(0, v3f32::length(), GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, position)));
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, v2f32::size, GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, uvs)));
+		glVertexAttribPointer(1, v2f32::length(), GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, uvs)));
 		glEnableVertexAttribArray(1);
 
 		glVertexAttribPointer(2, 1/*ao value*/, GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, ao)));

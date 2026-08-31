@@ -87,7 +87,7 @@ DebugMessage Game::run()
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
 	AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", view_proj_3D_to_2D_render);
+	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", orthographic_proj);
 	AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
 
 
@@ -140,7 +140,7 @@ DebugMessage Game::run()
 			AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
 			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32::Identity);
+			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
 
 			AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
@@ -152,7 +152,7 @@ DebugMessage Game::run()
 
 
 			AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-			AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", camera.get_VP());
+			AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", orthographic_proj);
 			AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
 
 
@@ -302,23 +302,23 @@ void Game::inputs()
 
 				types::pos direction{};
 
-				f64 radPitch{ mpml::to_radians(pitch) };
+				f64 radPitch{ glm::radians(pitch) };
 				f64 cosPitch{ std::cos(radPitch) };
-				f64 radYaw{ mpml::to_radians(yaw) };
+				f64 radYaw{ glm::radians(yaw) };
 
 				direction.x = std::cos(radYaw) * cosPitch;
 				direction.y = -std::sin(radPitch);
 				direction.z = std::sin(radYaw) * cosPitch;
 
-				camera.set_dirs(direction.normal());
+				camera.set_dirs(glm::normalize(direction));
 			}
 		}
 
 	}
 
 
-	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0 }, 0, false);
-	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1 }, 0, false);
+	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0, 1 }, 0, false);
+	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1, 1 }, 0, false);
 
 
 	if (window->isKeyPressed(Keys::W))
@@ -521,7 +521,7 @@ void Game::render_on_screen()
 	AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
 		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32::Identity);
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1 });
 
 		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 

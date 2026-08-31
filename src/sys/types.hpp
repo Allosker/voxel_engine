@@ -10,8 +10,13 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <concepts>
 
-#include <mpml/mpml.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
 
 
 // Special Macros
@@ -48,68 +53,124 @@ using filepath = std::filesystem::path;
 
 // Maths Types
 
-using v2i8 = mpml::Vector2<i8>;
-using v2u8 = mpml::Vector2<u8>;
+using v2i8 = glm::vec<2, i8>;
+using v2u8 = glm::vec<2, u8>;
 
-using v2i16 = mpml::Vector2<i16>;
-using v2u16 = mpml::Vector2<u16>;
+using v2i16 = glm::vec<2, i16>;
+using v2u16 = glm::vec<2, u16>;
 
-using v2i32 = mpml::Vector2<i32>;
-using v2u32 = mpml::Vector2<u32>;
+using v2i32 = glm::vec<2, i32>;
+using v2u32 = glm::vec<2, u32>;
 
-using v2i64 = mpml::Vector2<i64>;
-using v2u64 = mpml::Vector2<u64>;
-
-
-using v2f32 = mpml::Vector2<f32>;
-using v2f64 = mpml::Vector2<f64>;
+using v2i64 = glm::vec<2, i64>;
+using v2u64 = glm::vec<2, u64>;
 
 
-
-using v3i8 = mpml::Vector3<i8>;
-using v3u8 = mpml::Vector3<u8>;
-	   
-using v3i16 = mpml::Vector3<i16>;
-using v3u16 = mpml::Vector3<u16>;
-	   
-using v3i32 = mpml::Vector3<i32>;
-using v3u32 = mpml::Vector3<u32>;
-	   
-using v3i64 = mpml::Vector3<i64>;
-using v3u64 = mpml::Vector3<u64>;
-	   
-	   
-using v3f32 = mpml::Vector3<f32>;
-using v3f64 = mpml::Vector3<f64>;
+using v2f32 = glm::vec<2, f32>;
+using v2f64 = glm::vec<2, f64>;
 
 
 
-using v4i8 = mpml::Vector4<i8>;
-using v4u8 = mpml::Vector4<u8>;
-	   
-using v4i16 = mpml::Vector4<i16>;
-using v4u16 = mpml::Vector4<u16>;
-	   
-using v4i32 = mpml::Vector4<i32>;
-using v4u32 = mpml::Vector4<u32>;
-	   
-using v4i64 = mpml::Vector4<i64>;
-using v4u64 = mpml::Vector4<u64>;
-	   
-	   
-using v4f32 = mpml::Vector4<f32>;
-using v4f64 = mpml::Vector4<f64>;
+using v3i8 = glm::vec<3, i8>;
+using v3u8 = glm::vec<3, u8>;
+
+using v3i16 = glm::vec<3, i16>;
+using v3u16 = glm::vec<3, u16>;
+					   
+using v3i32 = glm::vec<3, i32>;
+using v3u32 = glm::vec<3, u32>;
+					   
+using v3i64 = glm::vec<3, i64>;
+using v3u64 = glm::vec<3, u64>;
+	  				
+
+using v3f32 = glm::vec<3, f32>;
+using v3f64 = glm::vec<3, f64>;
 
 
-using m3f32 = mpml::Matrix3<f32>;
-using m4f32 = mpml::Matrix4<f32>;
 
-using m4f64 = mpml::Matrix4<f64>;
+using v4i8 = glm::vec<4, i8>;
+using v4u8 = glm::vec<4, u8>;
 
-using qf64 = mpml::Quaternion<f64>;
+using v4i16 = glm::vec<4, i16>;
+using v4u16 = glm::vec<4, u16>;
 
-using angle = mpml::Angle<f64>;
-using angle32 = mpml::Angle<f32>;
+using v4i32 = glm::vec<4, i32>;
+using v4u32 = glm::vec<4, u32>;
+
+using v4i64 = glm::vec<4, i64>;
+using v4u64 = glm::vec<4, u64>;
+
+
+using v4f32 = glm::vec<4, f32>;
+using v4f64 = glm::vec<4, f64>;
+
+
+template <typename T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+	std::hash<T> hasher;
+	// 0x9e3779b97f4a7c15 is a golden ratio constant to ensure bit distribution
+	seed ^= hasher(v) + 0x9e3779b97f4a7c15 + (seed << 6) + (seed >> 2);
+}
+
+template <typename T, typename... Rest>
+inline void hash_combine(std::size_t& seed, const T& v, Rest... rest)
+{
+	hash_combine(seed, v);
+	hash_combine(seed, rest...);
+}
+
+namespace std
+{
+	template <typename U>
+	struct hash<glm::vec<2, U>>
+	{
+		size_t operator ()(const glm::vec<2, U>& vec) const
+		{
+			std::size_t seed{};
+			hash_combine(seed, vec.x, vec.y);
+
+			return seed;
+		}
+	};
+
+	template <typename U>
+	struct hash<glm::vec<3, U>>
+	{
+		size_t operator ()(const glm::vec<3, U>& vec) const
+		{
+			std::size_t seed{};
+			hash_combine(seed, vec.x, vec.y, vec.z);
+
+			return seed;
+		}
+	};
+
+	template <typename U>
+	struct hash<glm::vec<4, U>>
+	{
+		size_t operator ()(const glm::vec<4, U>& vec) const
+		{
+			std::size_t seed{};
+			hash_combine(seed, vec.x, vec.y, vec.z, vec.w);
+
+			return seed;
+		}
+	};
+}
+
+
+
+using m3f32 = glm::mat<3, 3, f32>;
+using m4f32 = glm::mat<4, 4, f32>;
+
+using m4f64 = glm::mat<4, 4, f64>;
+
+using qf64 = glm::qua<f64>;
+
+using angle = f32;
+using angle64 = f64;
 
 
 // Small Utility Function to move into the Maths lib:

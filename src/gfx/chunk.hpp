@@ -70,20 +70,20 @@ namespace gfx
 
 		static types::voxel_loc to_voxelLoc(const Chunk& chunk, const types::voxel_pos& point) noexcept
 		{
-			return static_cast<types::voxel_loc>(mpml::abs(point - chunk.get_position()));
+			return static_cast<types::voxel_loc>(glm::abs(point - chunk.get_position()));
 		}
 
 
 	public:
 
 		template<typename T>
-		static constexpr mpml::Vector3<T> g_size{ 32 };
+		static constexpr glm::vec<3, T> g_size{ 32 };
 		static constexpr auto g_absolute_size{ g_size<size_t>.x * g_size<size_t>.y * g_size<size_t>.z };
 		
 		template<typename T>
-		static inline constexpr std::array<mpml::Vector3<T>, 6> dirs
+		static inline constexpr std::array<glm::vec<3, T>, 6> dirs
 		{
-			mpml::Vector3<T>
+			glm::vec<3, T>
 			{ 1,  0,  0 },
 			{ -1, 0,  0 },
 			{ 0,  1,  0 },
@@ -93,9 +93,9 @@ namespace gfx
 		};
 
 		template<typename T>
-		static inline constexpr std::array<mpml::Vector3<T>, 6> surroundings
+		static inline constexpr std::array<glm::vec<3, T>, 6> surroundings
 		{
-			mpml::Vector3<T>
+			glm::vec<3, T>
 			{ 1,  0,  0 },
 			{ -1, 0,  0 },
 			{ 0,  1,  0 },

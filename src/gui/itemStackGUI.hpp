@@ -48,7 +48,7 @@ namespace gui
 			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);
 
 			m_trans.set_scale(1.f);
-			m_trans.move({ 0, -1, 0 });
+			m_trans.move(v3f64{ 0, -1, 0 });
 			
 		}
 

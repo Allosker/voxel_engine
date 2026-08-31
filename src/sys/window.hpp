@@ -101,7 +101,7 @@ public:
 
 	// = Setters
 
-	void resize(const mpml::Vector2<int>& new_size) noexcept;
+	void resize(v2i32 new_size) noexcept;
 
 
 public:

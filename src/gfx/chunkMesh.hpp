@@ -97,11 +97,11 @@ namespace gfx
 	public:
 
         template<typename T>
-		static constexpr std::array<std::array<mpml::Vector3<T>, 8>, 6> ao_dirs
+		static constexpr std::array<std::array<glm::vec<3, T>, 8>, 6> ao_dirs
 		{
-			std::array<mpml::Vector3<T>, 8>
+			std::array<glm::vec<3, T>, 8>
 			{
-				mpml::Vector3<T>
+				glm::vec<3, T>
 				{ 0,  1,  0 },
 				{ 0,  1,  1 },
 				{ 0,  0,  1 },
@@ -112,7 +112,7 @@ namespace gfx
 				{ 0,  1, -1 }
 			},
 			{
-				mpml::Vector3<T>
+				glm::vec<3, T>
 				{ 0, -1,  0 },
 				{ 0, -1, -1 },
 				{ 0,  0, -1 },
@@ -123,7 +123,7 @@ namespace gfx
 				{ 0, -1,  1 }
 			},			    
 			{		
-				mpml::Vector3<T>
+				glm::vec<3, T>
 				{ 1,  0,  0 },
 				{ 1,  0,  1 },
 				{ 0,  0,  1 },
@@ -134,7 +134,7 @@ namespace gfx
 				{ 1,  0, -1 }
 			},			    
 			{		
-				mpml::Vector3<T>
+				glm::vec<3, T>
 				{-1,  0,  0 },
 				{-1,  0, -1 },
 				{ 0,  0, -1 },
@@ -145,7 +145,7 @@ namespace gfx
 				{-1,  0,  1 }
 			},
 			{
-				mpml::Vector3<T>
+				glm::vec<3, T>
 				{ 1,  0, 0 },
 				{ 1,  1, 0 },
 				{ 0,  1, 0 },
@@ -156,7 +156,7 @@ namespace gfx
 				{ 1, -1, 0 }
 			},
 			{
-				mpml::Vector3<T>
+				glm::vec<3, T>
 				{-1,  0, 0 },
 				{-1, -1, 0 },
 				{ 0, -1, 0 },
@@ -170,7 +170,7 @@ namespace gfx
         };
 
         // Ambient Occlusion values in range [0;1] representing each stage (right to left)
-        static constexpr std::array<float, 4> ao_values{ 0.85f, 0.9f, 0.95f, 1.f }; 
+        static constexpr std::array<f32, 4> ao_values{ 0.85f, 0.9f, 0.95f, 1.f }; 
 
 		bool queued{};
 

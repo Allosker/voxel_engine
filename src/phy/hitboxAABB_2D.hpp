@@ -44,7 +44,7 @@ namespace phy
 	{
 	public:
 
-		HitboxAABB2D(types::pos2d pos, v2f32 extent = { 1. }) noexcept
+		HitboxAABB2D(types::pos2d pos, v2f32 extent = v2f32{ 1. }) noexcept
 			: m_pos{ pos }, m_extent{ extent }
 		{
 		}
