@@ -7,7 +7,6 @@
 
 namespace gfx
 {
-	// Helper Funcs
 
 	static void assemble_pos_uvs(auto& out, const auto& pos, const auto& uvs, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
 	{
@@ -163,7 +162,7 @@ namespace gfx
 	}
 
 
-	// Class
+
 
 	ChunkMesh::ChunkMesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
 	{
@@ -273,17 +272,7 @@ namespace gfx
 							assemble_pos_uvs(
 								ret,
 								Voxel::model[i],
-								std::array<v2f32, 6>
-							{
-								v2f32
-								{ 0, 0 },
-								{ 1, 0 },
-								{ 0, 1 },
-								{ 1, 0 },
-								{ 1, 1 },
-								{ 0, 1 }
-
-							}, 
+								Voxel::face_uvs, 
 							calculate_ao(targetChunk, i, v_loc_dir, grid),
 							v3f32{ (f32)x,(f32)y,(f32)z } + static_cast<v3f32>(current_chunk.get_position())
 							);

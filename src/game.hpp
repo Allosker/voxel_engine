@@ -25,6 +25,8 @@
 #include "gfx/inventory.hpp"
 #include "gui/inventoryGUI.hpp"
 
+#include "gui/itemStackGUI.hpp"
+
 
 // Only one instance of the game must exist at a time
 class Game
@@ -79,7 +81,8 @@ private: // Internal Communication/Logic
 
 	bool showDebugMenus{};
 
-	m4f32 orthographic_proj_2D{ mpml::orthographic_projection(Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, 1.f) };
+	m4f32 orthographic_proj{ mpml::orthographic_projection(Window::g_gui_view_size.x, Window::g_gui_view_size.y, -1.f, 1.f) };
+	m4f32 view_proj_3D_to_2D_render{ mpml::lookAt(v3f32{}, v3f32{ 0.f, 0.f, -1.f}, v3f32{ 0.f, 1.f, 0.f}) * mpml::perspective(angle32::from_degrees(45.f), Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.1f, 100.f)};
 
 
 	gfx::Inventory    inv{};

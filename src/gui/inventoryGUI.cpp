@@ -48,9 +48,6 @@ namespace gui
 		phy::HitboxAABB2D board{ m_rec.transform().get_pos(), m_rec.transform().get_size() - g_outline };
 
 
-		gfx::aabb2D_min_max(board.get_min(), board.get_max(), { 0., 1., 1. }, 0.f, true);
-
-
 		if (phy::intersects(board, gui_mouse_pos))
 		{
 			v2f32 converted_mp{ gui_mouse_pos - board.get_min()};

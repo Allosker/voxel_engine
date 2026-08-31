@@ -108,6 +108,19 @@ namespace gfx
 			
 
 		};
+
+		static constexpr std::array<v2f32, 6> face_uvs
+		{
+			v2f32
+			{ 0, 0 },
+			{ 1, 0 },
+			{ 0, 1 },
+			{ 1, 0 },
+			{ 1, 1 },
+			{ 0, 1 }
+
+		};
+
 	};
 
 
