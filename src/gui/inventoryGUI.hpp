@@ -6,12 +6,15 @@
 * ==============================================-
 */
 
+#include <optional>
+#include <vector>
+
 #include "gfx/inventory.hpp"
 #include "gfx/rectangle.hpp"
-#include "gfx/shader.hpp"
+#include "gfx/renderContext.hpp"
 #include "sys/assetsManager.hpp"
 
-#include "gfx/debugRenderer.hpp"
+#include "gui/itemStackGUI.hpp"
 
 
 namespace gui
@@ -22,63 +25,70 @@ namespace gui
 	public:
 
 		InventoryGUI()
-			: m_size{ gfx::Inventory::Size::Small }, m_rec{ {} }
+			: m_size{ gfx::Inventory::Size::None }, m_board{ {} }
 		{  
-			set_texture(m_size);
-
-			m_rec.get_hitbox().set_extent(m_rec.get_texture()->get_size());
-		}
-
-		void update(const gfx::Inventory& inv) noexcept
-		{
-			if (inv.get_size() != m_size)
-			{
-				m_size = inv.get_size();
-				set_texture(m_size);
-			}
-
-			gfx::aabb2D_min_max(m_rec.get_hitbox().get_min(), m_rec.get_hitbox().get_max(), { 1., 1., 1.}, 0.f, true);
-
+			m_board.set_scale(g_scale);
 		}
 
 
+		void update(const gfx::Inventory& inv, types::pos2d gui_mouse_pos) noexcept;
 
-		void draw(const gfx::Shader& shader) noexcept
+		std::optional<size_t> get_slot_index() const noexcept { return m_index; }
+
+
+		void draw(const gfx::RenderContext& inv_c, const gfx::RenderContext& is_c) noexcept
 		{
-			m_rec.draw(shader);
+			m_board.draw(inv_c);
+
+
+			glEnable(GL_DEPTH_TEST);
+
+			is_c.sha->bind();
+
+			for (auto& i : m_item_stacks)
+				i.draw(is_c);
+
+			is_c.sha->unbind();
 		}
 
 
 
 	private:
 
-		void set_texture(gfx::Inventory::Size size) noexcept
-		{
-			switch (size)
-			{
-				case gfx::Inventory::Size::Small:
-					m_rec.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/small"));
-					break;
+		void change_board(gfx::Inventory::Size size) noexcept;
 
-				case gfx::Inventory::Size::Medium:
-					m_rec.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/medium"));
-					break;
+		void compute_index(types::pos2d gui_mouse_pos) noexcept;
 
-				case gfx::Inventory::Size::Big:
-					m_rec.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/big"));
-					break;
+		/// <summary>
+		/// Set of constants based on the following files:
+		///		textures/gui/inventory/small.png
+		///		textures/gui/inventory/medium.png
+		///		textures/gui/inventory/big.png
+		/// </summary>
+		static constexpr f32 g_outline_thickness_px{ 13.f };
+		static constexpr float c_absolute_slot_size_px{ 32.f };
+		static constexpr f32 g_scale{ 1.5f };
+		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2.f };
+		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2.f };
 
-				default:
-					break;
-			}
-		}
+		/// <summary>
+		/// Changes according to the inventory's stage
+		/// </summary>
+		v2f32 m_slot_size{};
 
 
 	private:
 
-		gfx::Rectangle m_rec;
+		gfx::Rectangle m_board;
+
+		std::vector<ItemStackGUI> m_item_stacks;
 
 		gfx::Inventory::Size m_size{};
+		
+		v2f32 m_nb_slots{};
+
+		std::optional<size_t> m_index{};
+		std::optional<size_t> m_last_index{};
 
 
 	};

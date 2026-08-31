@@ -14,18 +14,25 @@ namespace phy
 
 	class HitboxAABB2D;
 
+	/// <summary>
+	/// Exclusive bounds
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns>Whether the two hitboxes intersect</returns>
+	bool intersects(const HitboxAABB2D& a, const HitboxAABB2D& b) noexcept;
+
+	/// <summary>
+	/// Exclusive bounds
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns>Whether the point intersects with the hitbox</returns>
+	bool intersects(const HitboxAABB2D& a, types::pos2d point) noexcept;
+
 	/// <summary> Consider two cases:
 	/// <para>- Intersecting -> MTV </para>
 	/// <para>- Not Intersecting -> empty vector </para>
 	/// </summary>
 	/// <returns>The MTV (minimum translation vector) to stop intersecting with the current AABB</returns>
-	bool intersects(const HitboxAABB2D& a, const HitboxAABB2D& b) noexcept;
-
-	/// <summary>
-	/// Exclusive bounds, we do not wish to consider two overlapping hitboxes to be intersecting 
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns>Whether the two hitboxes intersect</returns>
 	v2f32 get_MTV(const HitboxAABB2D& a, const HitboxAABB2D& b) noexcept;
 
 
@@ -37,7 +44,7 @@ namespace phy
 	{
 	public:
 
-		HitboxAABB2D(types::pos2d pos, v2f32 extent = { 1. }) noexcept
+		HitboxAABB2D(types::pos2d pos, v2f32 extent = v2f32{ 1. }) noexcept
 			: m_pos{ pos }, m_extent{ extent }
 		{
 		}

@@ -165,13 +165,13 @@ namespace gfx
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
 
-		glVertexAttribPointer(0, decltype(T::pos)::size, GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, pos)));
+		glVertexAttribPointer(0, decltype(T::pos)::length(), GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, pos)));
 		glEnableVertexAttribArray(0);
 
 		if constexpr (std::is_same_v<T, VertexRGBA> || std::is_same_v<T, Vertex2DRGBA>)
-			glVertexAttribPointer(1, decltype(T::color)::size, GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, color)));
+			glVertexAttribPointer(1, decltype(T::color)::length(), GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, color)));
 		else
-			glVertexAttribPointer(1, decltype(T::uvs)::size, GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, uvs)));
+			glVertexAttribPointer(1, decltype(T::uvs)::length(), GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, uvs)));
 		glEnableVertexAttribArray(1);
 
 

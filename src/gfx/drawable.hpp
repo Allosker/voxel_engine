@@ -22,7 +22,7 @@ namespace gfx
 
 	struct DrawContext
 	{
-		m4f32 model{ m4f32::Identity };
+		m4f32 model{ 1. };
 		Mesh* mesh{ nullptr };
 		Texture* texture{ nullptr };
 		GLenum draw_mode{ GL_TRIANGLES };

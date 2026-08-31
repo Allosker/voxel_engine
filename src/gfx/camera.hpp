@@ -41,8 +41,11 @@ namespace gfx
 		/// Set the size of the frame buffer for building projection matrices
 		/// </summary>
 		/// <param name="new_size"></param>
-		void set_FBS(const v2f32& new_size) noexcept
+		void set_FBS(v2f32 new_size) noexcept
 		{
+			if (new_size.x == 0 || new_size.y == 0)
+				return;
+
 			m_framebuffer_size = new_size;
 
 			build_cam_matrix();
@@ -72,12 +75,12 @@ namespace gfx
 
 		void move_right(f64 dt, f64 speed) noexcept
 		{
-			set_pos(m_pos + m_frontdir.cross(m_updir) * dt * speed);
+			set_pos(m_pos + glm::cross(m_frontdir, m_updir) * dt * speed);
 		}
 
 		void move_left(f64 dt, f64 speed) noexcept
 		{
-			set_pos(m_pos - m_frontdir.cross(m_updir) * dt * speed);
+			set_pos(m_pos - glm::cross(m_frontdir, m_updir) * dt * speed);
 		}
 
 		void move_front(f64 dt, f64 speed) noexcept
@@ -93,7 +96,7 @@ namespace gfx
 
 		// = Getters
 
-		types::pos get_right() const noexcept { return m_frontdir.cross(m_updir); }
+		types::pos get_right() const noexcept { return glm::cross(m_frontdir, m_updir); }
 
 		const types::pos& get_up() const noexcept { return m_updir; }
 
@@ -116,10 +119,10 @@ namespace gfx
 
 		void build_cam_matrix() noexcept
 		{
-			m4f64 view = mpml::lookAt(m_pos, m_frontdir + m_pos, m_updir);
-			m4f64 proj = mpml::perspective(mpml::Angle<>::from_degrees(m_fov), m_framebuffer_size.x, m_framebuffer_size.y, 0.1f, 1000.f);
+			m4f64 view = glm::lookAt(m_pos, m_frontdir + m_pos, m_updir);
+			m4f64 proj = glm::perspective<f64>(glm::radians(m_fov), m_framebuffer_size.x / m_framebuffer_size.y, 0.1f, 1000.f);
 
-			m_vp = view * proj;
+			m_vp = proj * view;
 		}
 
 

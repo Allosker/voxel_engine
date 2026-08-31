@@ -18,8 +18,10 @@
 
 namespace gfx
 {
+	class RenderContext;
 
 	class Rectangle
+		: public Transformable2D
 	{
 	public:
 
@@ -35,31 +37,30 @@ namespace gfx
 		/// <param name="tex"></param>
 		void update_sprite(const Texture* tex) noexcept;
 
-		/// <summary>
-		/// Get access to the transform to move/scale/rotate the object
-		/// </summary>
-		/// <returns></returns>
-		Transformable2D& transform() noexcept { return m_trans; }
+		void set_size(v2f32 size) noexcept { m_size = size; }
+
 
 		const phy::HitboxAABB2D& get_hitbox() const noexcept { return m_hitbox; }
 		phy::HitboxAABB2D& get_hitbox() noexcept { return m_hitbox; }
 
 		const Texture* get_texture() const noexcept { return m_tex; }
 
+		v2f32 get_size() const noexcept { return m_size * get_scale(); }
+
 
 		/// <summary>
 		/// If there is no attached texture, we do not draw the object, since the object is defined by its texture
 		/// </summary>
-		void draw(const Shader& shader) noexcept;
+		void draw(const RenderContext& rc) noexcept;
 
 
 	private:
 
-		Transformable2D m_trans{};
-
 		Mesh m_mesh;
 
 		phy::HitboxAABB2D m_hitbox;
+
+		v2f32 m_size{};
 
 		const Texture* m_tex{ nullptr };
 

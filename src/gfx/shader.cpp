@@ -118,32 +118,32 @@ namespace gfx
 
 	void Shader::set_value(std::string_view name, const v2f32& value) const noexcept
 	{
-		glUniform2fv(glGetUniformLocation(m_id, name.data()), 1, value.data_ptr());
+		glUniform2fv(glGetUniformLocation(m_id, name.data()), 1, glm::value_ptr(value));
 	}
 
 	void Shader::set_value(std::string_view name, const v3f32& value) const noexcept
 	{
-		glUniform3fv(glGetUniformLocation(m_id, name.data()), 1, value.data_ptr());
+		glUniform3fv(glGetUniformLocation(m_id, name.data()), 1, glm::value_ptr(value));
 	}
 
 	void Shader::set_value(std::string_view name, const v4f32& value) const noexcept
 	{
-		glUniform4fv(glGetUniformLocation(m_id, name.data()), 1, value.data_ptr());
+		glUniform4fv(glGetUniformLocation(m_id, name.data()), 1, glm::value_ptr(value));
 	}
 
 	void Shader::set_value(std::string_view name, const m3f32& value) const noexcept
 	{
-		glUniformMatrix3fv(glGetUniformLocation(m_id, name.data()), 1, true, value.data_ptr());
+		glUniformMatrix3fv(glGetUniformLocation(m_id, name.data()), 1, false, glm::value_ptr(value));
 	}
 
 	void Shader::set_value(std::string_view name, const m4f32& value) const noexcept
 	{
-		glUniformMatrix4fv(glGetUniformLocation(m_id, name.data()), 1, false, value.data_ptr());
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name.data()), 1, false, glm::value_ptr(value));
 	}
 
 	void Shader::set_value_loc(GLint location, const m4f32& value) const noexcept
 	{
-		glUniformMatrix4fv(location, 1, false, value.data_ptr());
+		glUniformMatrix4fv(location, 1, false, glm::value_ptr(value));
 	}
 
 

@@ -1,7 +1,9 @@
 #include "gfx/rectangle.hpp"
 
+#include "gfx/renderContext.hpp"
 
-namespace gfx 
+
+namespace gfx
 {
 
 	void Rectangle::update_sprite(const Texture* tex) noexcept
@@ -29,19 +31,20 @@ namespace gfx
 			GL_STATIC_DRAW
 		);
 
+		set_size(m_tex->get_size());
 	}
 
-	void Rectangle::draw(const Shader& shader) noexcept
+	void Rectangle::draw(const RenderContext& rc) noexcept
 	{
-		if (!m_tex) return; 
+		if (!m_tex) return;
 
-		shader.set_value("model", m_trans.get_transform());
+		rc.sha->set_value("model", get_transform());
 
 
 		m_tex->bind();
 
-			m_mesh.draw();
-		
+		m_mesh.draw();
+
 		m_tex->unbind();
 	}
 

@@ -17,8 +17,8 @@ namespace gfx
 	{
 	public:
 
-		Transformable3D(const v3f64& size = {}, const types::pos& ori = {})
-			: m_origin{ ori }, m_baseSize{ size }, m_scale{ 1.f, 1.f, 1.f }
+		Transformable3D(const v3f64& scale = { 1., 1., 1. }, const types::pos& ori = {})
+			: m_origin{ ori }, m_scale{ scale }
 		{
 			if (m_origin.x != 0 || m_origin.y != 0)
 				m_transformNeedUpdate = true;
@@ -39,11 +39,9 @@ namespace gfx
 		{
 			if (m_transformNeedUpdate)
 			{
-				m4f64 transforms{ m4f64::Identity };
+				m4f64 transforms{ 1. };
 
-				transforms = mpml::scale(transforms, m_scale);
-				transforms = mpml::rotate(transforms, m_rotation);
-				transforms = mpml::translate(transforms, m_position);
+				transforms = glm::scale(glm::translate(m4f64{ 1. }, m_position) * glm::mat4_cast(m_rotation), m_scale);
 
 				m_transformations = transforms;
 
@@ -53,13 +51,11 @@ namespace gfx
 			return m_transformations;
 		}
 
-		const v3f64& get_size() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y, m_baseSize.z * m_scale.z }; }
-
 		qf64 get_rotation() const noexcept { return m_rotation; }
 
 		const types::pos& get_pos() const noexcept { return m_position; }
 
-		const v3f64& get_baseSize() const noexcept { return m_baseSize; }
+		const v3f64& get_scale() const noexcept { return m_scale; }
 
 
 		// = Setters
@@ -76,20 +72,9 @@ namespace gfx
 			m_transformNeedUpdate = true;
 		}
 
-		void set_size(const v3f64& size) noexcept
+		void set_scale(f64 scale) noexcept
 		{
-			if (m_baseSize != 0)
-				set_scale({ size.x / m_baseSize.x, size.y / m_baseSize.y, size.z / m_baseSize.z });
-			else
-				m_baseSize = size;
-
-			m_transformNeedUpdate = true;
-		}
-
-		void set_baseSize(const v3f64& size) noexcept
-		{
-			m_baseSize = size;
-			m_transformNeedUpdate = true;
+			set_scale({ scale, scale, scale });
 		}
 
 		void set_rotation(const qf64& q) noexcept
@@ -108,6 +93,11 @@ namespace gfx
 			set_scale({ m_scale.x * factor.x, m_scale.y * factor.y, m_scale.z * factor.z });
 		}
 
+		void scale(f64 factor) noexcept
+		{
+			set_scale({ m_scale.x * factor, m_scale.y * factor, m_scale.z * factor });
+		}
+
 		void rotate(const qf64& q) noexcept
 		{
 			set_rotation(m_rotation * q);
@@ -116,14 +106,13 @@ namespace gfx
 
 	private:
 
-		m4f64		m_transformations{ m4f64::Identity };
+		m4f64		m_transformations{ 1 };
 
 		v3f64		m_scale{};
-		v3f64		m_baseSize{};
 		v3f64		m_origin{};
 		types::pos	m_position{};
 
-		qf64		m_rotation{ 1., 0, 0, 0 };
+		qf64		m_rotation{ 1., 0., 0., 0. };
 
 		bool		m_transformNeedUpdate{ false };
 
