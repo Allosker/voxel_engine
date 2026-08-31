@@ -8,8 +8,8 @@ namespace gfx
 	// Construction/Destruction
 	// =====================
 
-	Texture::Texture(const filepath& tex_path, Type type)
-		: m_type{ type }
+
+	Texture::Texture(Type type) : m_type{ type }
 	{
 		glGenTextures(1, &m_id);
 		glBindTexture(m_type, m_id);
@@ -19,38 +19,25 @@ namespace gfx
 
 		glTexParameteri(m_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(m_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
 
+	Texture::Texture(const filepath& tex_path, Type type) : 
+	Texture{ type }
+	{
 		load(tex_path);
 	}
 
-	Texture::Texture(u8* buffer, u32 size, Type type)
-		: m_type{ type }
+	Texture::Texture(u8* buffer, u32 size, Type type) : 
+	Texture{ type }
 	{
-		glGenTextures(1, &m_id);
-		glBindTexture(m_type, m_id);
-
-		glTexParameteri(m_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(m_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		glTexParameteri(m_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(m_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
 		load_from_memory(buffer, size);
 	}
 
-	Texture::Texture(const Image& image, Type type)
-		: m_type{ type }, m_width{ static_cast<i32>(image.getSize().x) }, m_height{ static_cast<i32>(image.getSize().y) }
+	Texture::Texture(const Image& image, Type type) : 
+	Texture{ type }
 	{
-		glGenTextures(1, &m_id);
-		glBindTexture(m_type, m_id);
-
-		glTexParameteri(m_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(m_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		glTexParameteri(m_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(m_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-
+		m_width = static_cast<i32>(image.getSize().x);
+		m_height = static_cast<i32>(image.getSize().y);
 		glTexImage2D(m_type, 0, image.getFormat(), m_width, m_height, 0, image.getFormat(), GL_UNSIGNED_BYTE, image.getData().data());
 
 		glGenerateMipmap(m_type);
