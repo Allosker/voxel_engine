@@ -29,6 +29,8 @@ namespace gfx
 
 	// = Construction/Destruction
 
+		Texture(Type type = tex2D);
+
 		Texture(const filepath& tex_path, Type type = tex2D);
 
 		Texture(const Image& image, Type type = tex2D);
