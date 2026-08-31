@@ -15,8 +15,6 @@ void AssetsManager::add_model(std::string id, const filepath& path)
 		return;
 	}
 
-	const auto directory = path.parent_path();
-
 	std::unordered_map<std::string, gfx::Texture*> loadedTextures;
 
 	const auto loadMaterialTextures = [&](gfx::Model& model, aiMaterial* mat, aiTextureType type)
@@ -28,35 +26,46 @@ void AssetsManager::add_model(std::string id, const filepath& path)
 			aiString str;
 			mat->GetTexture(type, i, &str);
 
+			std::string texturePath{str.C_Str()};
+
 			bool skip = false;
-			auto it = loadedTextures.find(str.C_Str());
+			auto it = loadedTextures.find(texturePath);
 			if (it != loadedTextures.end())
 			{
 				loadedTexture = it->second;
 			}
 			else
 			{
-				if (str.C_Str()[0] == '*')
+				if (texturePath[0] == '*')
 				{
 					int textureIndex = std::stoi(str.C_Str() + 1);
 					aiTexture* embeddedTexture = scene->mTextures[textureIndex];
 
+					const auto textureId = std::format("{}/texture_{}", id, textureIndex);
+
 					if (embeddedTexture->mHeight == 0)
 					{
-						loadedTexture = &textures.emplace(str.C_Str(), gfx::Texture((u8*)embeddedTexture->pcData, embeddedTexture->mWidth)).first->second;
+						loadedTexture = &textures.emplace(textureId, gfx::Texture((u8*)embeddedTexture->pcData, embeddedTexture->mWidth)).first->second;
 					}
 					else
 					{
 						assert(embeddedTexture->achFormatHint == std::string("rgba8888") || embeddedTexture->achFormatHint == std::string("argb8888"));
 						gfx::Image image(v2u32(embeddedTexture->mWidth, embeddedTexture->mHeight), (u8*)embeddedTexture->pcData, GL_RGBA);
-						loadedTexture = &textures.emplace(str.C_Str(), image).first->second;
+						loadedTexture = &textures.emplace(textureId, image).first->second;
 					}
-
-
 				}
 				else
 				{
-					loadedTexture = &textures.emplace(str.C_Str(), str.C_Str()).first->second;
+					std::string textureId = texturePath;
+
+					std::error_code ec;
+					auto textureRelativePath = std::filesystem::relative(texturePath, ASSET_PATH, ec);
+					if (!ec)
+					{
+						textureId = textureRelativePath.string();
+					}
+
+					loadedTexture = &textures.emplace(textureId, texturePath).first->second;
 				}
 			}
 
@@ -135,6 +144,11 @@ void AssetsManager::add_model(std::string id, const filepath& path)
 		loadMaterialTextures(model, material, aiTextureType_SPECULAR);
 		loadMaterialTextures(model, material, aiTextureType_HEIGHT);
 		loadMaterialTextures(model, material, aiTextureType_AMBIENT);
+		loadMaterialTextures(model, material, aiTextureType_NORMALS);
+		loadMaterialTextures(model, material, aiTextureType_DIFFUSE_ROUGHNESS);
+		loadMaterialTextures(model, material, aiTextureType_GLTF_METALLIC_ROUGHNESS);
+		loadMaterialTextures(model, material, aiTextureType_EMISSIVE);
+		loadMaterialTextures(model, material, aiTextureType_AMBIENT_OCCLUSION);
 
 		models.emplace(id + "/" + mesh->mName.C_Str(), model);
 	};
