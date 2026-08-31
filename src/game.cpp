@@ -100,54 +100,6 @@ DebugMessage Game::run()
 	}
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
-	std::vector<gfx::Vertex> cubeVertices = {
-		// Front Face (Z+)
-		{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } }, // Bottom-Left
-		{ {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f } }, // Bottom-Right
-		{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f } }, // Top-Right
-		{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f } }, // Top-Left
-
-		// Back Face (Z-)
-		{ { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f } }, // Bottom-Left
-		{ { -0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } }, // Top-Left
-		{ {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } }, // Top-Right
-		{ {  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } }, // Bottom-Right
-
-		// Top Face (Y+)
-		{ { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } }, // Top-Left
-		{ { -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f } }, // Bottom-Left
-		{ {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } }, // Bottom-Right
-		{ {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } }, // Top-Right
-
-		// Bottom Face (Y-)
-		{ { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } }, // Bottom-Left
-		{ {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f } }, // Bottom-Right
-		{ {  0.5f, -0.5f,  0.5f }, { 1.0f, 1.0f } }, // Top-Right
-		{ { -0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f } }, // Top-Left
-
-		// Right Face (X+)
-		{ {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f } }, // Bottom-Left
-		{ {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } }, // Top-Left
-		{ {  0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f } }, // Top-Right
-		{ {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } }, // Bottom-Right
-
-		// Left Face (X-)
-		{ { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } }, // Bottom-Left
-		{ { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f } }, // Bottom-Right
-		{ { -0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f } }, // Top-Right
-		{ { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } }  // Top-Left
-	};
-
-	std::vector<GLuint> cubeIndices = {
-		0,  1,  2,     2,  3,  0,  // Front
-		4,  5,  6,     6,  7,  4,  // Back
-		8,  9,  10,    10, 11, 8,  // Top
-		12, 13, 14,    14, 15, 12, // Bottom
-		16, 17, 18,    18, 19, 16, // Right
-		20, 21, 22,    22, 23, 20  // Left
-	};
-
-	gfx::Mesh cubeMesh(cubeVertices, cubeIndices, GL_STATIC_DRAW);
 
 	auto& am = AssetsManager::get();
 
@@ -198,7 +150,7 @@ DebugMessage Game::run()
 
 			AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-			world.draw();
+			world.draw(camera);
 
 			AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
