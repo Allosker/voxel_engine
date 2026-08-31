@@ -19,8 +19,8 @@ namespace gfx
 	{
 	public:
 
-		Transformable2D(v2f32 size = {}, types::pos2d ori = {})
-			: m_origin{ ori }, m_baseSize{ size }, m_scale{ 1.f, 1.f }
+		Transformable2D(v2f32 scale = { 1.f, 1.f }, types::pos2d ori = {})
+			: m_origin{ ori }, m_scale{ scale }
 		{
 			if (m_origin.x != 0 || m_origin.y != 0)
 				m_transformNeedUpdate = true;
@@ -35,11 +35,9 @@ namespace gfx
 		~Transformable2D() = default;
 
 
-		// = Getters
 
 		const m4f32& get_transform() noexcept
 		{
-			// Recompute the combined transform if needed
 			if (m_transformNeedUpdate)
 			{
 				const f32 angle = -glm::radians(m_rotation);
@@ -66,11 +64,8 @@ namespace gfx
 			return m_transformations;
 		}
 
-		v2f32 get_size() const noexcept { return { m_baseSize.x * m_scale.x, m_baseSize.y * m_scale.y }; }
 
 		v2f32 get_scale() const noexcept { return m_scale; }
-
-		v2f32 get_base_size() const noexcept { return { m_baseSize.x, m_baseSize.y }; }
 
 		angle get_rotation() const noexcept { return m_rotation; }
 
@@ -95,23 +90,7 @@ namespace gfx
 
 		virtual void set_scale(f32 scalar) noexcept
 		{
-			m_scale = v2f32{ scalar, scalar };
-			m_transformNeedUpdate = true;
-		}
-
-		virtual void set_size(v2f32 size) noexcept
-		{
-			if (m_baseSize.x != 0 && m_baseSize.y != 0)
-				set_scale({ size.x / m_baseSize.x, size.y / m_baseSize.y });
-			else
-				m_baseSize = size;
-			m_transformNeedUpdate = true;
-		}
-
-		virtual void set_base_size(v2f32 size) noexcept
-		{
-			m_baseSize = size;
-			m_transformNeedUpdate = true;
+			set_scale({ scalar, scalar });
 		}
 
 		virtual void set_ori(types::pos2d ori) noexcept
@@ -148,7 +127,6 @@ namespace gfx
 		m4f32 m_transformations{ 1 };
 
 		v2f32			m_scale{};
-		v2f32			m_baseSize{};
 		v2f32			m_origin{};
 		types::pos2d	m_position{};
 						

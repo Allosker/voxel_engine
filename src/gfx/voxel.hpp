@@ -22,7 +22,7 @@ namespace gfx
 			return type_id != types::TypeIdNull;
 		}
 
-		static constexpr std::array<std::array<v3f32, 6>, 6> model
+		static constexpr std::array<std::array<v3f32, 6>, 6> g_model
 		{
 			// Position	
 			
@@ -109,7 +109,7 @@ namespace gfx
 
 		};
 
-		static constexpr std::array<v2f32, 6> face_uvs
+		static constexpr std::array<v2f32, 6> g_face_uvs
 		{
 			v2f32
 			{ 0, 0 },
