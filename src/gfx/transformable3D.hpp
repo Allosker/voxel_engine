@@ -35,7 +35,7 @@ namespace gfx
 
 		// = Getters
 
-		const m4f64& get_transform() noexcept
+		const m4f64& get_transform() const noexcept
 		{
 			if (m_transformNeedUpdate)
 			{
@@ -106,7 +106,7 @@ namespace gfx
 
 	private:
 
-		m4f64		m_transformations{ 1 };
+        mutable m4f64 m_transformations{ 1 };
 
 		v3f64		m_scale{};
 		v3f64		m_origin{};
@@ -114,7 +114,7 @@ namespace gfx
 
 		qf64		m_rotation{ 1., 0., 0., 0. };
 
-		bool		m_transformNeedUpdate{ false };
+		mutable bool		m_transformNeedUpdate{ false };
 
 
 	};

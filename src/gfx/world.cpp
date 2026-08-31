@@ -1,9 +1,10 @@
 #include "world.hpp"
 
 #include "debugRenderer.hpp"
-
+#include "camera.hpp"
 #include "rayTraversal.hpp"
-
+#include "meshInstance.hpp"
+#include "texture.hpp"
 
 namespace gfx
 {
@@ -43,25 +44,25 @@ namespace gfx
 			bool should_be_empty_chunk{ true };
 
 			for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
-			for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
-			{
-				auto pos = types::voxel_pos{ x, 0, z } + c_pos;
-
-				i64 height = continentalness(terrain_context, pos.z, pos.x) * 10;
-
-
-				for (u16 y{}; y < Chunk::g_size<u16>.y; y++)
+				for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
 				{
-					pos.y = y + c_pos.y;
+					auto pos = types::voxel_pos{ x, 0, z } + c_pos;
 
-					if (pos.y <= height)
+					i64 height = continentalness(terrain_context, pos.z, pos.x) * 10;
+
+
+					for (u16 y{}; y < Chunk::g_size<u16>.y; y++)
 					{
-						should_be_empty_chunk = false;
+						pos.y = y + c_pos.y;
 
-						chunk->set_voxel_at({ x,y,z }, Voxel{ .type_id{ 1 } });
+						if (pos.y <= height)
+						{
+							should_be_empty_chunk = false;
+
+							chunk->set_voxel_at({ x,y,z }, Voxel{ .type_id{ 1 } });
+						}
 					}
 				}
-			}
 
 			if (should_be_empty_chunk)
 				chunk->set_empty();
@@ -91,7 +92,7 @@ namespace gfx
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		chunk->at(voxel_l) = new_voxel;
 
-		
+
 
 		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
 			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[4], true);
@@ -108,7 +109,7 @@ namespace gfx
 
 
 		overworld.add_priority_cmesh(loc, true);
-		
+
 
 		// Represent each direction index
 		const auto check_all_dirs = [&](const size_t i, const size_t first, const size_t second, const size_t i2, const size_t first2, const size_t second2)
@@ -124,14 +125,14 @@ namespace gfx
 					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[second2]);
 			};
 
-		check_all_dirs(2, 4, 5, 1, 2, 3); 
-		check_all_dirs(2, 4, 5, 0, 0, 1); 
+		check_all_dirs(2, 4, 5, 1, 2, 3);
+		check_all_dirs(2, 4, 5, 0, 0, 1);
 
-		check_all_dirs(1, 2, 3, 0, 0, 1); 
-		check_all_dirs(1, 2, 3, 2, 4, 5); 
+		check_all_dirs(1, 2, 3, 0, 0, 1);
+		check_all_dirs(1, 2, 3, 2, 4, 5);
 
-		check_all_dirs(0, 0, 1, 2, 4, 5); 
-		check_all_dirs(0, 0, 1, 1, 2, 3); 
+		check_all_dirs(0, 0, 1, 2, 4, 5);
+		check_all_dirs(0, 0, 1, 1, 2, 3);
 
 
 		return true;
@@ -141,6 +142,55 @@ namespace gfx
 	{
 		return gfx::raycast(origin, dir, overworld, max_length);
 	}
-	
 
+
+	void World::draw(const Camera& camera) const noexcept
+	{
+		overworld.draw();
+
+		Shader* currentShader{};
+
+		for (auto& meshInstance : m_meshInstances)
+		{
+			if (!meshInstance.m_shader || !meshInstance.m_mesh)
+			{
+				continue;
+			}
+
+			if (meshInstance.m_shader != currentShader)
+			{
+				if (currentShader)
+				{
+					currentShader->unbind();
+				}
+
+				currentShader = meshInstance.m_shader;
+				currentShader->bind();
+
+				currentShader->set_value("vp", camera.get_VP()); 
+				
+				int uniformLocation = glGetUniformLocation(currentShader->id(), "tex");
+				glUniform1i(uniformLocation, 0);
+			}
+
+			if (meshInstance.m_texture)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				meshInstance.m_texture->bind();
+			}
+
+			currentShader->set_value("model", meshInstance.get_transform());
+			meshInstance.m_mesh->draw();
+
+			if (meshInstance.m_texture)
+			{
+				meshInstance.m_texture->unbind();
+			}
+		}
+
+		if (currentShader)
+		{
+			currentShader->unbind();
+		}
+	}
 }
