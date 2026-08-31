@@ -73,7 +73,7 @@ bool Window::toggle_cursor() noexcept
 // Setters
 // =====================
 
-void Window::resize(const mpml::Vector2<int>& new_size) noexcept
+void Window::resize(v2i32 new_size) noexcept
 {
 	glfwSetWindowSize(m_window, new_size.x, new_size.y);
 	glViewport(0, 0, new_size.x, new_size.y);

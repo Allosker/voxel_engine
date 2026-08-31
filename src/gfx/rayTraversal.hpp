@@ -97,7 +97,7 @@ namespace gfx
 		if (!(chunk = grid.at_chunk(ray_loc)))
 			return std::nullopt;
 
-		while ((origin - ray.pos).length_squared() < max_length * max_length)
+		while (glm::length2(origin - ray.pos) < max_length * max_length)
 		{
 
 			ray_loc = World::to_chunkLoc(ray.pos);

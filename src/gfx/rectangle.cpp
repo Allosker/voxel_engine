@@ -1,5 +1,6 @@
 #include "gfx/rectangle.hpp"
 
+#include "debugRenderer.hpp"
 
 namespace gfx 
 {
@@ -29,6 +30,7 @@ namespace gfx
 			GL_STATIC_DRAW
 		);
 
+		m_trans.set_base_size(m_tex->get_size());
 	}
 
 	void Rectangle::draw(const Shader& shader) noexcept

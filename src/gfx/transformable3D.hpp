@@ -39,11 +39,11 @@ namespace gfx
 		{
 			if (m_transformNeedUpdate)
 			{
-				m4f64 transforms{ m4f64::Identity };
+				m4f64 transforms{ 1. };
 
-				transforms = mpml::scale(transforms, m_scale);
-				transforms = mpml::rotate(transforms, m_rotation);
-				transforms = mpml::translate(transforms, m_position);
+				transforms *= glm::scale(transforms, m_scale);
+				transforms *= glm::mat4_cast(m_rotation);
+				transforms *= glm::translate(transforms, m_position);
 
 				m_transformations = transforms;
 
@@ -76,9 +76,15 @@ namespace gfx
 			m_transformNeedUpdate = true;
 		}
 
+		void set_scale(f64 scale) noexcept
+		{
+			m_scale = v3f64{ scale, scale, scale };
+			m_transformNeedUpdate = true;
+		}
+
 		void set_size(const v3f64& size) noexcept
 		{
-			if (m_baseSize != 0)
+			if (m_baseSize.x != 0 && m_baseSize.y != 0 && m_baseSize.z != 0)
 				set_scale({ size.x / m_baseSize.x, size.y / m_baseSize.y, size.z / m_baseSize.z });
 			else
 				m_baseSize = size;
@@ -116,14 +122,14 @@ namespace gfx
 
 	private:
 
-		mutable m4f64		m_transformations{ m4f64::Identity };
+        mutable m4f64 m_transformations{ 1 };
 
 		v3f64		m_scale{};
 		v3f64		m_baseSize{};
 		v3f64		m_origin{};
 		types::pos	m_position{};
 
-		qf64		m_rotation{ 1., 0, 0, 0 };
+		qf64		m_rotation{ 1., 0., 0., 0. };
 
 		mutable bool		m_transformNeedUpdate{ false };
 

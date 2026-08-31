@@ -7,6 +7,7 @@
 */
 
 #include <vector>
+#include <array>
 
 #include "sys/types.hpp"
 
@@ -23,12 +24,13 @@ namespace gfx
 		struct Stage
 		{
 			// In Slots
-			v3i16 size{};
+			v2f32 size{};
 			u16 count_per_slot{};
 		};
 
 		enum Size : size_t
 		{
+			None, // This class' Size var can never have this value
 			Small,
 			Medium,
 			Big
@@ -49,6 +51,9 @@ namespace gfx
 		void set_stage(Size stage) noexcept;
 
 		Size get_size() const noexcept { return m_size; }
+
+		v2f32 get_nb_slots() const noexcept { return g_stages[m_size].size; }
+
 
 
 	public:

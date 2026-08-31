@@ -108,7 +108,7 @@ namespace gfx
 		}
 
 		
-		void add_2D_line(v2f32 start, v2f32 end, v3f32 color, f32 duration = 0.f)
+		void add_2D_line(v2f32 start, v2f32 end, v4f32 color, f32 duration = 0.f)
 		{
 			m_lines_2D.data.push_back({ start, color });
 			m_lines_2D.data.push_back({ end, color });
@@ -120,7 +120,7 @@ namespace gfx
 			m_lines_2D.dirty = true;
 		}
 
-		void addLine(v3f32 start, v3f32 end, v3f32 color, f32 duration = 0.f, bool foreground = true)
+		void addLine(v3f32 start, v3f32 end, v4f32 color, f32 duration = 0.f, bool foreground = true)
 		{
 			auto& list = foreground ? m_lines_foreground : m_lines_world;
 
@@ -134,7 +134,7 @@ namespace gfx
 			list.dirty = true;
 		}
 
-		void addTriangle(v3f32 p1, v3f32 p2, v3f32 p3, v3f32 color, float duration = 0.f, bool foreground = true)
+		void addTriangle(v3f32 p1, v3f32 p2, v3f32 p3, v4f32 color, float duration = 0.f, bool foreground = true)
 		{
 			auto& list = foreground ? m_triangles_foreground : m_triangles_world;
 
@@ -259,7 +259,7 @@ namespace gfx
 	/// <param name="color"></param>
 	/// <param name="duration: -1 for infinite duration"></param>
 	/// <param name="foreground"></param>
-	inline void line(v3f32 start, v3f32 end, v3f32 color, float duration = 0.f, bool foreground = true)
+	inline void line(v3f32 start, v3f32 end, v4f32 color, float duration = 0.f, bool foreground = true)
 	{
 		gfx::DebugRenderer::get().addLine(start, end, color, duration, foreground);
 	}
@@ -269,7 +269,7 @@ namespace gfx
 	/// <param name="color"></param>
 	/// <param name="duration: -1 for infinite duration"></param>
 	/// <param name="foreground"></param>
-	inline void aabb(v3f32 center, v3f32 extent, v3f32 color, float duration = 0.f, bool foreground = true)
+	inline void aabb(v3f32 center, v3f32 extent, v4f32 color, float duration = 0.f, bool foreground = true)
 	{
 		const auto min = center - extent;
 		const auto max = center + extent;
@@ -309,7 +309,7 @@ namespace gfx
 	/// <param name="color"></param>
 	/// <param name="duration"></param>
 	/// <param name="foreground"></param>
-	inline void aabb_min_max(v3f32 min, v3f32 max, v3f32 color, float duration = 0.f, bool foreground = true)
+	inline void aabb_min_max(v3f32 min, v3f32 max, v4f32 color, float duration = 0.f, bool foreground = true)
 	{
 		const v3f32 corners[] = {
 			{min.x, min.y, min.z}, // base corner
@@ -346,7 +346,7 @@ namespace gfx
 	/// <param name="color"></param>
 	/// <param name="duration"></param>
 	/// <param name="foreground"></param>
-	inline void aabb2D_min_max(v2f32 min, v2f32 max, v3f32 color, float duration = 0.f, bool foreground = true)
+	inline void aabb2D_min_max(v2f32 min, v2f32 max, v4f32 color, float duration = 0.f, bool foreground = true)
 	{
 		const v2f32 corners[] = {
 			{min.x, min.y }, // base corner
@@ -370,7 +370,7 @@ namespace gfx
 	/// <param name="single_transformation: local transforms that mesh"></param>
 	/// <param name="duration: -1 for infinite duration"></param>
 	/// <param name="foreground"></param>
-	inline void obb(v3f32 center, v3f32 extent, v3f32 color, m4f32 single_transform, float duration = 0.f, bool foreground = true)
+	inline void obb(v3f32 center, v3f32 extent, v4f32 color, m4f32 single_transform, float duration = 0.f, bool foreground = true)
 	{
 		const auto min = center - extent;
 		const auto max = center + extent;
@@ -421,7 +421,7 @@ namespace gfx
 	/// <param name="color"></param>
 	/// <param name="duration: -1 for infinite duration"></param>
 	/// <param name="foreground"></param>
-	inline void triangle_fill(v3f32 p1, v3f32 p2, v3f32 p3, v3f32 color, float duration = 0.f, bool foreground = true)
+	inline void triangle_fill(v3f32 p1, v3f32 p2, v3f32 p3, v4f32 color, float duration = 0.f, bool foreground = true)
 	{
 		gfx::DebugRenderer::get().addTriangle(p1, p2, p3, color, duration, foreground);
 	}

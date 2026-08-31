@@ -26,9 +26,9 @@ namespace gfx
 			for (const auto& c : overworld.get_chunkMap())
 			{
 				if (c.second.isEmpty())
-					gfx::aabb((v3f32)(c.second.get_position() + 16ll), { 16.f }, v3f32{ 0, 1, 1 }, 0, false);
+					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 0, 1, 1, 1 }, 0, false);
 				else
-					gfx::aabb((v3f32)(c.second.get_position() + 16ll), { 16.f }, v3f32{ 1, 1, 0 }, 0, false);
+					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 1, 1, 0, 1 }, 0, false);
 			}
 	}
 

@@ -103,15 +103,20 @@ FetchContent_MakeAvailable(glfw)
 target_link_libraries(VoxelEngine PRIVATE glfw)
 
 
-# MPML - Math Library
+# GLM - Math Library
 FetchContent_Declare(
-	MPML
-	GIT_REPOSITORY https://github.com/Allosker/MPML.git 
+	glm
+	GIT_REPOSITORY	https://github.com/g-truc/glm.git
+	GIT_TAG 	0af55ccecd98d4e5a8d1fad7de25ba429d60e863 #refs/tags/1.0.1
 )
- 
-FetchContent_MakeAvailable(MPML) 
 
-target_link_libraries(VoxelEngine PRIVATE MPML::MPML)
+FetchContent_MakeAvailable(glm)
+
+target_link_libraries(VoxelEngine PRIVATE glm::glm)
+
+target_compile_definitions(VoxelEngine PRIVATE
+    GLM_ENABLE_EXPERIMENTAL
+)
 
  
 # FREETYPE - Font Rendering Lib

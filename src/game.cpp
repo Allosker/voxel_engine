@@ -84,8 +84,12 @@ DebugMessage Game::run()
 	AssetsManager::get(); // load all assets
 
 	AssetsManager::get().shaders.at("shaders/twoD").bind();
-	AssetsManager::get().shaders.at("shaders/twoD").set_value("ortho", orthographic_proj_2D);
+	AssetsManager::get().shaders.at("shaders/twoD").set_value("ortho", orthographic_proj);
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
+
+	AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
+	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", orthographic_proj);
+	AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
 
 
 	world.update_grid({ 0, 0, 0 }, true);
@@ -151,6 +155,9 @@ DebugMessage Game::run()
 	world.m_meshInstances.push_back(gfx::MeshInstance{model.mesh, &am.shaders.at("shaders/static_mesh"), model.textures[0]});
 	world.m_meshInstances.back().set_pos({1.0, 8.0, 2.0});
 
+	gui::ItemStackGUI itemgui{};
+
+
 	// Main Loop
 	while (window->isOpen())
 	{
@@ -178,7 +185,67 @@ DebugMessage Game::run()
 		debug();
 
 
-		render_on_screen();
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glEnable(GL_DEPTH_TEST);
+
+
+			AssetsManager::get().shaders.at("shaders/world_chunks").bind();
+
+			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
+			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
+
+			AssetsManager::get().textures.at("textures/voxels/stone").bind();
+
+			world.draw();
+
+			AssetsManager::get().textures.at("textures/voxels/stone").unbind();
+
+			AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
+
+
+			AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
+			AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", orthographic_proj);
+			AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
+
+
+			/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
+
+			glDisable(GL_DEPTH_TEST);
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			/*AssetsManager::get().shaders.at("shaders/twoD").bind();
+
+			gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
+
+			AssetsManager::get().shaders.at("shaders/twoD").unbind();*/
+
+
+			AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
+
+			itemgui.draw({ 
+				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
+				.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
+			});
+
+			AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
+
+
+			glDisable(GL_BLEND);
+
+
+			/*= Debug Draws =*/
+
+			gfx::DebugRenderer::get().render2D(orthographic_proj);
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+			window->display(); // Swap Window Buffer With the Graphics Card's One
 
 
 		auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
@@ -289,23 +356,23 @@ void Game::inputs()
 
 				types::pos direction{};
 
-				f64 radPitch{ mpml::to_radians(pitch) };
+				f64 radPitch{ glm::radians(pitch) };
 				f64 cosPitch{ std::cos(radPitch) };
-				f64 radYaw{ mpml::to_radians(yaw) };
+				f64 radYaw{ glm::radians(yaw) };
 
 				direction.x = std::cos(radYaw) * cosPitch;
 				direction.y = -std::sin(radPitch);
 				direction.z = std::sin(radYaw) * cosPitch;
 
-				camera.set_dirs(direction.normal());
+				camera.set_dirs(glm::normalize(direction));
 			}
 		}
 
 	}
 
 
-	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0 }, 0, false);
-	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1 }, 0, false);
+	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0, 1 }, 0, false);
+	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1, 1 }, 0, false);
 
 
 	if (window->isKeyPressed(Keys::W))
@@ -341,7 +408,8 @@ void Game::logic()
 
 	player.update(world, delta_time.get());
 
-	gui_inv.update(inv);
+
+	gui_inv.update(inv, Window::to_gui_coordinates(*window, window->get_cursor_pos()));
 
 }
 
@@ -507,7 +575,7 @@ void Game::render_on_screen()
 	AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
 		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32::Identity);
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1 });
 
 		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
@@ -516,6 +584,9 @@ void Game::render_on_screen()
 		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
 	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
+
+
+
 
 
 	/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
@@ -538,7 +609,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render2D(orthographic_proj_2D);
+	gfx::DebugRenderer::get().render2D(orthographic_proj);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

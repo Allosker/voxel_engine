@@ -11,6 +11,14 @@ namespace phy
 			a.get_min().y < b.get_max().y && a.get_max().y > b.get_min().y;
 	}
 
+	bool intersects(const HitboxAABB2D& a, types::pos2d point) noexcept
+	{
+		return
+			a.get_min().x < point.x && a.get_max().x > point.x &&
+
+			a.get_min().y < point.y && a.get_max().y > point.y;
+	}
+
 
 	v2f32 get_MTV(const HitboxAABB2D& a, const HitboxAABB2D& b) noexcept
 	{

@@ -46,6 +46,8 @@ namespace gfx
 
 		const Texture* get_texture() const noexcept { return m_tex; }
 
+		bool intersects(const Rectangle& other) const noexcept;
+
 
 		/// <summary>
 		/// If there is no attached texture, we do not draw the object, since the object is defined by its texture
