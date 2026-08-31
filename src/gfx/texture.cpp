@@ -27,14 +27,14 @@ namespace gfx
 		load(tex_path);
 	}
 
-	Texture::Texture(u8* buffer, u32 size, Type type) : 
-	Texture{ type }
+	Texture::Texture(u8* buffer, u32 size) : 
+	Texture{ Type::tex2D }
 	{
 		load_from_memory(buffer, size);
 	}
 
-	Texture::Texture(const Image& image, Type type) : 
-	Texture{ type }
+	Texture::Texture(const Image& image) : 
+	Texture{ Type::tex2D }
 	{
 		m_width = static_cast<i32>(image.getSize().x);
 		m_height = static_cast<i32>(image.getSize().y);
