@@ -184,7 +184,7 @@ namespace gfx
 
 		void render3D(const m4f32& vp_3D)
 		{
-			const auto render_list = [&](auto& list, GLenum draw_mode)
+			const auto render_list = [&](auto& list)
 			{
 				if (list.dirty)
 				{
@@ -192,7 +192,7 @@ namespace gfx
 					list.dirty = false;
 				}
 				
-				list.mesh.draw(draw_mode);
+				list.mesh.draw();
 			};
 
 
@@ -203,12 +203,12 @@ namespace gfx
 			shader_3D.set_value_loc(shader_3D_vp_loc, vp_3D);
 
 			glDisable(GL_DEPTH_TEST);
-			render_list(m_lines_foreground, GL_LINES);
-			render_list(m_triangles_foreground, GL_TRIANGLES);
+			render_list(m_lines_foreground);
+			render_list(m_triangles_foreground);
 
 			glEnable(GL_DEPTH_TEST);
-			render_list(m_lines_world, GL_LINES);
-			render_list(m_triangles_world, GL_TRIANGLES);
+			render_list(m_lines_world);
+			render_list(m_triangles_world);
 		}
 
 		void render2D(const m4f32& ortho_2D)
@@ -227,8 +227,7 @@ namespace gfx
 				m_lines_2D.dirty = false;
 			}
 
-			m_lines_2D.mesh.draw(GL_LINES);
-
+			m_lines_2D.mesh.draw();
 
 			shader_2D.unbind();
 		}

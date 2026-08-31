@@ -10,11 +10,14 @@
 
 #include "chunkGrid.hpp"
 #include "terrainGeneration.hpp"
+#include "gfx/meshInstance.hpp"
 
 
 namespace gfx
 {
 	struct RayCastResult;
+	struct Camera;
+	struct MeshInstance;
 
 	class World
 	{
@@ -39,10 +42,7 @@ namespace gfx
 		/// <summary>
 		/// First draws chunk grids, then entities
 		/// </summary>
-		void draw() const noexcept
-		{
-			overworld.draw();
-		}
+		void draw(const Camera& camera) const noexcept;
 
 
 		ChunkGrid& get_chunkGrid() noexcept { return overworld; }
@@ -72,6 +72,7 @@ namespace gfx
 			return static_cast<types::voxel_pos>(types::pos{ std::floor(pos.x), std::floor(pos.y), std::floor(pos.z) });
 		}
 
+		void loadModel(const filepath path);
 
 	public:
 
@@ -86,6 +87,7 @@ namespace gfx
 
 		f64 gravity{ -32 };
 
+		std::vector<gfx::MeshInstance> m_meshInstances;
 
 	private:
 		

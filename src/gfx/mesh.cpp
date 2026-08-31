@@ -1,5 +1,8 @@
 #include "mesh.hpp"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace gfx
 {
@@ -54,14 +57,14 @@ namespace gfx
 	// Actors 
 	// =====================
 
-	void Mesh::draw(GLenum mode) const noexcept
+	void Mesh::draw() const noexcept
 	{
 		bind();
 
 		if (m_ebo)
-			glDrawElements(mode, m_nb_indices, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, m_nb_indices, GL_UNSIGNED_INT, 0);
 		else
-			glDrawArrays(mode, 0, m_nb_elements);
+			glDrawArrays(GL_TRIANGLES, 0, m_nb_elements);
 
 		unbind();
 	}
@@ -72,5 +75,4 @@ namespace gfx
 		glDeleteBuffers(1, &m_ebo);
 		glDeleteVertexArrays(1, &m_vao);
 	}
-
 }

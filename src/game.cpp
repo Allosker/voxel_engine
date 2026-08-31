@@ -6,6 +6,7 @@
 #include "sys/inputManager.hpp"
 
 #include "gfx/rayTraversal.hpp"
+#include "gfx/meshInstance.hpp"
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -100,6 +101,11 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
+	auto& am = AssetsManager::get();
+
+	auto& model = am.models.begin()->second;
+	world.m_meshInstances.push_back(gfx::MeshInstance{model.mesh, &am.shaders.at("shaders/static_mesh"), model.textures[0]});
+	world.m_meshInstances.back().set_pos({1.0, 8.0, 2.0});
 
 	gui::ItemStackGUI itemgui{};
 
@@ -144,7 +150,7 @@ DebugMessage Game::run()
 
 			AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-			world.draw();
+			world.draw(camera);
 
 			AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
@@ -516,7 +522,7 @@ void Game::render_on_screen()
 
 		AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-			world.draw();
+			world.draw(camera);
 
 		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
@@ -529,6 +535,8 @@ void Game::render_on_screen()
 	/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
 
 	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
