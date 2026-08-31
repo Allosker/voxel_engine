@@ -10,6 +10,7 @@
 
 #include "sys/graphics.hpp"
 #include "sys/types.hpp"
+#include "sys/hash.hpp"
 
 
 namespace gfx
@@ -79,6 +80,34 @@ namespace gfx
 
 
 		GLuint m_id;
+
+		struct UniformDefinition
+		{
+			int32_t block{};
+			int32_t pos{};
+			int32_t size{};
+			uint32_t type{};
+
+			std::string name; // Debug only?
+		};
+		 
+		struct BlockDefinition
+		{
+			uint32_t totalSize{};
+			uint32_t bindIndex{};
+
+			std::string name; // Debug only?
+		};
+
+		struct TextureMember
+		{
+			int32_t uniformLocation{};
+			int32_t slot{};
+		};
+
+		std::vector<BlockDefinition> m_blockDefinitions;
+		std::unordered_map<StringHash, UniformDefinition> m_uniformDefinitions;
+		std::unordered_map<StringHash, TextureMember> m_textureMembers;
 
 	};
 }
