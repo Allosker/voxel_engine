@@ -17,7 +17,7 @@ namespace gfx
 	{
 	public:
 
-		Transformable3D(const v3f64& size = {}, const types::pos& ori = {})
+		Transformable3D(const v3f64& size = { 1., 1., 1. }, const types::pos& ori = {})
 			: m_origin{ ori }, m_baseSize{ size }, m_scale{ 1.f, 1.f, 1.f }
 		{
 			if (m_origin.x != 0 || m_origin.y != 0)
@@ -41,9 +41,7 @@ namespace gfx
 			{
 				m4f64 transforms{ 1. };
 
-				transforms *= glm::scale(transforms, m_scale);
-				transforms *= glm::mat4_cast(m_rotation);
-				transforms *= glm::translate(transforms, m_position);
+				transforms = glm::scale(glm::translate(m4f64{ 1. }, m_position) * glm::mat4_cast(m_rotation), m_scale);
 
 				m_transformations = transforms;
 
@@ -78,8 +76,7 @@ namespace gfx
 
 		void set_scale(f64 scale) noexcept
 		{
-			m_scale = v3f64{ scale, scale, scale };
-			m_transformNeedUpdate = true;
+			set_scale({ scale, scale, scale });
 		}
 
 		void set_size(const v3f64& size) noexcept
@@ -90,6 +87,11 @@ namespace gfx
 				m_baseSize = size;
 
 			m_transformNeedUpdate = true;
+		}
+
+		void set_size(f64 size) noexcept
+		{
+			set_size({ size, size, size });
 		}
 
 		void set_baseSize(const v3f64& size) noexcept

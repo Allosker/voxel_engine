@@ -272,8 +272,8 @@ namespace gfx
 						{
 							assemble_pos_uvs(
 								ret,
-								Voxel::model[i],
-								Voxel::face_uvs, 
+								Voxel::g_model[i],
+								Voxel::g_face_uvs, 
 							calculate_ao(targetChunk, i, v_loc_dir, grid),
 							v3f32{ (f32)x,(f32)y,(f32)z } + static_cast<v3f32>(current_chunk.get_position())
 							);

@@ -87,7 +87,7 @@ DebugMessage Game::run()
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
 	AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", orthographic_proj);
+	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("ortho", orthographic_proj);
 	AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
 
 
@@ -152,7 +152,12 @@ DebugMessage Game::run()
 
 
 			AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-			AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("vp", orthographic_proj);
+
+			itemgui.draw({
+				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
+				.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
+			});
+
 			AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
 
 
@@ -170,14 +175,7 @@ DebugMessage Game::run()
 			AssetsManager::get().shaders.at("shaders/twoD").unbind();*/
 
 
-			AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-
-			itemgui.draw({ 
-				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-				.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
-			});
-
-			AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
+			
 
 
 			glDisable(GL_BLEND);

@@ -81,7 +81,7 @@ private: // Internal Communication/Logic
 
 	bool showDebugMenus{};
 
-	m4f32 orthographic_proj{ glm::ortho(0.f, Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f ) };
+	m4f32 orthographic_proj{ glm::ortho(0.f, Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, -2000.f, 2000.f) };
 
 	gfx::Inventory    inv{};
 	gui::InventoryGUI gui_inv{};

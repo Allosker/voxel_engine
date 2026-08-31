@@ -31,31 +31,117 @@ namespace gui
 	/// </summary>
 	class ItemStackGUI
 	{
+		static constexpr std::array<std::array<v3f32, 6>, 6> g_model
+		{
+			/*Left*/
+			std::array<v3f32, 6>
+			{
+				v3f32
+				{ 0.5, -0.5, 0.5 },  /*Left-Down*/
+				{ 0.5, -0.5, -0.5 },   /*Right-Down*/
+				{ 0.5, 0.5, 0.5 },  /*Left-Up*/
+
+				{ 0.5, -0.5, -0.5 },   /*Right-Down*/
+				{ 0.5, 0.5, -0.5 },   /*Right-Up*/
+				{ 0.5, 0.5, 0.5 },  /*Left-Up*/
+			},
+
+			// /*Right*/ 
+			std::array<v3f32, 6>
+			{
+				v3f32
+				{ -0.5, -0.5, -0.5 },  /*Right-Down*/
+				{ -0.5, -0.5, 0.5 },   /*Left-Down*/
+				{ -0.5, 0.5, -0.5 },  /*Right-Up*/
+
+				{ -0.5, -0.5, 0.5 },   /*Left-Up*/
+				{ -0.5, 0.5, 0.5 },  /*Right-Up*/
+				{ -0.5, 0.5, -0.5 },   /*Left-Down*/
+			},
+
+
+			/*Up*/
+			std::array<v3f32, 6>
+			{
+				v3f32
+				{ 0.5, 0.5, 0.5 },   /*Left-Down*/
+				{ 0.5, 0.5, -0.5 },  /*Right-Down*/
+				{ -0.5, 0.5, 0.5 },   /*Left-Up*/
+
+				{ 0.5, 0.5, -0.5 },  /*Right-Down*/
+				{ -0.5, 0.5, -0.5 },  /*Right-Up*/
+				{ -0.5, 0.5, 0.5 },   /*Left-Up*/
+			},
+
+			/*Down*/
+			std::array<v3f32, 6>
+			{
+				v3f32
+				{ 0.5, -0.5, -0.5 },  /*Left-Down*/
+				{ 0.5, -0.5, 0.5 },  /*Right-Down*/
+				{ -0.5, -0.5, -0.5 },   /*Left-Up*/
+
+				{ 0.5, -0.5, 0.5 },  /*Right-Down*/
+				{ -0.5, -0.5, 0.5 },   /*Right-Up*/
+				{ -0.5, -0.5, -0.5 },   /*Left-Up*/
+			},
+
+
+			/*Front*/
+			std::array<v3f32, 6>
+			{
+				v3f32
+				{ -0.5, -0.5, 0.5},  /*Left-Down*/
+				{ 0.5, -0.5, 0.5 },  /*Right-Down*/
+				{ -0.5, 0.5, 0.5 },  /*Left-Up*/
+
+				{ 0.5, -0.5, 0.5 },  /*Right-Down*/
+				{ 0.5, 0.5, 0.5 },  /*Right-Up*/
+				{ -0.5, 0.5, 0.5 },  /*Left-Up*/
+			},
+
+			/*Back*/
+			std::array<v3f32, 6>
+			{
+				v3f32
+				{ 0.5, -0.5, -0.5 },  /*Left-Down*/
+				{ -0.5, -0.5, -0.5 },  /*Right-Down*/
+				{ 0.5, 0.5, -0.5 },  /*Left-Up*/
+
+				{ -0.5, -0.5, -0.5 },  /*Right-Down*/
+				{ -0.5, 0.5, -0.5 },  /*Right-Up*/
+				{ 0.5, 0.5, -0.5 },  /*Left-Up*/
+			},
+
+
+		};
+
+
 	public:
 
 		ItemStackGUI() noexcept
 		{
 			std::vector<gfx::Vertex> mesh{};
 
-			for (const auto& i : gfx::Voxel::model)
+			for (const auto& i : g_model)
 				assemble_pos_uvs(
 					mesh,
 					i,
-					gfx::Voxel::face_uvs
+					gfx::Voxel::g_face_uvs
 				);
 
 			m_mesh.create_buffer<gfx::Vertex>(false);
 			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);
 
-			m_trans.set_scale(1.f);
-			m_trans.move(v3f64{ 0, -1, 0 });
+			m_trans.set_size(33.f);
+			m_trans.move(v3f64{ 1200, 500, 0 });
 			
 		}
 
 
 		void draw(const gfx::RenderContext& rc) noexcept
 		{
-			//m_trans.set_rotation(qf64::fromAxis({ 0, 1, 0 }, angle32::from_degrees(120.0f)));
+			m_trans.set_rotation(glm::angleAxis<f32>(glfwGetTime(), v3f32{0, 1, 0}));
 
 			rc.sha->set_value("model", m_trans.get_transform());
 
