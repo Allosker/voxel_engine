@@ -107,8 +107,6 @@ DebugMessage Game::run()
 	world.m_meshInstances.push_back(gfx::MeshInstance{model.mesh, &am.shaders.at("shaders/static_mesh"), model.textures[0]});
 	world.m_meshInstances.back().set_pos({1.0, 8.0, 2.0});
 
-	gui::ItemStackGUI itemgui{};
-
 
 	// Main Loop
 	while (window->isOpen())
@@ -148,11 +146,7 @@ DebugMessage Game::run()
 			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
 			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
 
-			AssetsManager::get().textures.at("textures/voxels/stone").bind();
-
 			world.draw(camera);
-
-			AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
 			AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
@@ -170,7 +164,7 @@ DebugMessage Game::run()
 				{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } }, 
 				{ 
 					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-					.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
+					.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
 				}
 			);
 

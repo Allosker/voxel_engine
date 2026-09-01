@@ -5,6 +5,7 @@
 #include "rayTraversal.hpp"
 #include "meshInstance.hpp"
 #include "texture.hpp"
+#include "sys/assetsManager.hpp"
 
 namespace gfx
 {
@@ -34,6 +35,8 @@ namespace gfx
 
 	void World::generate_world(const std::list<types::chunk_loc>& clocs) noexcept
 	{
+		const auto& vtm = VoxelTypeManager::get();
+
 		for (const auto& i : clocs)
 		{
 			auto* chunk = overworld.at_chunk(i);
@@ -58,8 +61,8 @@ namespace gfx
 						if (pos.y <= height)
 						{
 							should_be_empty_chunk = false;
-
-							chunk->set_voxel_at({ x,y,z }, Voxel{ .type_id{ 1 } });
+							
+							chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("stone") });
 						}
 					}
 				}
@@ -146,7 +149,13 @@ namespace gfx
 
 	void World::draw(const Camera& camera) const noexcept
 	{
+		auto& tex = AssetsManager::get().textures.at(VoxelTypeManager::get().atlas_name());
+		tex.bind();
+
 		overworld.draw();
+
+		tex.unbind();
+
 
 		Shader* currentShader{};
 

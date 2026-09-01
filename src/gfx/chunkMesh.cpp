@@ -221,7 +221,7 @@ namespace gfx
 					v3i32 v_loc{ x, y, z };
 					const auto& voxel = current_chunk.at(static_cast<v3u16>(v_loc));
 
-					if (voxel.type_id == 0)
+					if (voxel.type_id == types::TypeIdNull)
 						continue;
 
 					std::array<f32, 4> ao_corners{};
@@ -270,10 +270,21 @@ namespace gfx
 
 						if (is_face_visible)
 						{
+							const auto& uvs = VoxelTypeManager::get().get_type(voxel.type_id).uvs;
+
 							assemble_pos_uvs(
 								ret,
 								Voxel::g_model[i],
-								Voxel::g_face_uvs, 
+								std::array<v2f32, 6> 
+								{
+									v2f32
+									{ uvs.pos.x				 , uvs.pos.y				},
+									{ uvs.pos.x + uvs.size.x , uvs.pos.y				},
+									{ uvs.pos.x				 , uvs.pos.y + uvs.size.y	},
+									{ uvs.pos.x + uvs.size.x , uvs.pos.y				},
+									{ uvs.pos.x + uvs.size.x , uvs.pos.y + uvs.size.y	},
+									{ uvs.pos.x				 , uvs.pos.y + uvs.size.y	}
+								},
 							calculate_ao(targetChunk, i, v_loc_dir, grid),
 							v3f32{ (f32)x,(f32)y,(f32)z } + static_cast<v3f32>(current_chunk.get_position())
 							);
