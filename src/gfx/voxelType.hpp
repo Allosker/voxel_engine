@@ -87,19 +87,19 @@ namespace gfx
 				.is_transparent{true}, 
 				.is_solid{false}}
 			);
-			m_ids.emplace(types::TypeIdNull);
+			m_ids.emplace("air", types::TypeIdNull);
 
 			m_voxel_types.push_back(VoxelType{ .name{"stone"}, 
 				.uvs{{0, 0}, {g_ratio, g_ratio}}, 
 				.has_bounds{true}
 			});
-			m_ids.emplace(1);
+			m_ids.emplace("stone", 1);
 
 			m_voxel_types.push_back(VoxelType{ .name{"dirt"}, 
 				.uvs{ { 1 * g_ratio, 0 }, { g_ratio, g_ratio } }, 
 				.has_bounds{ true } 
 			});
-			m_ids.emplace(2);
+			m_ids.emplace("dirt", 2);
 
 		}
 

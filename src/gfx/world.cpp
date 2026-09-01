@@ -62,7 +62,10 @@ namespace gfx
 						{
 							should_be_empty_chunk = false;
 							
-							chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("stone") });
+							if (pos.y == height)
+								chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("dirt") });
+							else
+								chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("stone") });
 						}
 					}
 				}

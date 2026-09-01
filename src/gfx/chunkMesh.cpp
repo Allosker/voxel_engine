@@ -8,7 +8,7 @@
 namespace gfx
 {
 
-	static void assemble_pos_uvs(auto& out, const auto& pos, const auto& uvs, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
+	static void assemble_pos_uvs(auto& out, const auto& pos, const std::vector<v2f32>& uvs, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
 	{
 		out.emplace_back(ChunkMesh::VoxelVertex{ pos[0] + xyz, uvs[0], ao[0] });
 		out.emplace_back(ChunkMesh::VoxelVertex{ pos[1] + xyz, uvs[1], ao[1] });
@@ -221,8 +221,11 @@ namespace gfx
 					v3i32 v_loc{ x, y, z };
 					const auto& voxel = current_chunk.at(static_cast<v3u16>(v_loc));
 
-					if (voxel.type_id == types::TypeIdNull)
+					if (!voxel)
 						continue;
+					
+
+					const auto abs_pos = v3f32{ (f32)x,(f32)y,(f32)z } + static_cast<v3f32>(current_chunk.get_position());
 
 					std::array<f32, 4> ao_corners{};
 
@@ -270,23 +273,14 @@ namespace gfx
 
 						if (is_face_visible)
 						{
-							const auto& uvs = VoxelTypeManager::get().get_type(voxel.type_id).uvs;
+							
 
 							assemble_pos_uvs(
 								ret,
 								Voxel::g_model[i],
-								std::array<v2f32, 6> 
-								{
-									v2f32
-									{ uvs.pos.x				 , uvs.pos.y				},
-									{ uvs.pos.x + uvs.size.x , uvs.pos.y				},
-									{ uvs.pos.x				 , uvs.pos.y + uvs.size.y	},
-									{ uvs.pos.x + uvs.size.x , uvs.pos.y				},
-									{ uvs.pos.x + uvs.size.x , uvs.pos.y + uvs.size.y	},
-									{ uvs.pos.x				 , uvs.pos.y + uvs.size.y	}
-								},
-							calculate_ao(targetChunk, i, v_loc_dir, grid),
-							v3f32{ (f32)x,(f32)y,(f32)z } + static_cast<v3f32>(current_chunk.get_position())
+								calculate_uvs(voxel.type_id),
+								calculate_ao(targetChunk, i, v_loc_dir, grid),
+								abs_pos
 							);
 						}
 

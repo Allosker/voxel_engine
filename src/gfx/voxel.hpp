@@ -6,11 +6,27 @@
 * ==============================================-
 */
 
+#include "gfx/voxelType.hpp"
 #include "sys/types.hpp"
 
 
 namespace gfx
 {
+	inline std::vector<v2f32> calculate_uvs(types::type_id id) noexcept
+	{
+		const auto& uvs = VoxelTypeManager::get().get_type(id).uvs;
+
+		return
+		{
+			v2f32
+			{ uvs.pos.x				 , uvs.pos.y },
+			{ uvs.pos.x + uvs.size.x , uvs.pos.y },
+			{ uvs.pos.x				 , uvs.pos.y + uvs.size.y },
+			{ uvs.pos.x + uvs.size.x , uvs.pos.y },
+			{ uvs.pos.x + uvs.size.x , uvs.pos.y + uvs.size.y },
+			{ uvs.pos.x				 , uvs.pos.y + uvs.size.y }
+		};
+	}
 
 	struct Voxel
 	{
