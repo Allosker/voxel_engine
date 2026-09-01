@@ -25,13 +25,13 @@ namespace gui
 	public:
 
 		InventoryGUI()
-			: m_size{ gfx::Inventory::Size::None }, m_board{ {} }
+			: m_board{ {} }
 		{  
 			m_board.set_scale(g_scale);
 		}
 
 
-		void update(const gfx::Inventory& inv, types::pos2d gui_mouse_pos) noexcept;
+		void update( gfx::Inventory& inv, types::pos2d gui_mouse_pos) noexcept;
 
 		std::optional<size_t> get_slot_index() const noexcept { return m_index; }
 
@@ -57,6 +57,8 @@ namespace gui
 
 		void change_board(gfx::Inventory::Size size) noexcept;
 
+		void update_items(const gfx::Inventory& inv) noexcept;
+
 		void compute_index(types::pos2d gui_mouse_pos) noexcept;
 
 		/// <summary>
@@ -70,6 +72,9 @@ namespace gui
 		static constexpr f32 g_scale{ 1.5f };
 		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2.f };
 		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2.f };
+		
+		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5f };
+		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2.f };
 
 		/// <summary>
 		/// Changes according to the inventory's stage
@@ -83,14 +88,13 @@ namespace gui
 
 		std::vector<ItemStackGUI> m_item_stacks;
 
-		gfx::Inventory::Size m_size{};
 		
 		v2f32 m_nb_slots{};
 
 		std::optional<size_t> m_index{};
 		std::optional<size_t> m_last_index{};
 
-
+		u8 m_inv_change{};
 	};
 
 }

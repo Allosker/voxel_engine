@@ -14,7 +14,9 @@ namespace gfx
 {
 	inline std::vector<v2f32> calculate_uvs(types::type_id id) noexcept
 	{
-		const auto& uvs = VoxelTypeManager::get().get_type(id).uvs;
+		auto uvs = VoxelTypeManager::get().get_type(id).uvs;
+		uvs.pos += 0.0001;
+		uvs.size -= 0.0001;
 
 		return
 		{

@@ -142,6 +142,13 @@ namespace gui
 
 		void draw(const gfx::RenderContext& rc) noexcept
 		{
+			//set_rotation(
+			//	glm::angleAxis<f32>(glfwGetTime(), v3f32{ 0, 1, 0 }) *
+			//	glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })) *
+			//	
+			//	glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })) 
+			//);
+
 			rc.sha->set_value("model", get_transform());
 
 			rc.tex->bind();

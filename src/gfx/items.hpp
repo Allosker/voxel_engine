@@ -65,10 +65,15 @@ namespace gfx
 			Item,
 		};
 
-		using Type = std::pair<types::type_id, Source>;
+		struct Type 
+		{ 
+			types::type_id id; Source source;
+			bool operator==(Type b) noexcept { return id == b.id && source == b.source; }
+			bool operator!=(Type b) noexcept { return id != b.id && source != b.source; }
+		};
 
 
-		ItemStack(Type type = {}, u16 max_count = {}, u16 count = {}) noexcept
+		ItemStack(Type type = { 1, {} }, u16 max_count = {}, u16 count = {}) noexcept
 		{
 			set(type, max_count, count);
 		}
@@ -113,8 +118,8 @@ namespace gfx
 		void clear() noexcept
 		{
 			m_count = 0;
-			m_type.first = {};
-			m_type.second = Undefined;
+			m_type.id = {};
+			m_type.source = Undefined;
 		}
 
 
@@ -133,7 +138,7 @@ namespace gfx
 		void set_typeId(types::type_id tid) noexcept
 		{
 			m_count = 0;
-			m_type.first = tid;
+			m_type.id = tid;
 		}
 
 		void set(Type type, u16 max_count, u16 count) noexcept
