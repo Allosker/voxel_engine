@@ -42,6 +42,7 @@ namespace gfx
 			: m_size{ Small }
 		{
 			m_item_stacks.resize(get_nb_slots().x * get_nb_slots().y);
+			m_item_stacks.front().set({ 1, {} }, 100, 0);
 		}
 
 		/// <summary>

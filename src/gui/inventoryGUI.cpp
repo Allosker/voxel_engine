@@ -9,10 +9,10 @@ namespace gui
 {
 
 
-	void InventoryGUI::update(gfx::Inventory& inv, types::pos2d gui_mouse_pos) noexcept
+	void InventoryGUI::update(types::pos2d gui_mouse_pos) noexcept
 	{
-		if (m_inv_change != inv.get_change())
-			update_items(inv);
+		if (m_inv_change != m_inv.get_change())
+			update_items();
 
 
 		compute_index(gui_mouse_pos);
@@ -25,7 +25,6 @@ namespace gui
 			if (m_last_index)
 				if (*m_last_index != *m_index)
 				{
-					
 					m_item_stacks.at(*m_last_index).set_scale(g_base_ISG_scale);
 				}
 		}
@@ -58,25 +57,25 @@ namespace gui
 		}
 	}
 
-	void InventoryGUI::update_items(const gfx::Inventory& inv) noexcept
+	void InventoryGUI::update_items() noexcept
 	{
-		change_board(inv.get_size());
+		change_board(m_inv.get_size());
 
-		m_nb_slots = inv.get_nb_slots();
+		m_nb_slots = m_inv.get_nb_slots();
 		m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
 
 		m_board.set_pos({ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 });
 
 		types::pos2d start_pos{ m_board.get_pos() - m_board.get_size() + g_outline };
 		types::pos2d slot_pos{ start_pos };
-		for (i32 y{}; y < inv.get_nb_slots().y; y++)
+		for (i32 y{}; y < m_inv.get_nb_slots().y; y++)
 		{
 			slot_pos.x = start_pos.x;
-			for (i32 x{}; x < inv.get_nb_slots().x; x++)
+			for (i32 x{}; x < m_inv.get_nb_slots().x; x++)
 			{
-				const auto& i = inv.get_item_stack(x + y * inv.get_nb_slots().x);
+				const auto& i = m_inv.get_item_stack(x + y * m_inv.get_nb_slots().x);
 				if (i && i->get_type().id != types::TypeIdNull)
-				{
+				{ // Make it so that you only emplace everything once
 					m_item_stacks.emplace_back();
 					m_item_stacks.back().set_scale(g_base_ISG_scale);
 					m_item_stacks.back().set_pos(v3f32{ slot_pos, 0. } + g_slot_size / 2.f);

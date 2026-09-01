@@ -17,13 +17,13 @@ namespace gfx
 	public:
 
 
+		gfx::Inventory& get_inventory() noexcept { return m_inv; }
 
 
 	private:
 
 
 		gfx::Inventory		m_inv;
-		gui::InventoryGUI	m_inv_gui;
 
 	};
 

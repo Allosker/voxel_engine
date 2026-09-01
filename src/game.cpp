@@ -160,7 +160,7 @@ DebugMessage Game::run()
 
 			AssetsManager::get().shaders.at("shaders/twoD").bind();
 
-			gui_inv.draw(
+			m_inv_gui.draw(
 				{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } }, 
 				{ 
 					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
@@ -319,7 +319,7 @@ void Game::inputs()
 		player.move(Keys::S, delta_time.get());
 
 	if (window->isKeyPressed(Keys::D))
-		player.move(Keys::D, delta_time.get());;
+		player.move(Keys::D, delta_time.get());
 
 	if (window->isKeyPressed(Keys::A))
 		player.move(Keys::A, delta_time.get());
@@ -346,7 +346,7 @@ void Game::logic()
 	player.update(world, delta_time.get());
 
 
-	gui_inv.update(inv, Window::to_gui_coordinates(*window, window->get_cursor_pos()));
+	m_inv_gui.update(Window::to_gui_coordinates(*window, window->get_cursor_pos()));
 
 }
 

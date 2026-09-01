@@ -9,8 +9,7 @@
 
 #include <variant>
 
-#include "sys/window.hpp"
-
+#include "inputTypes.hpp"
 
 
 class Event
@@ -54,7 +53,7 @@ public:
 		bool focus;
 	};
 
-	
+
 	// = Predicates
 
 	template<typename EventSubType>
@@ -81,7 +80,7 @@ public:
 		: m_data{ std::in_place_type<EventSubType>, type }
 	{
 	}
-	
+
 
 private:
 

@@ -82,6 +82,7 @@ private: // Internal Communication/Logic
 
 
 	gfx::PlayerInventory player_inventory{};
+	gui::InventoryGUI	m_inv_gui{ player_inventory.get_inventory() };
 
 
 	class DeltaTime

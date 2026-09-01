@@ -15,6 +15,7 @@
 #include "sys/assetsManager.hpp"
 
 #include "gui/itemStackGUI.hpp"
+#include "sys/inputManager.hpp"
 
 
 namespace gui
@@ -24,14 +25,14 @@ namespace gui
 	{
 	public:
 
-		InventoryGUI()
-			: m_board{ {} }
+		InventoryGUI(gfx::Inventory& inv)
+			:m_inv{ inv }, m_board{ {} }
 		{  
 			m_board.set_scale(g_scale);
 		}
 
 
-		void update( gfx::Inventory& inv, types::pos2d gui_mouse_pos) noexcept;
+		void update(types::pos2d gui_mouse_pos) noexcept;
 
 		std::optional<size_t> get_slot_index() const noexcept { return m_index; }
 
@@ -57,7 +58,7 @@ namespace gui
 
 		void change_board(gfx::Inventory::Size size) noexcept;
 
-		void update_items(const gfx::Inventory& inv) noexcept;
+		void update_items() noexcept;
 
 		void compute_index(types::pos2d gui_mouse_pos) noexcept;
 
@@ -88,6 +89,9 @@ namespace gui
 
 		std::vector<ItemStackGUI> m_item_stacks;
 
+		sys::InputManager::DelegateHandle m_dh_click;
+
+		gfx::Inventory& m_inv;
 		
 		v2f32 m_nb_slots{};
 
@@ -95,6 +99,8 @@ namespace gui
 		std::optional<size_t> m_last_index{};
 
 		u8 m_inv_change{};
+
+
 	};
 
 }
