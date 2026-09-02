@@ -73,7 +73,7 @@ namespace gfx
 		};
 
 
-		ItemStack(Type type = {}, u16 max_count = {}, u16 count = {}) noexcept
+		ItemStack(Type type = { 1, {} }, u16 max_count = {}, u16 count = {}) noexcept
 		{
 			set(type, max_count, count);
 		}

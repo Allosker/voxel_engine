@@ -89,7 +89,7 @@ namespace gui
 
 		std::vector<ItemStackGUI> m_item_stacks;
 
-		sys::InputManager::DelegateHandle m_dh_click;
+		sys::InputManager::DelegateHandle m_dh_click{};
 
 		gfx::Inventory& m_inv;
 		

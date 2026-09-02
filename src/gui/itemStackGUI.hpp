@@ -139,15 +139,12 @@ namespace gui
 			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);
 		}
 
+		void set_should_be_drawn(bool b) noexcept { m_should_be_drawn = b; }
+
 
 		void draw(const gfx::RenderContext& rc) noexcept
 		{
-			//set_rotation(
-			//	glm::angleAxis<f32>(glfwGetTime(), v3f32{ 0, 1, 0 }) *
-			//	glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })) *
-			//	
-			//	glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })) 
-			//);
+			if (!m_should_be_drawn) return;
 
 			rc.sha->set_value("model", get_transform());
 
@@ -162,6 +159,8 @@ namespace gui
 	private:
 
 		gfx::Mesh m_mesh;
+
+		bool m_should_be_drawn{};
 
 
 	};

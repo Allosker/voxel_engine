@@ -12,7 +12,10 @@ namespace gui
 	void InventoryGUI::update(types::pos2d gui_mouse_pos) noexcept
 	{
 		if (m_inv_change != m_inv.get_change())
+		{
 			update_items();
+			m_inv_change = m_inv.get_change();
+		}
 
 
 		compute_index(gui_mouse_pos);
@@ -66,6 +69,8 @@ namespace gui
 
 		m_board.set_pos({ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 });
 
+		const auto target_size_inv = m_inv.get_nb_slots().x * m_inv.get_nb_slots().y;
+
 		types::pos2d start_pos{ m_board.get_pos() - m_board.get_size() + g_outline };
 		types::pos2d slot_pos{ start_pos };
 		for (i32 y{}; y < m_inv.get_nb_slots().y; y++)
@@ -73,18 +78,33 @@ namespace gui
 			slot_pos.x = start_pos.x;
 			for (i32 x{}; x < m_inv.get_nb_slots().x; x++)
 			{
+				ItemStackGUI* isg = nullptr;
+
+				if (m_item_stacks.size() < target_size_inv)
+				{
+					m_item_stacks.emplace_back();
+					isg = &m_item_stacks.back();
+
+					isg->set_scale(g_base_ISG_scale);
+					isg->set_pos(v3f32{ slot_pos, 0. } + g_slot_size / 2.f);
+					isg->rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
+					isg->rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+				}
+				else
+				{
+					isg = &m_item_stacks.at(x + y * m_inv.get_nb_slots().x);
+				}
+
 				const auto& i = m_inv.get_item_stack(x + y * m_inv.get_nb_slots().x);
 				if (i && i->get_type().id != types::TypeIdNull)
-				{ // Make it so that you only emplace everything once
-					m_item_stacks.emplace_back();
-					m_item_stacks.back().set_scale(g_base_ISG_scale);
-					m_item_stacks.back().set_pos(v3f32{ slot_pos, 0. } + g_slot_size / 2.f);
-					m_item_stacks.back().rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
-					m_item_stacks.back().rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
-
+				{ 					
 					// When there are item models, change it so that it can accept either of them
-					m_item_stacks.back().update_model(i->get_type().id);
+					isg->update_model(i->get_type().id);
+					isg->set_should_be_drawn(true);
 				}
+				else
+					isg->set_should_be_drawn(false);
+
 
 				slot_pos.x += g_slot_size;
 			}
