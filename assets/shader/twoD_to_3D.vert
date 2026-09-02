@@ -10,9 +10,8 @@ out vec3 fragPos;
 
 void main()
 {
-	vec4 fp = model * vec4(aPos, 1.);
-	gl_Position = ortho * fp;
-	fragPos = vec3(fp);
+	gl_Position = ortho *  model * vec4(aPos, 1.);
+	fragPos = vec3(aPos); // Directly pass in local pos so that the lighting stays the same
 
 	Uvs = aUvs;
 }
