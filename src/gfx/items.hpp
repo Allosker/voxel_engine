@@ -68,12 +68,13 @@ namespace gfx
 		struct Type 
 		{ 
 			types::type_id id; Source source;
-			bool operator==(Type b) noexcept { return id == b.id && source == b.source; }
-			bool operator!=(Type b) noexcept { return id != b.id && source != b.source; }
+			bool operator==(Type b) noexcept { return id == b.id; } // change that when you include sources
+			bool operator!=(Type b) noexcept { return id != b.id; } // change that when you include sources
+			operator bool() noexcept { return id != types::TypeIdNull; } // change that when you include sources
 		};
 
 
-		ItemStack(Type type = { 1, {} }, u16 max_count = {}, u16 count = {}) noexcept
+		ItemStack(Type type = { 0, {} }, u16 max_count = {}, u16 count = {}) noexcept
 		{
 			set(type, max_count, count);
 		}
@@ -139,6 +140,13 @@ namespace gfx
 		{
 			m_count = 0;
 			m_type.id = tid;
+		}
+
+		void set(ItemStack other) noexcept
+		{
+			m_type = other.m_type;
+			m_max_count = other.m_max_count;
+			m_count = other.m_count;
 		}
 
 		void set(Type type, u16 max_count, u16 count) noexcept

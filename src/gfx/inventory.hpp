@@ -42,7 +42,7 @@ namespace gfx
 			: m_size{ Small }
 		{
 			m_item_stacks.resize(get_nb_slots().x * get_nb_slots().y);
-			set_item_stack(0, 1);
+			set_item_stack(0, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
 		}
 
 		/// <summary>
@@ -65,10 +65,18 @@ namespace gfx
 			return std::make_optional(m_item_stacks.at(i));
 		}
 
-		void set_item_stack(size_t index, types::type_id id) noexcept 
+		ItemStack get_temp() const noexcept { return m_temp; }
+
+
+		void set_item_stack(size_t index, ItemStack item_stack) noexcept 
 		{
 			m_change++;
-			m_item_stacks.at(index).set({ id, {} }, 10, 10);
+			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, 1);
+		}
+
+		void set_temp(ItemStack item_stack) noexcept
+		{
+			m_temp.set(item_stack);
 		}
 
 
@@ -90,6 +98,9 @@ namespace gfx
 		u8 m_change{ 1 };
 
 		std::vector<ItemStack> m_item_stacks;
+
+		ItemStack m_temp;
+
 
 	};
 
