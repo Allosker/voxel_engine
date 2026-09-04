@@ -174,7 +174,7 @@ DebugMessage Game::run()
 
 			/*= Debug Draws =*/
 
-			gfx::DebugRenderer::get().render2D(orthographic_proj);
+			//gfx::DebugRenderer::get().render2D(orthographic_proj);
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -550,7 +550,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render2D(orthographic_proj);
+	//gfx::DebugRenderer::get().render2D(orthographic_proj);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
