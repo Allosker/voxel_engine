@@ -43,6 +43,7 @@ namespace gfx
 		{
 			m_item_stacks.resize(get_nb_slots().x * get_nb_slots().y);
 			set_item_stack(0, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
+			set_item_stack(1, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
 		}
 
 		/// <summary>
