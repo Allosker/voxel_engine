@@ -8,12 +8,10 @@
 
 #include <functional>
 #include <queue>
-#include <optional>
 
 #include "sys/event.hpp"
 #include "sys/inputTypes.hpp"
 
-#include <print>
 
 namespace sys
 {
@@ -27,6 +25,12 @@ namespace sys
 
 		using KeyPair = std::pair<Event::KeyEvent, KeyFunc>;
 		using MouseButtonPair = std::pair<Event::MouseButtonEvent, MouseFunc>;
+
+		struct DelegateHandle
+		{
+			size_t id;
+			u8 container;
+		};
 
 
 		static InputManager& get() noexcept
@@ -42,7 +46,7 @@ namespace sys
 			update_states_and_callbacks<Event::KeyEvent, KeyPair>(m_key_funcs, m_key_events);
 			update_states_and_callbacks<Event::MouseButtonEvent, MouseButtonPair>(m_mouseButton_funcs, m_mouseButton_events);
 		}
-		
+
 
 		void add_key_event(Event::KeyEvent event) noexcept
 		{
@@ -53,43 +57,65 @@ namespace sys
 		{
 			m_mouseButton_events.push(event);
 		}
-		
 
-		void subscribe(const KeyFunc& func, Event::KeyEvent input) noexcept
+
+		DelegateHandle subscribe(const KeyFunc& func, Event::KeyEvent input) noexcept
 		{
 			m_key_funcs.emplace_back(input, func);
+			return { m_key_funcs.size() - 1, 1 };
 		}
 
 		template<typename ClassType>
-		void subscribe(void(ClassType::*Func)(Event::KeyEvent), ClassType& object, Event::KeyEvent input) noexcept
+		DelegateHandle subscribe(void(ClassType::* Func)(Event::KeyEvent), ClassType& object, Event::KeyEvent input) noexcept
 		{
-			m_key_funcs.emplace_back(input, std::bind(Func, &object, std::placeholders::_1));
+			return subscribe([&](Event::KeyEvent event) { object.Func(event); }, input);
 		}
 
 		template<typename ClassType>
-		void subscribe(void(ClassType::* Func)(Event::KeyEvent) const, const ClassType& object, Event::KeyEvent input) noexcept
+		DelegateHandle subscribe(void(ClassType::* Func)(Event::KeyEvent) const, const ClassType& object, Event::KeyEvent input) noexcept
 		{
-			m_key_funcs.emplace_back(input, std::bind(Func, &object, std::placeholders::_1));
+			return subscribe([&](Event::KeyEvent event) { object.Func(event); }, input);
 		}
 
 
-		void subscribe(const MouseFunc& func, Event::MouseButtonEvent input) noexcept
+		DelegateHandle subscribe(const MouseFunc& func, Event::MouseButtonEvent input) noexcept
 		{
 			m_mouseButton_funcs.emplace_back(input, func);
+			return { m_mouseButton_funcs.size() - 1, 2 };
 		}
 
 		template<typename ClassType>
-		void subscribe(void(ClassType::* Func)(Event::MouseButtonEvent), ClassType& object, Event::MouseButtonEvent input) noexcept
+		DelegateHandle subscribe(void(ClassType::* Func)(Event::MouseButtonEvent), ClassType& object, Event::MouseButtonEvent input) noexcept
 		{
-			m_mouseButton_funcs.emplace_back(input, std::bind(Func, &object, std::placeholders::_1));
+			return subscribe(std::bind(Func, &object, std::placeholders::_1), input);
 		}
 
 		template<typename ClassType>
-		void subscribe(void(ClassType::* Func)(Event::MouseButtonEvent) const, const ClassType& object, Event::MouseButtonEvent input) noexcept
+		DelegateHandle subscribe(void(ClassType::* Func)(Event::MouseButtonEvent) const, const ClassType& object, Event::MouseButtonEvent input) noexcept
 		{
-			m_mouseButton_funcs.emplace_back(input, std::bind(Func, &object, std::placeholders::_1));
+			return subscribe(std::bind(Func, &object, std::placeholders::_1), input);
 		}
 
+
+		void unsubscribe(DelegateHandle& handle) noexcept
+		{
+			if (!handle.container) return;
+
+
+			if (handle.container == 1)
+			{
+				m_key_funcs.at(handle.id).second = nullptr;
+				m_key_funcs.at(handle.id).first = {};
+				handle = {};
+			}
+			else
+			{
+				m_mouseButton_funcs.at(handle.id).second = nullptr;
+				m_mouseButton_funcs.at(handle.id).first = {};
+				handle = {};
+			}
+
+		}
 
 		static bool pressed(Event::KeyEvent event, Keys scancode, Modifiers modes = {}) noexcept
 		{
@@ -121,14 +147,15 @@ namespace sys
 			{
 				const auto event = queue.front();
 				queue.pop();
-			
+
 				for (auto& i : m_funcs)
 				{
-					if (i.first.scancode == event.scancode)
-					{
-						i.first = event;
-						i.second(i.first);
-					}
+					if (i.second)
+						if (i.first.scancode == event.scancode)
+						{
+							i.first = event;
+							i.second(i.first);
+						}
 
 				}
 			}
@@ -141,7 +168,7 @@ namespace sys
 
 		std::vector<KeyPair> m_key_funcs{};
 		std::vector<MouseButtonPair> m_mouseButton_funcs{};
-		
+
 
 		std::queue<Event::KeyEvent> m_key_events{};
 		std::queue<Event::MouseButtonEvent> m_mouseButton_events{};

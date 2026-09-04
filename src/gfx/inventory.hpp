@@ -28,9 +28,8 @@ namespace gfx
 			u16 count_per_slot{};
 		};
 
-		enum Size : i8
+		enum Size : u8
 		{
-			None = -1, // This class' Size var can never have this value
 			Small,
 			Medium,
 			Big
@@ -42,6 +41,9 @@ namespace gfx
 		Inventory()
 			: m_size{ Small }
 		{
+			m_item_stacks.resize(get_nb_slots().x * get_nb_slots().y);
+			set_item_stack(0, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
+			set_item_stack(1, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
 		}
 
 		/// <summary>
@@ -50,10 +52,33 @@ namespace gfx
 		/// <param name="stage"></param>
 		void set_stage(Size stage) noexcept;
 
+		u8 get_change() const noexcept { return m_change; }
+
 		Size get_size() const noexcept { return m_size; }
 
 		v2f32 get_nb_slots() const noexcept { return g_stages[m_size].size; }
 
+		std::optional<ItemStack> get_item_stack(size_t i) const noexcept
+		{
+			if (i < 0 || i >= m_item_stacks.size())
+				return std::nullopt;
+
+			return std::make_optional(m_item_stacks.at(i));
+		}
+
+		ItemStack get_temp() const noexcept { return m_temp; }
+
+
+		void set_item_stack(size_t index, ItemStack item_stack) noexcept 
+		{
+			m_change++;
+			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, 1);
+		}
+
+		void set_temp(ItemStack item_stack) noexcept
+		{
+			m_temp.set(item_stack);
+		}
 
 
 	public:
@@ -71,7 +96,12 @@ namespace gfx
 
 		Size m_size;
 
+		u8 m_change{ 1 };
+
 		std::vector<ItemStack> m_item_stacks;
+
+		ItemStack m_temp;
+
 
 	};
 

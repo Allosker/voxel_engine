@@ -22,10 +22,7 @@
 
 #include "gfx/player.hpp"
 
-#include "gfx/inventory.hpp"
-#include "gui/inventoryGUI.hpp"
-
-#include "gui/itemStackGUI.hpp"
+#include "gfx/playerInventory.hpp"
 
 
 // Only one instance of the game must exist at a time
@@ -83,8 +80,9 @@ private: // Internal Communication/Logic
 
 	m4f32 orthographic_proj{ glm::ortho(0.f, Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, -2000.f, 2000.f) };
 
-	gfx::Inventory    inv{};
-	gui::InventoryGUI gui_inv{};
+
+	gfx::PlayerInventory player_inventory{};
+	gui::InventoryGUI	m_inv_gui{ player_inventory.get_inventory() };
 
 
 	class DeltaTime
@@ -122,7 +120,7 @@ private: // Internal Communication/Logic
 
 	struct RenderSettings
 	{
-		u32 MSAA{ 8 };
+		u32 MSAA{ 16 };
 
 	} render_settings;
 

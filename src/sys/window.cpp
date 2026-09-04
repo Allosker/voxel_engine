@@ -83,7 +83,7 @@ void Window::resize(v2i32 new_size) noexcept
 v2f32 Window::to_gui_coordinates(const Window& window, v2f32 point) noexcept
 {
 	v2f32 mult1{ point - v2f32(window.m_size / 2) };
-	v2f32 mult2{ g_gui_view_size.x / window.m_size.x,  g_gui_view_size.y / -window.m_size.y };
+	v2f32 mult2{ g_gui_view_size.x / window.m_size.x,  g_gui_view_size.y / window.m_size.y };
 
-	return { mult1.x * mult2.x, mult1.y * mult2.y };
+	return v2f32{ mult1.x * mult2.x, mult1.y * mult2.y } + g_gui_view_size / 2.f;
 }
