@@ -37,8 +37,8 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 	{
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		//glDebugMessageCallback(glDebugOutput, nullptr);
+		//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 
 	return window;
@@ -104,8 +104,10 @@ DebugMessage Game::run()
 	auto& am = AssetsManager::get();
 
 	auto& model = am.models.begin()->second;
-	world.m_meshInstances.push_back(gfx::MeshInstance{model.mesh, &am.shaders.at("shaders/static_mesh"), model.textures[0]});
-	world.m_meshInstances.back().set_pos({1.0, 8.0, 2.0});
+	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
+	mi.set_pos({1.0, 8.0, 2.0});
+	mi.m_material.set("tex", model.textures[0]);
+	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
 
 	gui::ItemStackGUI itemgui{};
 

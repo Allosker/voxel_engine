@@ -36,7 +36,14 @@ Window::Window(const v2i32& size_, const std::string& name, GLFWmonitor* monitor
 
 
 	glfwGetFramebufferSize(m_window, &m_size.x, &m_size.y);
-	glViewport(0, 0, m_size.x, m_size.y);
+	glViewport(0, 0, m_size.x, m_size.y); 
+	
+	if (glfwRawMouseMotionSupported())
+	{
+		glfwSetInputMode(m_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	}
+	
+	glfwSwapInterval(0);
 }
 
 

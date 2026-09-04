@@ -54,7 +54,7 @@ namespace gfx
 
 		void unload() const noexcept;
 
-		void bind() const noexcept;
+		void bind(uint32_t slot = 0) const noexcept;
 
 		void unbind() const noexcept;
 

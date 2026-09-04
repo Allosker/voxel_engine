@@ -53,25 +53,6 @@ namespace gfx
 		init(vertCode, fragCode, geomCode);
 	}
 
-
-	Shader::Shader(Shader&& other) noexcept
-		: m_id{ other.m_id }
-	{
-		other.m_id = 0;
-	}
-
-	Shader& Shader::operator=(Shader&& other) noexcept
-	{
-		if (this == &other)
-			return *this;
-
-		m_id = other.m_id;
-		other.m_id = 0;
-
-		return *this;
-	}
-
-
 	Shader::~Shader() noexcept
 	{
 		glDeleteProgram(m_id);
@@ -212,9 +193,6 @@ namespace gfx
 			compile(g_ID, "geometry");
 
 
-		// Link Shaders 
-		m_id = glCreateProgram();
-
 		glAttachShader(m_id, v_ID);
 		glAttachShader(m_id, f_ID);
 		if (!geom.empty())
@@ -240,13 +218,14 @@ namespace gfx
 		{
 			GLsizei length;
 			glGetActiveUniformBlockName(m_id, blockIndex, maxBlockNameLength, &length, blockNameBuffer.data());
-			BlockDefinition& blockLayout = m_blockDefinitions.emplace_back();
+			BlockDefinition& blockDef = m_blockDefinitions.emplace_back();
 
 			GLint blockSize{};
 			glGetActiveUniformBlockiv(m_id, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-			blockLayout.totalSize = static_cast<size_t>(blockSize);
+			blockDef.totalSize = static_cast<size_t>(blockSize);
 
-			blockLayout.name = std::string_view(blockNameBuffer.data(), length);
+			blockDef.index = blockIndex;
+			blockDef.name = std::string_view(blockNameBuffer.data(), length);
 		}
 
 		GLint uniformCount{};
@@ -256,7 +235,7 @@ namespace gfx
 		glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
 		std::vector<GLchar> uniformNameBuffer(maxUniformNameLength);
 
-		int32_t textureSlotCounter{};
+		m_textureSlotCount = 0;
 
 		for (GLuint i{}; i < uniformCount; ++i)
 		{
@@ -287,12 +266,11 @@ namespace gfx
 				glGetActiveUniformsiv(m_id, 1, &i, GL_UNIFORM_OFFSET, &pos);
 			}
 
-			m_uniformDefinitions[name] = {blockIdx, pos, size, type, name};
+			auto& def = m_uniformDefinitions[name] = {blockIdx, pos, size, type, {}, name};
 
 			if (blockIdx < 0 && (type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE))
 			{
-				m_textureMembers[name] = { pos, textureSlotCounter };
-				textureSlotCounter++;
+				def.textureSlot = m_textureSlotCount++;
 			}
 		}
 	}

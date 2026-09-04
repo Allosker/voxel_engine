@@ -144,7 +144,7 @@ namespace gfx
 	}
 
 
-	void World::draw(const Camera& camera) const noexcept
+	void World::draw(const Camera& camera) noexcept
 	{
 		overworld.draw();
 
@@ -152,45 +152,33 @@ namespace gfx
 
 		for (auto& meshInstance : m_meshInstances)
 		{
-			if (!meshInstance.m_shader || !meshInstance.m_mesh)
+			if (!meshInstance.m_mesh)
 			{
 				continue;
 			}
 
-			if (meshInstance.m_shader != currentShader)
+			auto* newShader = &meshInstance.m_material.get_shader();
+
+			if (newShader != currentShader)
 			{
 				if (currentShader)
 				{
 					currentShader->unbind();
 				}
 
-				currentShader = meshInstance.m_shader;
+				currentShader = newShader;
 				currentShader->bind();
-
-				currentShader->set_value("vp", camera.get_VP()); 
-				
-				int uniformLocation = glGetUniformLocation(currentShader->id(), "tex");
-				glUniform1i(uniformLocation, 0);
 			}
 
-			if (meshInstance.m_texture)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				meshInstance.m_texture->bind();
-			}
+			meshInstance.m_material.set("vp", (m4f32)camera.get_VP());
+			meshInstance.m_material.set("model", (m4f32)meshInstance.get_transform());
 
-			currentShader->set_value("model", meshInstance.get_transform());
+			meshInstance.m_material.updateBlocks();
+
+			meshInstance.m_material.bindBlocks();
+			meshInstance.m_material.bindTextures();
+
 			meshInstance.m_mesh->draw();
-
-			if (meshInstance.m_texture)
-			{
-				meshInstance.m_texture->unbind();
-			}
-		}
-
-		if (currentShader)
-		{
-			currentShader->unbind();
 		}
 	}
 }

@@ -11,6 +11,7 @@
 #include "sys/graphics.hpp"
 #include "sys/types.hpp"
 #include "sys/hash.hpp"
+#include "gl.hpp"
 
 
 namespace gfx
@@ -18,6 +19,31 @@ namespace gfx
 	class Shader
 	{
 	public:
+
+		struct UniformDefinition
+		{
+			int32_t block{};
+			int32_t pos{};
+			int32_t size{};
+			uint32_t type{};
+			int32_t textureSlot{};
+
+			std::string name; // Debug only?
+		};
+
+		struct BlockDefinition
+		{
+			uint32_t index{};
+			uint32_t totalSize{};
+
+			std::string name; // Debug only?
+		};
+
+		struct TextureMember
+		{
+			int32_t uniformLocation{};
+			int32_t slot{};
+		};
 
 		// = Construction/Destruction
 
@@ -36,8 +62,8 @@ namespace gfx
 			init(v, f, g);
 		}
 
-		Shader(Shader&& other) noexcept;
-		Shader& operator=(Shader&& other) noexcept;
+		Shader(Shader&& other) noexcept = default;
+		Shader& operator=(Shader&& other) noexcept = default;
 
 		~Shader() noexcept;
 
@@ -46,7 +72,7 @@ namespace gfx
 
 		void bind() const noexcept;
 
-		void unbind() const noexcept; 
+		void unbind() const noexcept;
 
 
 		// = Getters
@@ -54,6 +80,21 @@ namespace gfx
 		GLuint id() const noexcept;
 
 		GLuint get_uni_loc(std::string_view name) const noexcept;
+
+		const std::vector<BlockDefinition>& get_block_definitions() const
+		{
+			return m_blockDefinitions;
+		}
+
+		const std::unordered_map<StringHash, UniformDefinition>& get_uniform_definitions() const
+		{
+			return m_uniformDefinitions;
+		}
+
+		uint32_t get_texture_count() const
+		{
+			return m_textureSlotCount;
+		}
 
 
 		// = Setters
@@ -69,7 +110,6 @@ namespace gfx
 
 		void set_value_loc(GLint location, const m4f32& value) const noexcept;
 
-
 	private:
 
 		void compile(GLuint s_id, std::string_view name);
@@ -79,35 +119,10 @@ namespace gfx
 		void init(std::string_view vert, std::string_view frag, std::string_view geom) noexcept;
 
 
-		GLuint m_id;
+		GlId_Shader m_id;
 
-		struct UniformDefinition
-		{
-			int32_t block{};
-			int32_t pos{};
-			int32_t size{};
-			uint32_t type{};
-
-			std::string name; // Debug only?
-		};
-		 
-		struct BlockDefinition
-		{
-			uint32_t totalSize{};
-			uint32_t bindIndex{};
-
-			std::string name; // Debug only?
-		};
-
-		struct TextureMember
-		{
-			int32_t uniformLocation{};
-			int32_t slot{};
-		};
-
+		uint32_t m_textureSlotCount{};
 		std::vector<BlockDefinition> m_blockDefinitions;
 		std::unordered_map<StringHash, UniformDefinition> m_uniformDefinitions;
-		std::unordered_map<StringHash, TextureMember> m_textureMembers;
-
 	};
 }
