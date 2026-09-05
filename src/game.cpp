@@ -9,6 +9,8 @@
 #include "gfx/meshInstance.hpp"
 
 #include "gfx/text.hpp"
+#include "gfx/model.hpp"
+#include "gfx/material.hpp"
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -111,19 +113,18 @@ DebugMessage Game::run()
 	text.set_pos({ 0, 500, 1. });
 	text.set_rotation(glm::angleAxis<f32>(glm::radians(180.f), v3f32{1, 0, 0}));
 
-	auto& model = am.models.begin()->second;
-	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
-	mi.set_pos({1.0, 8.0, 2.0});
-	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
-	mi.m_material.set("tex", model.textures[0]);
+	auto& am = AssetsManager::get();
 
-	// Main Loop
+	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
 	{
+		time_start = std::chrono::system_clock::now();
+
 		const f32 time_at_frame_start = glfwGetTime();
 
+
 		delta_time.update(time_at_frame_start);
-		fps = 1.f / delta_time.get();
+		fps = 1.f / time_elapsed_average.get_average() * 1000.f;
 		delta_time.limit();
 
 
@@ -193,6 +194,8 @@ DebugMessage Game::run()
 		{
 			std::this_thread::sleep_for(std::chrono::duration<f32>(1.f / target_fps - frameExecutionTime));
 		}
+
+		time_elapsed_average.update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - time_start).count());
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
@@ -398,6 +401,7 @@ void Game::debug_imgui()
 			const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
 
 			ImGui::Text("FPS: %f", fps);
+			ImGui::Text("Ms : %f", time_elapsed_average.get_average());
 
 			const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
 			ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);

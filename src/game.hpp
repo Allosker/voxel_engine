@@ -23,6 +23,7 @@
 #include "gfx/player.hpp"
 
 #include "gfx/playerInventory.hpp"
+#include <deque>
 
 
 // Only one instance of the game must exist at a time
@@ -46,9 +47,9 @@ public:
 
 
 private: // Internal Communication/Logic
-/*
-* Separate each component privately to easily make bridge between them
-*/
+	/*
+	* Separate each component privately to easily make bridges between them
+	*/
 
 	// = Main Components
 
@@ -105,6 +106,32 @@ private: // Internal Communication/Logic
 		f64 last_frame{};
 	} delta_time;
 
+	struct ValueAverage
+	{
+		void update(f32 new_value) noexcept
+		{
+			if (values.size() > 1000)
+			{
+				values.pop_back();
+			}
+
+			values.push_front(new_value);
+		}
+
+		f32 get_average() noexcept
+		{
+			f32 total{};
+			for (const auto& i : values)
+				total += i;
+
+			return total / values.size();
+		}
+
+	private:
+
+		std::deque<f32> values;
+	};
+
 
 	struct RuntimeSettings
 	{
@@ -112,7 +139,10 @@ private: // Internal Communication/Logic
 	} runtime_settings;
 
 	f32 fps{};
+	ValueAverage time_elapsed_average{};
 	f32 target_fps{ 160 };
+
+	
 
 
 	v2f32 last_mouse_window_pos{};

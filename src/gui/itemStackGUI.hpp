@@ -12,6 +12,8 @@
 #include "gfx/transformable3D.hpp"
 #include "gfx/voxel.hpp"
 
+#include "gfx/text.hpp"
+
 
 namespace gui
 {
