@@ -94,7 +94,7 @@ private: // Internal Communication/Logic
 		void update(f64 current_time) noexcept
 		{
 			dt = current_time - last_frame;
-			last_frame = glfwGetTime();
+			last_frame = current_time;
 		}
 
 		void limit() noexcept { dt = std::min(dt, 1. / 30.); }
