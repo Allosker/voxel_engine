@@ -39,8 +39,8 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 	{
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		//glDebugMessageCallback(glDebugOutput, nullptr);
+		//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 
 	return window;
@@ -111,6 +111,11 @@ DebugMessage Game::run()
 	text.set_pos({ 0, 500, 1. });
 	text.set_rotation(glm::angleAxis<f32>(glm::radians(180.f), v3f32{1, 0, 0}));
 
+	auto& model = am.models.begin()->second;
+	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
+	mi.set_pos({1.0, 8.0, 2.0});
+	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
+	mi.m_material.set("tex", model.textures[0]);
 
 	// Main Loop
 	while (window->isOpen())

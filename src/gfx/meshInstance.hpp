@@ -8,6 +8,7 @@
 */
 
 #include "transformable3D.hpp"
+#include "material.hpp"
 
 
 namespace gfx
@@ -19,7 +20,7 @@ namespace gfx
 	class MeshInstance : public Transformable3D
 	{
 	public:
-		MeshInstance(Mesh* mesh = nullptr, Shader* shader = nullptr, Texture* texture = nullptr);
+		MeshInstance(Mesh* mesh, Shader* shader);
 
 		MeshInstance(const MeshInstance&) = default;
 		MeshInstance(MeshInstance&& other) = default;
@@ -28,8 +29,7 @@ namespace gfx
 		MeshInstance& operator=(MeshInstance&& other) = default;
 
 		Mesh* m_mesh{};
-		Shader* m_shader{};
-		Texture* m_texture{};		
+		Material m_material;
 	};
 
 } // gfx

@@ -42,7 +42,7 @@ namespace gfx
 		/// <summary>
 		/// First draws chunk grids, then entities
 		/// </summary>
-		void draw(const Camera& camera) const noexcept;
+		void draw(const Camera& camera) noexcept;
 
 
 		ChunkGrid& get_chunkGrid() noexcept { return overworld; }

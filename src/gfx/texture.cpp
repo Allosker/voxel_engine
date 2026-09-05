@@ -158,8 +158,9 @@ namespace gfx
 		glDeleteTextures(1, &m_id);
 	}
 
-	void Texture::bind() const noexcept
+	void Texture::bind(uint32_t slot) const noexcept
 	{
+		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(m_type, m_id);
 	}
 

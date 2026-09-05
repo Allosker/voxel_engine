@@ -7,7 +7,7 @@
 namespace gfx
 {
 
-	MeshInstance::MeshInstance(Mesh* mesh, Shader* shader, Texture* texture) : m_mesh{ mesh }, m_shader{ shader }, m_texture{ texture }
+	MeshInstance::MeshInstance(Mesh* mesh, Shader* shader) : m_mesh{ mesh }, m_material{ shader }
 	{
 
 	}
