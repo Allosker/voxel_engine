@@ -31,12 +31,13 @@ namespace gfx
 	}
 
 	Text::Text(Text&& other) noexcept
-		: Transformable3D{ static_cast<Transformable3D>(other) }
+		: Transformable3D{ std::move(static_cast<Transformable3D>(other)) }
 		, p_font{ other.p_font }
 		, m_text{ std::move(other.m_text) }
 		, m_color{ other.m_color }
 		, m_scale_text{ other.m_scale_text }
 		, m_size_data{ other.m_size_data }
+		, m_size{ other.m_size }
 		, m_vao{ other.m_vao }
 		, m_vbo{ other.m_vbo }
 	{
@@ -57,6 +58,7 @@ namespace gfx
 		m_color = other.m_color;
 		m_scale_text = other.m_scale_text;
 		m_size_data = other.m_size_data;
+		m_size = other.m_size;
 		m_vao = other.m_vao;
 		m_vbo = other.m_vbo;
 
@@ -73,17 +75,14 @@ namespace gfx
 	}
 
 
-	void Text::draw(const RenderContext& rc)
+	void Text::draw(const gfx::Shader& sha)
 	{
 		assert(p_font && "ERROR::TEXT::Cannot draw because no font is attached");
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		p_font->bind();
 
-		rc.sha->set_value("TextColor", m_color);
-		rc.sha->set_value("model", get_transform());
+		sha.set_value("TextColor", m_color);
+		sha.set_value("model", get_transform());
 
 
 		glBindVertexArray(m_vao);
@@ -116,13 +115,13 @@ namespace gfx
 			data.insert(data.end(),
 				{
 					Vertex2D
-					{ v2f32{pos.x, pos.y + size.y},						static_cast<v2f32>(ch.pos)												},
-					{ pos,												static_cast<v2f32>(v2u32 {ch.pos.x, ch.pos.y + ch.size.y})				},
-					{ v2f32{pos.x + size.x, pos.y},						static_cast<v2f32>(v2u32 {ch.pos.x + ch.size.x,	ch.pos.y + ch.size.y})	},
+					{ v2f32{pos.x, pos.y + size.y},						static_cast<v2f32>(v2u32 { ch.pos.x, ch.pos.y + ch.size.y })				},
+					{ pos,												static_cast<v2f32>(ch.pos)													},
+					{ v2f32{pos.x + size.x, pos.y},						static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y })				},
 
-					{ v2f32{pos.x,				pos.y + size.y},		static_cast<v2f32>(v2u32 {ch.pos.x,				ch.pos.y})				},
-					{ v2f32{pos.x + size.x,		pos.y},					static_cast<v2f32>(v2u32 {ch.pos.x + ch.size.x,	ch.pos.y + ch.size.y})	},
-					{ v2f32{pos.x + size.x,		pos.y + size.y},		static_cast<v2f32>(v2u32 {ch.pos.x + ch.size.x,	ch.pos.y})				},
+					{ v2f32{pos.x,				pos.y + size.y},		static_cast<v2f32>(v2u32 { ch.pos.x,				ch.pos.y + ch.size.y })	},
+					{ v2f32{pos.x + size.x,		pos.y},					static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y })				},
+					{ v2f32{pos.x + size.x,		pos.y + size.y},		static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y + ch.size.y})	},
 				});
 			
 			tPos.x += (ch.advance >> 6) * m_scale_text;
@@ -130,6 +129,7 @@ namespace gfx
 		}
 
 		m_size_data = data.size();
+		m_size = { tPos.x, height, 0 };
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * data.size(), data.data(), GL_STREAM_DRAW);
 

@@ -155,6 +155,10 @@ namespace gfx
 			m_max_count = max_count;
 			m_count = count;
 		}
+		
+
+		u16 count() const noexcept { return m_count; }
+		u16 max_count() const noexcept { return m_max_count; }
 
 
 	private:

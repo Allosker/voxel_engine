@@ -35,6 +35,7 @@ namespace gui
 			m_temp.set_pos(v3f32{ 0., 0., 0. } + g_slot_size / 2.f);
 			m_temp.rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
 			m_temp.rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+			m_temp.set_scale_text(g_over_ISG_text_scale);
 		}
 
 		~InventoryGUI()
@@ -54,7 +55,7 @@ namespace gui
 		void on_click(Event::MouseButtonEvent event) noexcept;
 
 
-		void draw(const gfx::RenderContext& inv_c, const gfx::RenderContext& is_c) noexcept
+		void draw(const gfx::RenderContext& inv_c, const gfx::RenderContext& is_c, const gfx::Shader& text_sha) noexcept
 		{
 			m_board.draw(inv_c);
 
@@ -64,11 +65,23 @@ namespace gui
 			is_c.sha->bind();
 
 			for (auto& i : m_item_stacks)
-				i.draw(is_c);
+				i.draw_model(is_c);
 
-			m_temp.draw(is_c);
+			m_temp.draw_model(is_c);
 
 			is_c.sha->unbind();
+
+
+			glDisable(GL_DEPTH_TEST);
+
+			text_sha.bind();
+
+			for (auto& i : m_item_stacks)
+				i.draw_text(text_sha);
+
+			m_temp.draw_text(text_sha);
+
+			text_sha.unbind();
 		}
 
 
@@ -88,13 +101,17 @@ namespace gui
 		///		textures/gui/inventory/big.png
 		/// </summary>
 		static constexpr f32 g_outline_thickness_px{ 13.f };
-		static constexpr float c_absolute_slot_size_px{ 32.f };
+		static constexpr f32 c_absolute_slot_size_px{ 32.f };
 		static constexpr f32 g_scale{ 1.5f };
 		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2.f };
 		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2.f };
 		
 		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5f };
 		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2.f };
+
+		static constexpr f32 g_base_ISG_text_scale{ 0.4f };
+		static constexpr f32 g_over_ISG_text_scale{ 0.5f };
+
 
 		/// <summary>
 		/// Changes according to the inventory's stage

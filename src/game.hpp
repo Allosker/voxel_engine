@@ -8,15 +8,13 @@
 
 #include <memory>
 
-#include "gfx/debugRenderer.hpp"
-#include "sys/assetsManager.hpp"
 #include "sys/opengl_debug.hpp"
+#include "sys/types.hpp"
 
 #include "sys/window.hpp"
 
 #include "gfx/camera.hpp"
 
-#include "gfx/mesh.hpp"
 
 #include "gfx/world.hpp"
 
@@ -142,7 +140,7 @@ private: // Internal Communication/Logic
 	ValueAverage time_elapsed_average{};
 	f32 target_fps{ 160 };
 
-	
+
 
 
 	v2f32 last_mouse_window_pos{};

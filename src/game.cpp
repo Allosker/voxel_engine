@@ -1,16 +1,12 @@
 #include "game.hpp"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 #include "sys/inputManager.hpp"
 
 #include "gfx/rayTraversal.hpp"
-#include "gfx/meshInstance.hpp"
 
-#include "gfx/text.hpp"
-#include "gfx/model.hpp"
-#include "gfx/material.hpp"
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -23,7 +19,7 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 
 	glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
 
-	/* Three Base Resolutions possible: 
+	/* Three Base Resolutions possible:
 	* 640, 360
 	* 1920, 1080
 	* 2560, 1440
@@ -109,9 +105,6 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
-	gfx::Text text{ &AssetsManager::get().fonts.at("fonts/november"), "'';:.,!$" };
-	text.set_pos({ 0, 500, 1. });
-	text.set_rotation(glm::angleAxis<f32>(glm::radians(180.f), v3f32{1, 0, 0}));
 
 	auto& am = AssetsManager::get();
 
@@ -145,48 +138,55 @@ DebugMessage Game::run()
 		debug();
 
 
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glEnable(GL_DEPTH_TEST);
-
-
-			AssetsManager::get().shaders.at("shaders/world_chunks").bind();
-
-			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
-
-			world.draw(camera);
-
-			AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
+		glEnable(GL_DEPTH_TEST);
 
 
-			/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
+		AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
-			glDisable(GL_DEPTH_TEST);
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
+		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
 
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		world.draw(camera);
 
-			AssetsManager::get().shaders.at("shaders/text").bind();
-
-			text.draw({ &AssetsManager::get().shaders.at("shaders/text") });
-
-			AssetsManager::get().shaders.at("shaders/text").unbind();
+		AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
 
-			glDisable(GL_BLEND);
+		/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
+
+		glDisable(GL_DEPTH_TEST);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		AssetsManager::get().shaders.at("shaders/twoD").bind();
+
+		m_inv_gui.draw(
+			{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
+				{
+					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
+					.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
+				},
+			AssetsManager::get().shaders.at("shaders/text")
+		);
+
+		AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
 
-			/*= Debug Draws =*/
-
-			//gfx::DebugRenderer::get().render2D(orthographic_proj);
-
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		glDisable(GL_BLEND);
 
 
-			window->display(); // Swap Window Buffer With the Graphics Card's One
+		/*= Debug Draws =*/
+
+		//gfx::DebugRenderer::get().render2D(orthographic_proj);
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+		window->display(); // Swap Window Buffer With the Graphics Card's One
 
 
 		auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
@@ -254,7 +254,7 @@ void Game::inputs()
 
 			if (sys::InputManager::pressed(*key, Keys::G))
 				player.m_mov.ghost = !player.m_mov.ghost;
-				
+
 		}
 
 		if (runtime_settings.paused)
@@ -518,14 +518,14 @@ void Game::render_on_screen()
 
 	AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
-		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1 });
+	AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
+	AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1 });
 
-		AssetsManager::get().textures.at("textures/voxels/stone").bind();
+	AssetsManager::get().textures.at("textures/voxels/stone").bind();
 
-			world.draw(camera);
+	world.draw(camera);
 
-		AssetsManager::get().textures.at("textures/voxels/stone").unbind();
+	AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
 	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
@@ -544,13 +544,13 @@ void Game::render_on_screen()
 
 	AssetsManager::get().shaders.at("shaders/twoD").bind();
 
-	m_inv_gui.draw(
+	/*m_inv_gui.draw(
 		{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
 				{
 					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
 					.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
 				}
-	);
+	);*/
 
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 

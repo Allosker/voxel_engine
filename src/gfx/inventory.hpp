@@ -43,7 +43,8 @@ namespace gfx
 		{
 			m_item_stacks.resize(get_nb_slots().x * get_nb_slots().y);
 			set_item_stack(0, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
-			set_item_stack(1, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
+			set_item_stack(1, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 10 }); 
+			set_item_stack(2, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 999 }); 
 		}
 
 		/// <summary>
@@ -72,7 +73,7 @@ namespace gfx
 		void set_item_stack(size_t index, ItemStack item_stack) noexcept 
 		{
 			m_change++;
-			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, 1);
+			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
 		}
 
 		void set_temp(ItemStack item_stack) noexcept

@@ -1,6 +1,7 @@
 #include "gui/inventoryGUI.hpp"
 
 #include "sys/window.hpp"
+#include <string>
 #include <sys/inputTypes.hpp>
 
 
@@ -23,20 +24,28 @@ namespace gui
 
 
 		// Highlight to know on which slot the mouse is
-		if (m_index)
+		if (m_index && m_item_stacks.at(*m_index).should_be_drawn())
 		{
-			m_item_stacks.at(*m_index).set_scale(g_over_ISG_scale);
-
+			auto& current = m_item_stacks.at(*m_index);
+			current.set_scale_text(g_over_ISG_text_scale);
+			current.set_scale(g_over_ISG_scale);
+			
 			if (m_last_index)
 				if (*m_last_index != *m_index)
 				{
-					m_item_stacks.at(*m_last_index).set_scale(g_base_ISG_scale);
+					auto& last = m_item_stacks.at(*m_last_index);
+					last.set_scale_text(g_base_ISG_text_scale);
+					last.set_scale(g_base_ISG_scale);
 				}
 		}
 		else
 		{
-			if (m_last_index)
-				m_item_stacks.at(*m_last_index).set_scale(g_base_ISG_scale);
+			if (m_last_index && m_item_stacks.at(*m_last_index).should_be_drawn())
+			{
+				auto& last = m_item_stacks.at(*m_last_index);
+				last.set_scale_text(g_base_ISG_text_scale);
+				last.set_scale(g_base_ISG_scale);           
+			}
 		}
 
 
@@ -56,12 +65,12 @@ namespace gui
 
 
 				m_inv.set_temp(*current);
-				m_inv.set_item_stack(*m_index, {});  
+				m_inv.set_item_stack(*m_index, {});
 
 
 				// GUI
 
-				m_temp.update_model(m_inv.get_temp().get_type().id);
+				m_temp.update(m_inv.get_temp().get_type().id, std::to_string(m_inv.get_temp().count()));
 				m_temp.set_should_be_drawn(true);
 				m_move_temp_to_mouse = true;
 
@@ -128,7 +137,7 @@ namespace gui
 		m_nb_slots = m_inv.get_nb_slots();
 		m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
 
-		m_board.set_pos({ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 });
+		m_board.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 });
 
 		const auto target_size_inv = m_inv.get_nb_slots().x * m_inv.get_nb_slots().y;
 
@@ -150,6 +159,7 @@ namespace gui
 					isg->set_pos(v3f32{ slot_pos, -100. } + g_slot_size / 2.f);
 					isg->rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
 					isg->rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+					isg->set_scale_text(g_base_ISG_text_scale);
 				}
 				else
 				{
@@ -160,7 +170,8 @@ namespace gui
 				if (i && i->get_type().id != types::TypeIdNull)
 				{
 					// When there are item models, change it so that it can accept either of them
-					isg->update_model(i->get_type().id);
+					isg->update(i->get_type().id, std::to_string(i->count()));
+					isg->set_text_pos();
 					isg->set_should_be_drawn(true);
 				}
 				else
