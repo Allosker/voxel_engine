@@ -34,7 +34,7 @@ file(GLOB_RECURSE SRC_FILES CMAKE_CONFIGURE_DEPENDS
 file(GLOB_RECURSE HEAD_FILES CMAKE_CONFIGURE_DEPENDS  
 	"${INCLUDE_DIR}/*.hpp"
 	"${INCLUDE_DIR}/*.h"
-) 
+)  
 
 file(GLOB_RECURSE LIB_FILES CMAKE_CONFIGURE_DEPENDS 
 	"${LIB_DIR}/*.h"
@@ -108,7 +108,7 @@ FetchContent_Declare(
 	glm
 	GIT_REPOSITORY	https://github.com/g-truc/glm.git
 	GIT_TAG 	1.0.3 #refs/tags/1.0.3
-)
+)  
 
 FetchContent_MakeAvailable(glm)
 
@@ -130,7 +130,7 @@ FetchContent_Declare(
 	GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
     GIT_TAG VER-2-13-2
 ) 
- 
+  
 FetchContent_MakeAvailable(freetype) 
 
 target_link_libraries(VoxelEngine PRIVATE freetype)

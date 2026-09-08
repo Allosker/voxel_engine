@@ -8,6 +8,8 @@
 #include "gfx/rayTraversal.hpp"
 #include "gfx/meshInstance.hpp"
 
+#include "gfx/text.hpp"
+
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 {
@@ -91,6 +93,10 @@ DebugMessage Game::run()
 	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("ortho", orthographic_proj);
 	AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
 
+	AssetsManager::get().shaders.at("shaders/text").bind();
+	AssetsManager::get().shaders.at("shaders/text").set_value("vp", orthographic_proj);
+	AssetsManager::get().shaders.at("shaders/text").unbind();
+
 
 	world.update_grid({ 0, 0, 0 }, true);
 
@@ -101,16 +107,15 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
-	auto& am = AssetsManager::get();
+	gfx::Text text{ &AssetsManager::get().fonts.at("fonts/november"), "'';:.,!$" };
+	text.set_pos({ 0, 500, 1. });
+	text.set_rotation(glm::angleAxis<f32>(glm::radians(180.f), v3f32{1, 0, 0}));
 
 	auto& model = am.models.begin()->second;
 	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
 	mi.set_pos({1.0, 8.0, 2.0});
-	mi.m_material.set("tex", model.textures[0]);
 	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
-
-	gui::ItemStackGUI itemgui{};
-
+	mi.m_material.set("tex", model.textures[0]);
 
 	// Main Loop
 	while (window->isOpen())
@@ -150,11 +155,7 @@ DebugMessage Game::run()
 			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
 			AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
 
-			AssetsManager::get().textures.at("textures/voxels/stone").bind();
-
 			world.draw(camera);
-
-			AssetsManager::get().textures.at("textures/voxels/stone").unbind();
 
 			AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
@@ -166,17 +167,11 @@ DebugMessage Game::run()
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			AssetsManager::get().shaders.at("shaders/twoD").bind();
+			AssetsManager::get().shaders.at("shaders/text").bind();
 
-			gui_inv.draw(
-				{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } }, 
-				{ 
-					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-					.tex{ &AssetsManager::get().textures.at("textures/voxels/stone") }
-				}
-			);
+			text.draw({ &AssetsManager::get().shaders.at("shaders/text") });
 
-			AssetsManager::get().shaders.at("shaders/twoD").unbind();
+			AssetsManager::get().shaders.at("shaders/text").unbind();
 
 
 			glDisable(GL_BLEND);
@@ -184,7 +179,7 @@ DebugMessage Game::run()
 
 			/*= Debug Draws =*/
 
-			gfx::DebugRenderer::get().render2D(orthographic_proj);
+			//gfx::DebugRenderer::get().render2D(orthographic_proj);
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -327,7 +322,7 @@ void Game::inputs()
 		player.move(Keys::S, delta_time.get());
 
 	if (window->isKeyPressed(Keys::D))
-		player.move(Keys::D, delta_time.get());;
+		player.move(Keys::D, delta_time.get());
 
 	if (window->isKeyPressed(Keys::A))
 		player.move(Keys::A, delta_time.get());
@@ -354,7 +349,7 @@ void Game::logic()
 	player.update(world, delta_time.get());
 
 
-	gui_inv.update(inv, Window::to_gui_coordinates(*window, window->get_cursor_pos()));
+	m_inv_gui.update(Window::to_gui_coordinates(*window, window->get_cursor_pos()));
 
 }
 
@@ -545,7 +540,13 @@ void Game::render_on_screen()
 
 	AssetsManager::get().shaders.at("shaders/twoD").bind();
 
-		//gui_inv.draw(AssetsManager::get().shaders.at("shaders/twoD"));
+	m_inv_gui.draw(
+		{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
+				{
+					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
+					.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
+				}
+	);
 
 	AssetsManager::get().shaders.at("shaders/twoD").unbind();
 
@@ -554,7 +555,7 @@ void Game::render_on_screen()
 
 	/*= Debug Draws =*/
 
-	gfx::DebugRenderer::get().render2D(orthographic_proj);
+	//gfx::DebugRenderer::get().render2D(orthographic_proj);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

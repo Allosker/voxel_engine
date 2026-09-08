@@ -122,23 +122,30 @@ namespace gui
 
 		ItemStackGUI() noexcept
 		{
+			m_mesh.create_buffer<gfx::Vertex>(false);
+		}
+
+		void update_model(types::type_id id)
+		{
 			std::vector<gfx::Vertex> mesh{};
 
 			for (const auto& i : g_model)
 				assemble_pos_uvs(
 					mesh,
 					i,
-					gfx::Voxel::g_face_uvs
+					gfx::calculate_uvs(id)
 				);
-
-			m_mesh.create_buffer<gfx::Vertex>(false);
+			  
 			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);
-			
 		}
+
+		void set_should_be_drawn(bool b) noexcept { m_should_be_drawn = b; }
 
 
 		void draw(const gfx::RenderContext& rc) noexcept
 		{
+			if (!m_should_be_drawn) return;
+
 			rc.sha->set_value("model", get_transform());
 
 			rc.tex->bind();
@@ -152,6 +159,8 @@ namespace gui
 	private:
 
 		gfx::Mesh m_mesh;
+
+		bool m_should_be_drawn{};
 
 
 	};

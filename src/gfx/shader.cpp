@@ -12,7 +12,7 @@ namespace gfx
 	// Construction/Destruction
 	// =====================
 
-	Shader::Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader) noexcept
+	Shader::Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader)
 	{
 		std::string vertCode{}, fragCode{}, geomCode{};
 
@@ -167,7 +167,7 @@ namespace gfx
 		}
 	}
 
-	void Shader::init(std::string_view vert, std::string_view frag, std::string_view geom) noexcept
+	void Shader::init(std::string_view vert, std::string_view frag, std::string_view geom)
 	{
 		// Compile/Link shaders
 
