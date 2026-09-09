@@ -237,6 +237,9 @@ void Game::inputs()
 			if (sys::InputManager::pressed(*key, Keys::F1))
 				window->toggle_cursor();
 
+			if (sys::InputManager::pressed(*key, Keys::Tab))
+				player_inventory.get_inventory().toggle();
+
 			if (sys::InputManager::pressed(*key, Keys::F2))
 				world.debug.show_chunk_borders = !world.debug.show_chunk_borders;
 
@@ -260,9 +263,15 @@ void Game::inputs()
 		if (runtime_settings.paused)
 			return;
 
+		if (auto wheel = event->get_if<Event::MouseWheelScrolled>())
+			player_inventory.get_inventory().on_mouse_scroll(wheel->delta);
+
 		if (auto mouse = event->get_if<Event::MouseButtonEvent>())
 		{
 			sys::InputManager::get().add_mouseButton_event(*mouse);
+
+
+			if (player_inventory.get_inventory().is_active()) return;
 
 
 			if (sys::InputManager::pressed(*mouse, MouseButtons::Left))

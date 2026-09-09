@@ -62,6 +62,24 @@ namespace gfx
 		/// <param name="stage"></param>
 		void set_stage(Size stage) noexcept;
 
+		void set_item_stack(size_t index, ItemStack item_stack) noexcept
+		{
+			m_change++;
+			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
+		}
+
+		void set_item_stack_hb(size_t index, ItemStack item_stack) noexcept
+		{
+			m_change++;
+			m_item_stacks_hb.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
+		}
+
+		void set_temp(ItemStack item_stack) noexcept
+		{
+			m_temp.set(item_stack);
+		}
+
+
 		u8 get_change() const noexcept { return m_change; }
 
 		Size get_size() const noexcept { return m_size; }
@@ -88,22 +106,21 @@ namespace gfx
 
 		ItemStack get_temp() const noexcept { return m_temp; }
 
+		size_t get_index_hb() const noexcept { return m_index_hb; }
 
-		void set_item_stack(size_t index, ItemStack item_stack) noexcept 
+
+		void toggle() noexcept { m_active = !m_active; m_change++; }
+
+		bool is_active() const noexcept { return m_active; }
+
+		void on_mouse_scroll(v2f32 delta) noexcept
 		{
+			if (m_active) return;
+
+
+			m_index_hb = ((m_index_hb + static_cast<i64>(delta.y)) % get_nb_slots_hb() + get_nb_slots_hb()) % get_nb_slots_hb();
+
 			m_change++;
-			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
-		}
-
-		void set_item_stack_hb(size_t index, ItemStack item_stack) noexcept
-		{
-			m_change++;
-			m_item_stacks_hb.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
-		}
-
-		void set_temp(ItemStack item_stack) noexcept
-		{
-			m_temp.set(item_stack);
 		}
 
 
@@ -126,8 +143,11 @@ namespace gfx
 
 		std::vector<ItemStack> m_item_stacks;
 		std::vector<ItemStack> m_item_stacks_hb;
+		i64 m_index_hb{};
 
 		ItemStack m_temp;
+
+		bool m_active{};
 
 
 	};

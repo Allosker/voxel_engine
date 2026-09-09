@@ -14,46 +14,51 @@ namespace gui
 		if (m_inv_change != m_inv.get_change())
 		{
 			update_items();
+
+			m_selected_slot.set_pos({
+				Window::g_gui_view_size.x / 2 - m_hotbar.get_size().x + g_outline_hb + m_selected_slot.get_size().y, 
+				Window::g_gui_view_size.y - m_selected_slot.get_size().y
+			}); // Position the selected slot right on the first hotbar slot
+			m_selected_slot.move({ g_slot_size * m_inv.get_index_hb(), {} });
+
 			m_inv_change = m_inv.get_change();
 		}
 
-		if (m_move_temp_to_mouse)
+		if (m_inv.is_active() && m_move_temp_to_mouse)
 			m_temp.set_pos({ gui_mouse_pos, 0. });
 
-		compute_indices(gui_mouse_pos);
-
-
 		// Highlight to know on which slot the mouse is
-		const auto compute_highlight = [](std::vector<ItemStackGUI>& stacks, const auto index, const auto last_index, auto& lbtn)
+		const auto highlight = [&](auto& stacks, const auto& new_index, auto& index)
 			{
-				if (index && stacks.at(*index).should_be_drawn())
+				if (new_index)
 				{
-					auto& current = stacks.at(*index);
+					auto& current = stacks.at(*new_index);
 					current.set_scale_text(g_over_ISG_text_scale);
 					current.set_scale(g_over_ISG_scale);
 
-					if (last_index)
-						if (*last_index != *index)
+					if (index)
+						if (new_index != index)
 						{
-							auto& last = stacks.at(*last_index);
-							last.set_scale_text(g_base_ISG_text_scale);
-							last.set_scale(g_base_ISG_scale);
+							auto& current = stacks.at(*index);
+							current.set_scale_text(g_base_ISG_text_scale);
+							current.set_scale(g_base_ISG_scale);
 						}
 
-					lbtn = false;
+					index = new_index;
 				}
-				else if (!lbtn && last_index && stacks.at(*last_index).should_be_drawn())
+				else if (index)
 				{
-					auto& last = stacks.at(*last_index);
-					last.set_scale_text(g_base_ISG_text_scale);
-					last.set_scale(g_base_ISG_scale);
+					auto& current = stacks.at(*index);
+					current.set_scale_text(g_base_ISG_text_scale);
+					current.set_scale(g_base_ISG_scale);
 
-					lbtn = true;
+					index = new_index;
 				}
 			};
 
-		compute_highlight(m_item_stacks, m_index, m_last_index, m_last_back_to_normal);
-		compute_highlight(m_item_stacks_hb, m_index_hb, m_last_index_hb, m_last_back_to_normal_hb);
+		if (m_inv.is_active())
+			highlight(m_item_stacks, compute_index(gui_mouse_pos), m_index);
+		highlight(m_item_stacks_hb, compute_index_hb(gui_mouse_pos), m_index_hb);
 
 	}
 
@@ -63,7 +68,7 @@ namespace gui
 		{
 			if (event.state == Event::ButtonState::Press && !m_picked_item_up)
 			{
-				if (m_index)
+				if (m_inv.is_active() && m_index)
 				{
 					const auto current = m_inv.get_item_stack(*m_index);
 
@@ -83,7 +88,7 @@ namespace gui
 					m_inv.set_temp(*current);
 					m_inv.set_item_stack_hb(*m_index_hb, {});
 
-					m_item_stacks.at(*m_index_hb).set_should_be_drawn(false);
+					m_item_stacks_hb.at(*m_index_hb).set_should_be_drawn(false);
 				}
 				else return;
 
@@ -99,7 +104,7 @@ namespace gui
 			{
 				bool is_there_leftover{};
 
-				if (m_index)
+				if (m_inv.is_active() && m_index)
 				{
 					const auto current = m_inv.get_item_stack(*m_index);
 
@@ -157,12 +162,12 @@ namespace gui
 						is_there_leftover = remainder;
 					}
 
-					m_item_stacks.at(*m_index_hb).set_should_be_drawn(true);
+					m_item_stacks_hb.at(*m_index_hb).set_should_be_drawn(true);
 				}
 				else return;
 
 
-				// GUI
+				// GUI  
 
 				m_temp.set_should_be_drawn(is_there_leftover);
 				m_move_temp_to_mouse = is_there_leftover;
@@ -232,32 +237,35 @@ namespace gui
 
 		change_textures(m_inv.get_size());
 
-		m_nb_slots = m_inv.get_nb_slots();
-		m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
-		m_board.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 - m_hotbar.get_size().y });
+		if (m_inv.is_active())
+		{
+			m_nb_slots = m_inv.get_nb_slots();
+			m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
+			m_board.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 - m_hotbar.get_size().y });
+
+			const auto target_size_inv = m_nb_slots.x * m_nb_slots.y;
+
+			types::pos2d start_pos{ m_board.get_pos() - m_board.get_size() + g_outline };
+			types::pos2d slot_pos{ start_pos };
+			for (i32 y{}; y < m_nb_slots.y; y++)
+			{
+				slot_pos.x = start_pos.x;
+				for (i32 x{}; x < m_nb_slots.x; x++)
+				{
+					const auto current_index = x + y * m_nb_slots.x;
+					update_item_stack(m_item_stacks, target_size_inv, current_index, m_inv.get_item_stack(current_index), slot_pos);
+
+					slot_pos.x += g_slot_size;
+				}
+
+				slot_pos.y += g_slot_size;
+			}
+		}
 
 		m_hotbar.get_hitbox().set_extent(m_hotbar.get_texture()->get_size());
 		m_hotbar.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y - m_hotbar.get_size().y });
 
-		const auto target_size_inv = m_nb_slots.x * m_nb_slots.y;
-
-		types::pos2d start_pos{ m_board.get_pos() - m_board.get_size() + g_outline };
-		types::pos2d slot_pos{ start_pos };
-		for (i32 y{}; y < m_nb_slots.y; y++)
-		{
-			slot_pos.x = start_pos.x;
-			for (i32 x{}; x < m_nb_slots.x; x++)
-			{
-				const auto current_index = x + y * m_nb_slots.x;
-				update_item_stack(m_item_stacks, target_size_inv, current_index, m_inv.get_item_stack(current_index), slot_pos);
-
-				slot_pos.x += g_slot_size;
-			}
-
-			slot_pos.y += g_slot_size;
-		}
-
-		slot_pos = m_hotbar.get_pos() - m_hotbar.get_size() + g_outline_hb;
+		types::pos2d slot_pos{ m_hotbar.get_pos() - m_hotbar.get_size() + g_outline_hb };
 		for (i32 x{}; x < m_inv.get_nb_slots_hb(); x++)
 		{
 			update_item_stack(m_item_stacks_hb, m_inv.get_nb_slots_hb(), x, m_inv.get_item_stack_hb(x), slot_pos);
@@ -266,7 +274,7 @@ namespace gui
 
 	}
 
-	void InventoryGUI::compute_indices(types::pos2d gui_mouse_pos) noexcept
+	std::optional<size_t> InventoryGUI::compute_index(types::pos2d gui_mouse_pos) noexcept
 	{
 		phy::HitboxAABB2D board{ m_board.get_pos(), m_board.get_size() - g_outline };
 
@@ -275,12 +283,14 @@ namespace gui
 			v2f32 converted_mp{ gui_mouse_pos - board.get_min() };
 			v2u64 index2d{ static_cast<size_t>(converted_mp.x / (g_slot_size + 1)), static_cast<size_t>(converted_mp.y / (g_slot_size + 1)) };
 
-			m_last_index = m_index;
-			m_index = std::make_optional(index2d.x + index2d.y * m_nb_slots.x);
+			return std::make_optional(index2d.x + index2d.y * m_nb_slots.x);
 		}
 		else
-			m_index = std::nullopt;
+			return std::nullopt;
+	}
 
+	std::optional<size_t> InventoryGUI::compute_index_hb(types::pos2d gui_mouse_pos) noexcept
+	{
 		phy::HitboxAABB2D hotbar{ m_hotbar.get_pos(), m_hotbar.get_size() - g_outline_hb };
 
 		if (phy::intersects(hotbar, gui_mouse_pos))
@@ -288,12 +298,12 @@ namespace gui
 			v2f32 converted_mp{ gui_mouse_pos - hotbar.get_min() };
 			v2u64 index2d{ static_cast<size_t>(converted_mp.x / (g_slot_size + 1)), {} };
 
-			m_last_index_hb = m_index_hb;
-			m_index_hb = std::make_optional(index2d.x);
+			return std::make_optional(index2d.x);
 		}
 		else
-			m_index_hb = std::nullopt;
+			return std::nullopt;
 	}
+
 
 
 }

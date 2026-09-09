@@ -26,10 +26,13 @@ namespace gui
 	public:
 
 		InventoryGUI(gfx::Inventory& inv)
-			:m_inv{ inv }, m_board{ {} }, m_hotbar{ {} }
+			:m_inv{ inv }, m_board{ {} }, m_hotbar{ {} }, m_selected_slot{ {} }
 		{  
 			m_board.set_scale(g_scale);
 			m_hotbar.set_scale(g_scale);
+			m_selected_slot.set_scale(g_scale);
+			m_selected_slot.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/selected_slot"));
+
 			m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{ .scancode{} });
 
 			m_temp.set_scale(g_over_ISG_scale);
@@ -58,21 +61,25 @@ namespace gui
 
 		void draw(const gfx::RenderContext& inv_c, const gfx::RenderContext& is_c, const gfx::Shader& text_sha) noexcept
 		{
-			m_board.draw(inv_c);
+			if (m_inv.is_active())
+				m_board.draw(inv_c);
 			m_hotbar.draw(inv_c);
-
+			m_selected_slot.draw(inv_c);
 
 			glEnable(GL_DEPTH_TEST);
 
 			is_c.sha->bind();
 
-			for (auto& i : m_item_stacks)
-				i.draw_model(is_c);
-
 			for (auto& i : m_item_stacks_hb)
 				i.draw_model(is_c);
 
-			m_temp.draw_model(is_c);
+			if (m_inv.is_active())
+			{
+				for (auto& i : m_item_stacks)
+					i.draw_model(is_c);
+
+				m_temp.draw_model(is_c);
+			}
 
 			is_c.sha->unbind();
 
@@ -81,13 +88,16 @@ namespace gui
 
 			text_sha.bind();
 
-			for (auto& i : m_item_stacks)
-				i.draw_text(text_sha);
-
 			for (auto& i : m_item_stacks_hb)
 				i.draw_text(text_sha);
 
-			m_temp.draw_text(text_sha);
+			if (m_inv.is_active())
+			{
+				for (auto& i : m_item_stacks)
+					i.draw_text(text_sha);
+
+				m_temp.draw_text(text_sha);
+			}
 
 			text_sha.unbind();
 		}
@@ -100,7 +110,9 @@ namespace gui
 
 		void update_items() noexcept;
 
-		void compute_indices(types::pos2d gui_mouse_pos) noexcept;
+		std::optional<size_t> compute_index(types::pos2d gui_mouse_pos) noexcept;
+
+		std::optional<size_t> compute_index_hb(types::pos2d gui_mouse_pos) noexcept;
 
 		/// <summary>
 		/// Set of constants based on the following files:
@@ -134,6 +146,7 @@ namespace gui
 		ItemStackGUI m_temp;
 		gfx::Rectangle m_board;
 		gfx::Rectangle m_hotbar;
+		gfx::Rectangle m_selected_slot;
 		std::vector<ItemStackGUI> m_item_stacks;
 		std::vector<ItemStackGUI> m_item_stacks_hb;
 
@@ -143,11 +156,9 @@ namespace gui
 		v2f32 m_nb_slots{};
 
 		std::optional<size_t> m_index{};
-		std::optional<size_t> m_last_index{};
 		bool m_last_back_to_normal{};
 
 		std::optional<size_t> m_index_hb{};
-		std::optional<size_t> m_last_index_hb{};
 		bool m_last_back_to_normal_hb{};
 
 		bool m_picked_item_up{};
