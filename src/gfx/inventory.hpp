@@ -26,6 +26,7 @@ namespace gfx
 			// In Slots
 			v2f32 size{};
 			u16 count_per_slot{};
+			u8 size_hotbar{};
 		};
 
 		enum Size : u8
@@ -42,9 +43,17 @@ namespace gfx
 			: m_size{ Small }
 		{
 			m_item_stacks.resize(get_nb_slots().x * get_nb_slots().y);
+			m_item_stacks_hb.resize(get_nb_slots_hb());
+
 			set_item_stack(0, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
 			set_item_stack(1, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 10 }); 
-			set_item_stack(2, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 999 }); 
+			set_item_stack(2, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 99 }); 
+			set_item_stack(3, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 20 }); 
+			set_item_stack(4, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 90 }); 
+
+			set_item_stack_hb(0, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 1 });
+			set_item_stack_hb(1, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 10 });
+			set_item_stack_hb(2, ItemStack{ { 1, {} }, g_stages[m_size].count_per_slot, 99 });
 		}
 
 		/// <summary>
@@ -59,12 +68,22 @@ namespace gfx
 
 		v2f32 get_nb_slots() const noexcept { return g_stages[m_size].size; }
 
+		u16 get_nb_slots_hb() const noexcept { return g_stages[m_size].size_hotbar; }
+
 		std::optional<ItemStack> get_item_stack(size_t i) const noexcept
 		{
 			if (i < 0 || i >= m_item_stacks.size())
 				return std::nullopt;
 
 			return std::make_optional(m_item_stacks.at(i));
+		}
+
+		std::optional<ItemStack> get_item_stack_hb(size_t i) const noexcept
+		{
+			if (i < 0 || i >= m_item_stacks_hb.size())
+				return std::nullopt;
+
+			return std::make_optional(m_item_stacks_hb.at(i));
 		}
 
 		ItemStack get_temp() const noexcept { return m_temp; }
@@ -74,6 +93,12 @@ namespace gfx
 		{
 			m_change++;
 			m_item_stacks.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
+		}
+
+		void set_item_stack_hb(size_t index, ItemStack item_stack) noexcept
+		{
+			m_change++;
+			m_item_stacks_hb.at(index).set(item_stack.get_type(), g_stages[m_size].count_per_slot, item_stack.count());
 		}
 
 		void set_temp(ItemStack item_stack) noexcept
@@ -87,9 +112,9 @@ namespace gfx
 		static constexpr std::array<Stage, 3> g_stages
 		{
 			Stage
-			{ .size{ 6 , 4 }, .count_per_slot{ 100 } },
-			{ .size{ 8 , 5 }, .count_per_slot{ 100 } },
-			{ .size{ 12, 6 }, .count_per_slot{ 100 } }
+			{ .size{ 6 , 4 }, .count_per_slot{ 100 }, .size_hotbar{ 6 } },
+			{ .size{ 8 , 5 }, .count_per_slot{ 100 }, .size_hotbar{ 8 } },
+			{ .size{ 12, 6 }, .count_per_slot{ 100 }, .size_hotbar{ 12 } }
 		};
 
 
@@ -100,6 +125,7 @@ namespace gfx
 		u8 m_change{ 1 };
 
 		std::vector<ItemStack> m_item_stacks;
+		std::vector<ItemStack> m_item_stacks_hb;
 
 		ItemStack m_temp;
 

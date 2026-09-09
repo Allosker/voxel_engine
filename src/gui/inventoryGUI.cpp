@@ -20,34 +20,40 @@ namespace gui
 		if (m_move_temp_to_mouse)
 			m_temp.set_pos({ gui_mouse_pos, 0. });
 
-		compute_index(gui_mouse_pos);
+		compute_indices(gui_mouse_pos);
 
 
 		// Highlight to know on which slot the mouse is
-		if (m_index && m_item_stacks.at(*m_index).should_be_drawn())
-		{
-			auto& current = m_item_stacks.at(*m_index);
-			current.set_scale_text(g_over_ISG_text_scale);
-			current.set_scale(g_over_ISG_scale);
-			
-			if (m_last_index)
-				if (*m_last_index != *m_index)
+		const auto compute_highlight = [](std::vector<ItemStackGUI>& stacks, const auto index, const auto last_index, auto& lbtn)
+			{
+				if (index && stacks.at(*index).should_be_drawn())
 				{
-					auto& last = m_item_stacks.at(*m_last_index);
+					auto& current = stacks.at(*index);
+					current.set_scale_text(g_over_ISG_text_scale);
+					current.set_scale(g_over_ISG_scale);
+
+					if (last_index)
+						if (*last_index != *index)
+						{
+							auto& last = stacks.at(*last_index);
+							last.set_scale_text(g_base_ISG_text_scale);
+							last.set_scale(g_base_ISG_scale);
+						}
+
+					lbtn = false;
+				}
+				else if (!lbtn && last_index && stacks.at(*last_index).should_be_drawn())
+				{
+					auto& last = stacks.at(*last_index);
 					last.set_scale_text(g_base_ISG_text_scale);
 					last.set_scale(g_base_ISG_scale);
-				}
-		}
-		else
-		{
-			if (m_last_index && m_item_stacks.at(*m_last_index).should_be_drawn())
-			{
-				auto& last = m_item_stacks.at(*m_last_index);
-				last.set_scale_text(g_base_ISG_text_scale);
-				last.set_scale(g_base_ISG_scale);           
-			}
-		}
 
+					lbtn = true;
+				}
+			};
+
+		compute_highlight(m_item_stacks, m_index, m_last_index, m_last_back_to_normal);
+		compute_highlight(m_item_stacks_hb, m_index_hb, m_last_index_hb, m_last_back_to_normal_hb);
 
 	}
 
@@ -57,64 +63,125 @@ namespace gui
 		{
 			if (event.state == Event::ButtonState::Press && !m_picked_item_up)
 			{
-				if (!m_index) return;
+				if (m_index)
+				{
+					const auto current = m_inv.get_item_stack(*m_index);
 
-				const auto current = m_inv.get_item_stack(*m_index);
+					if (!current->get_type()) return;
 
-				if (!current->get_type()) return;
+					m_inv.set_temp(*current);
+					m_inv.set_item_stack(*m_index, {});
 
+					m_item_stacks.at(*m_index).set_should_be_drawn(false);
+				}
+				else if (m_index_hb)
+				{
+					const auto current = m_inv.get_item_stack_hb(*m_index_hb);
 
-				m_inv.set_temp(*current);
-				m_inv.set_item_stack(*m_index, {});
+					if (!current->get_type()) return;
 
+					m_inv.set_temp(*current);
+					m_inv.set_item_stack_hb(*m_index_hb, {});
+
+					m_item_stacks.at(*m_index_hb).set_should_be_drawn(false);
+				}
+				else return;
 
 				// GUI
 
-				m_temp.update(m_inv.get_temp().get_type().id, std::to_string(m_inv.get_temp().count()));
+				m_temp.update(m_inv.get_temp().get_type(), std::to_string(m_inv.get_temp().count()));
 				m_temp.set_should_be_drawn(true);
 				m_move_temp_to_mouse = true;
-
-				m_item_stacks.at(*m_index).set_should_be_drawn(false);
 
 				m_picked_item_up = true;
 			}
 			else if (event.state == Event::ButtonState::Press && m_picked_item_up)
 			{
-				if (!m_index) return;
+				bool is_there_leftover{};
 
-				const auto current = m_inv.get_item_stack(*m_index);
+				if (m_index)
+				{
+					const auto current = m_inv.get_item_stack(*m_index);
 
-				if (current->get_type() && current->get_type() != m_inv.get_temp().get_type()) return;
+					if (current->get_type() && current->get_type() != m_inv.get_temp().get_type()) return;
 
 
-				gfx::ItemStack is = *current;
+					gfx::ItemStack is = *current;
 
-				is.set(m_inv.get_temp());
 
-				m_inv.set_item_stack(*m_index, is);
+					if (!current->get_type() || !current->count())
+					{
+						is.set(m_inv.get_temp());
 
-				m_inv.set_temp({});
+						m_inv.set_item_stack(*m_index, is);
+
+						m_inv.set_temp({});
+					}
+					else
+					{
+						const auto remainder = is.add(m_inv.get_temp().get_type(), m_inv.get_temp().count());
+
+						m_inv.set_item_stack(*m_index, is);
+
+						m_inv.set_temp({ is.get_type(), is.max_count(), remainder });
+						is_there_leftover = remainder;
+					}
+
+					m_item_stacks.at(*m_index).set_should_be_drawn(true);
+				}
+				else if (m_index_hb)
+				{
+					const auto current = m_inv.get_item_stack_hb(*m_index_hb);
+
+					if (current->get_type() && current->get_type() != m_inv.get_temp().get_type()) return;
+
+
+					gfx::ItemStack is = *current;
+
+
+					if (!current->get_type() || !current->count())
+					{
+						is.set(m_inv.get_temp());
+
+						m_inv.set_item_stack_hb(*m_index_hb, is);
+
+						m_inv.set_temp({});
+					}
+					else
+					{
+						const auto remainder = is.add(m_inv.get_temp().get_type(), m_inv.get_temp().count());
+
+						m_inv.set_item_stack_hb(*m_index_hb, is);
+
+						m_inv.set_temp({ is.get_type(), is.max_count(), remainder });
+						is_there_leftover = remainder;
+					}
+
+					m_item_stacks.at(*m_index_hb).set_should_be_drawn(true);
+				}
+				else return;
 
 
 				// GUI
 
-				m_temp.set_should_be_drawn(false);
-				m_move_temp_to_mouse = false;
+				m_temp.set_should_be_drawn(is_there_leftover);
+				m_move_temp_to_mouse = is_there_leftover;
+				if (is_there_leftover)
+					m_temp.update(m_inv.get_temp().get_type(), std::to_string(m_inv.get_temp().count()));
 
-				m_item_stacks.at(*m_index).set_should_be_drawn(true);
-
-				m_picked_item_up = false;
+				m_picked_item_up = is_there_leftover;
 			}
 		}
 	}
 
 
-	void InventoryGUI::change_board(gfx::Inventory::Size size) noexcept
+	void InventoryGUI::change_textures(gfx::Inventory::Size size) noexcept
 	{
 		switch (size)
 		{
 			case gfx::Inventory::Size::Small:
 				m_board.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/small"));
+				m_hotbar.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/hotbar_small"));
 				break;
 
 			case gfx::Inventory::Size::Medium:
@@ -132,28 +199,14 @@ namespace gui
 
 	void InventoryGUI::update_items() noexcept
 	{
-		change_board(m_inv.get_size());
-
-		m_nb_slots = m_inv.get_nb_slots();
-		m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
-
-		m_board.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 });
-
-		const auto target_size_inv = m_inv.get_nb_slots().x * m_inv.get_nb_slots().y;
-
-		types::pos2d start_pos{ m_board.get_pos() - m_board.get_size() + g_outline };
-		types::pos2d slot_pos{ start_pos };
-		for (i32 y{}; y < m_inv.get_nb_slots().y; y++)
-		{
-			slot_pos.x = start_pos.x;
-			for (i32 x{}; x < m_inv.get_nb_slots().x; x++)
+		const auto update_item_stack = [&](std::vector<ItemStackGUI>& stacks, const auto target_size, const auto current_index, const auto& is, const auto& slot_pos) 
 			{
 				ItemStackGUI* isg = nullptr;
 
-				if (m_item_stacks.size() < target_size_inv)
+				if (stacks.size() < target_size)
 				{
-					m_item_stacks.emplace_back();
-					isg = &m_item_stacks.back();
+					stacks.emplace_back();
+					isg = &stacks.back();
 
 					isg->set_scale(g_base_ISG_scale);
 					isg->set_pos(v3f32{ slot_pos, -100. } + g_slot_size / 2.f);
@@ -163,29 +216,57 @@ namespace gui
 				}
 				else
 				{
-					isg = &m_item_stacks.at(x + y * m_inv.get_nb_slots().x);
+					isg = &stacks.at(current_index);
 				}
 
-				const auto& i = m_inv.get_item_stack(x + y * m_inv.get_nb_slots().x);
-				if (i && i->get_type().id != types::TypeIdNull)
+				if (is && is->get_type().id != types::TypeIdNull)
 				{
 					// When there are item models, change it so that it can accept either of them
-					isg->update(i->get_type().id, std::to_string(i->count()));
+					isg->update(is->get_type(), std::to_string(is->count()));
 					isg->set_text_pos();
 					isg->set_should_be_drawn(true);
 				}
 				else
 					isg->set_should_be_drawn(false);
+			};
 
+		change_textures(m_inv.get_size());
+
+		m_nb_slots = m_inv.get_nb_slots();
+		m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
+		m_board.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 - m_hotbar.get_size().y });
+
+		m_hotbar.get_hitbox().set_extent(m_hotbar.get_texture()->get_size());
+		m_hotbar.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y - m_hotbar.get_size().y });
+
+		const auto target_size_inv = m_nb_slots.x * m_nb_slots.y;
+
+		types::pos2d start_pos{ m_board.get_pos() - m_board.get_size() + g_outline };
+		types::pos2d slot_pos{ start_pos };
+		for (i32 y{}; y < m_nb_slots.y; y++)
+		{
+			slot_pos.x = start_pos.x;
+			for (i32 x{}; x < m_nb_slots.x; x++)
+			{
+				const auto current_index = x + y * m_nb_slots.x;
+				update_item_stack(m_item_stacks, target_size_inv, current_index, m_inv.get_item_stack(current_index), slot_pos);
 
 				slot_pos.x += g_slot_size;
 			}
 
 			slot_pos.y += g_slot_size;
 		}
+
+		slot_pos = m_hotbar.get_pos() - m_hotbar.get_size() + g_outline_hb;
+		for (i32 x{}; x < m_inv.get_nb_slots_hb(); x++)
+		{
+			update_item_stack(m_item_stacks_hb, m_inv.get_nb_slots_hb(), x, m_inv.get_item_stack_hb(x), slot_pos);
+			slot_pos.x += g_slot_size;
+		}
+
 	}
 
-	void InventoryGUI::compute_index(types::pos2d gui_mouse_pos) noexcept
+	void InventoryGUI::compute_indices(types::pos2d gui_mouse_pos) noexcept
 	{
 		phy::HitboxAABB2D board{ m_board.get_pos(), m_board.get_size() - g_outline };
 
@@ -199,6 +280,19 @@ namespace gui
 		}
 		else
 			m_index = std::nullopt;
+
+		phy::HitboxAABB2D hotbar{ m_hotbar.get_pos(), m_hotbar.get_size() - g_outline_hb };
+
+		if (phy::intersects(hotbar, gui_mouse_pos))
+		{
+			v2f32 converted_mp{ gui_mouse_pos - hotbar.get_min() };
+			v2u64 index2d{ static_cast<size_t>(converted_mp.x / (g_slot_size + 1)), {} };
+
+			m_last_index_hb = m_index_hb;
+			m_index_hb = std::make_optional(index2d.x);
+		}
+		else
+			m_index_hb = std::nullopt;
 	}
 
 

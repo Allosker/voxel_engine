@@ -165,10 +165,10 @@ DebugMessage Game::run()
 
 		m_inv_gui.draw(
 			{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
-				{
-					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-					.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
-				},
+			{
+				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
+				.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
+			},
 			AssetsManager::get().shaders.at("shaders/text")
 		);
 

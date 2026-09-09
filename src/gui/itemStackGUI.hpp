@@ -130,12 +130,15 @@ namespace gui
 			m_text.set_scale(0.5);
 		}
 
-		void update(types::type_id id, const std::string& str) noexcept
+		/// <summary>
+		/// Make it so that it accounts for the origin of the id
+		/// </summary>
+		void update(gfx::ItemStack::Type type, const std::string& str) noexcept
 		{
-			if (id != m_id)
+			if (type.id != m_id)
 			{
-				m_id = id;
-				update_model(id);
+				m_id = type.id;
+				update_model(type.id);
 			}
 
 			if (str != m_text.get_str())
