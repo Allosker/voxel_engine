@@ -124,7 +124,8 @@ namespace gui
 					}
 					else
 					{
-						const auto remainder = is.add(m_inv.get_temp().get_type(), m_inv.get_temp().count());
+						// guaranteed not to exceed the range
+						const u16 remainder = is.add(m_inv.get_temp().get_type(), m_inv.get_temp().count());
 
 						m_inv.set_item_stack(*m_index, is);
 
@@ -154,7 +155,8 @@ namespace gui
 					}
 					else
 					{
-						const auto remainder = is.add(m_inv.get_temp().get_type(), m_inv.get_temp().count());
+						// guaranteed not to exceed the range
+						const u16 remainder = is.add(m_inv.get_temp().get_type(), m_inv.get_temp().count());
 
 						m_inv.set_item_stack_hb(*m_index_hb, is);
 
@@ -224,7 +226,7 @@ namespace gui
 					isg = &stacks.at(current_index);
 				}
 
-				if (is && is->get_type().id != types::TypeIdNull)
+				if (is && is->get_type().id != types::type_id_null)
 				{
 					// When there are item models, change it so that it can accept either of them
 					isg->update(is->get_type(), std::to_string(is->count()));

@@ -33,11 +33,11 @@ namespace gfx
 	struct Voxel
 	{
 
-		types::type_id type_id{ types::TypeIdNull };
+		types::type_id type_id{ types::type_id_null };
 
 		operator bool() const
 		{
-			return type_id != types::TypeIdNull;
+			return type_id != types::type_id_null;
 		}
 
 		static constexpr std::array<std::array<v3f32, 6>, 6> g_model

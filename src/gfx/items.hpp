@@ -70,11 +70,11 @@ namespace gfx
 			types::type_id id; Source source;
 			bool operator==(Type b) noexcept { return id == b.id; } // change that when you include sources
 			bool operator!=(Type b) noexcept { return id != b.id; } // change that when you include sources
-			operator bool() noexcept { return id != types::TypeIdNull; } // change that when you include sources
+			operator bool() noexcept { return id != types::type_id_null; } // change that when you include sources
 		};
 
 
-		ItemStack(Type type = { 0, {} }, u16 max_count = {}, u16 count = {}) noexcept
+		ItemStack(Type type = { types::type_id_null, {} }, u16 max_count = 100 /*base size, not a worry for now*/, u16 count = {}) noexcept
 		{
 			set(type, max_count, count);
 		}
@@ -90,7 +90,7 @@ namespace gfx
 		/// <param name="tid"></param>
 		/// <param name="count"></param>
 		/// <returns>The remainder, 0 otherwise</returns>
-		u16 add(Type type, u16 count) noexcept;
+		u32 add(Type type, u32 count) noexcept;
 
 		/// <summary>
 		/// Remove the specified count, if types match
@@ -99,7 +99,7 @@ namespace gfx
 		/// <param name="tid"></param>
 		/// <param name="count"></param>
 		/// <returns>How much could be taken</returns>
-		u16 take(Type type, u16 count) noexcept;
+		u32 take(Type type, u32 count) noexcept;
 
 		/// <summary> 
 		/// Clear the item stack as well

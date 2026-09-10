@@ -196,7 +196,7 @@ namespace types
 {
 
 	using type_id = u16;
-	constexpr inline type_id TypeIdNull{};
+	constexpr inline type_id type_id_null{};
 
 	using rgbs = u16;
 

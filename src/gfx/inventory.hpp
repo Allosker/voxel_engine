@@ -111,12 +111,34 @@ namespace gfx
 
 		void toggle() noexcept { m_active = !m_active; m_change++; }
 
+		/// <summary>
+		/// Tries to add the Item.s
+		/// <para>Note: count can be any number in I</para> 
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="count"></param>
+		/// <returns>The count of items that could not be added</returns> 
+		[[nodiscard]] u32 add_items(ItemStack::Type type, u32 count) noexcept;
+
+		/// <summary>
+		/// Tries to remove the Item.s, returns how many could be removed 
+		/// <para>If none could, returns 0</para>
+		/// <para>Note: count can be any number in I</para> 
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="count"></param>
+		/// <returns>The count of removed item</returns>
+		[[nodiscard]] u32 remove_items(ItemStack::Type type, u32 count) noexcept;
+
+		void clear() noexcept;
+
+
 		bool is_active() const noexcept { return m_active; }
+
 
 		void on_mouse_scroll(v2f32 delta) noexcept
 		{
 			if (m_active) return;
-
 
 			m_index_hb = ((m_index_hb + static_cast<i64>(delta.y)) % get_nb_slots_hb() + get_nb_slots_hb()) % get_nb_slots_hb();
 
@@ -137,16 +159,15 @@ namespace gfx
 
 	private:
 
-		Size m_size;
-
-		u8 m_change{ 1 };
-
 		std::vector<ItemStack> m_item_stacks;
 		std::vector<ItemStack> m_item_stacks_hb;
 		i64 m_index_hb{};
 
 		ItemStack m_temp;
 
+		Size m_size;
+
+		u8 m_change{ 1 };
 		bool m_active{};
 
 

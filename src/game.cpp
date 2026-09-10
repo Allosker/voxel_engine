@@ -258,6 +258,9 @@ void Game::inputs()
 			if (sys::InputManager::pressed(*key, Keys::G))
 				player.m_mov.ghost = !player.m_mov.ghost;
 
+			if (sys::InputManager::pressed(*key, Keys::E))
+				player_inventory.get_inventory().add_items({ 1, {} }, 100);
+
 		}
 
 		if (runtime_settings.paused)
