@@ -87,7 +87,7 @@ namespace gfx
 	{
 		Ray ray{ origin, dir };
 		types::pos normal{};
-		double tMin{};
+		f64 tMin{};
 
 		types::chunk_loc ray_loc{ World::to_chunkLoc(origin) };
 		types::chunk_loc old_loc{};

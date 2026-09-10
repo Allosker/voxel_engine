@@ -19,10 +19,10 @@ namespace gfx
 
 		m_mesh.update_buffer<Vertex2D>(
 			{
-				{ {-m_tex->get_size().x, -m_tex->get_size().y }, { 0, 0 } },
-				{ { m_tex->get_size().x, -m_tex->get_size().y }, { 1, 0 } },
-				{ { m_tex->get_size().x,  m_tex->get_size().y }, { 1, 1 } },
-				{ {-m_tex->get_size().x,  m_tex->get_size().y }, { 0, 1 } }
+				{ {-m_tex->get_size().x, -m_tex->get_size().y }, { 0, 1 } },
+				{ { m_tex->get_size().x, -m_tex->get_size().y }, { 1, 1 } },
+				{ { m_tex->get_size().x,  m_tex->get_size().y }, { 1, 0 } },
+				{ {-m_tex->get_size().x,  m_tex->get_size().y }, { 0, 0 } }
 			},
 			{
 				0, 1, 2,

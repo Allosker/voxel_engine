@@ -60,7 +60,7 @@ namespace gfx
 
 		// = Setters
 
-		void set_pos(const types::pos& pos) noexcept
+		virtual void set_pos(const types::pos& pos) noexcept
 		{
 			m_position = pos;
 			m_transformNeedUpdate = true;
@@ -72,7 +72,7 @@ namespace gfx
 			m_transformNeedUpdate = true;
 		}
 
-		void set_scale(f64 scale) noexcept
+		virtual void set_scale(f64 scale) noexcept
 		{
 			set_scale({ scale, scale, scale });
 		}
@@ -106,7 +106,7 @@ namespace gfx
 
 	private:
 
-        mutable m4f64 m_transformations{ 1 };
+		mutable m4f64 m_transformations{ 1 };
 
 		v3f64		m_scale{};
 		v3f64		m_origin{};

@@ -41,7 +41,7 @@ namespace gfx
 		/// Set the size of the frame buffer for building projection matrices
 		/// </summary>
 		/// <param name="new_size"></param>
-		void set_FBS(v2f32 new_size) noexcept
+		void set_FBS(v2f64 new_size) noexcept
 		{
 			if (new_size.x == 0 || new_size.y == 0)
 				return;
@@ -108,29 +108,29 @@ namespace gfx
 		/// View projection matrix used to build the projection plan
 		/// </summary>
 		/// <returns>View Projection matrix</returns>
-		const m4f32& get_VP() const noexcept { return m_vp; }
+		const m4f64& get_VP() const noexcept { return m_vp; }
 
 		const bool should_update_dirs() const noexcept { return m_update_dirs; }
 
 
-		f32 speed{10.f};
+		f64 speed{10.f};
 
 	private:
 
 		void build_cam_matrix() noexcept
 		{
-			m4f32 view = glm::lookAt(m_pos, m_frontdir + m_pos, m_updir);
-			m4f32 proj = glm::perspective<f64>(glm::radians(m_fov), m_framebuffer_size.x / m_framebuffer_size.y, 0.1f, 1000.f);
+			m4f64 view = glm::lookAt(m_pos, m_frontdir + m_pos, m_updir);
+			m4f64 proj = glm::perspective<f64>(glm::radians(m_fov), m_framebuffer_size.x / m_framebuffer_size.y, 0.1f, 1000.f);
 
 			m_vp = proj * view;
 		}
 
 
-		m4f32 m_vp{};
+		m4f64 m_vp{};
 
 		f64 m_fov{ 45 };
 
-		v2f32 m_framebuffer_size{};
+		v2f64 m_framebuffer_size{};
 		types::pos  m_pos{ 0.f, 0.f, 0.f };
 		types::pos  m_updir{ 0.f, 1.f, 0.f };
 		types::pos  m_frontdir{ 0.f, 0.f, -1.f };
