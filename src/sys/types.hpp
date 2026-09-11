@@ -167,6 +167,7 @@ using m4f32 = glm::mat<4, 4, f32>;
 
 using m4f64 = glm::mat<4, 4, f64>;
 
+using qf32 = glm::qua<f32>;
 using qf64 = glm::qua<f64>;
 
 using angle = f32;
@@ -195,7 +196,7 @@ namespace types
 {
 
 	using type_id = u16;
-	constexpr inline type_id TypeIdNull{};
+	constexpr inline type_id type_id_null{};
 
 	using rgbs = u16;
 

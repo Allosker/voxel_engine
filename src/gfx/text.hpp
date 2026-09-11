@@ -5,14 +5,15 @@
 // This class manages a text entity that can be transformed
 // ---------------------------------------
 
-#include "sys/types.hpp"
 #include "gfx/image.hpp"
 #include "gfx/mesh.hpp"
 #include "gfx/renderContext.hpp"
+#include "sys/types.hpp"
 
 #include "gfx/transformable3D.hpp"
 
 #include "font.hpp"
+#include "shader.hpp"
 
 
 namespace gfx
@@ -50,16 +51,20 @@ namespace gfx
 		/// </summary>
 		/// <param name="scale"></param>
 		void set_scale_text(f32 scale) noexcept { m_scale_text = scale; }
-		
-		void set_font(const Font& font)
+
+		void set_font(const Font* font)
 		{
-			p_font = &font;
+			p_font = font;
 			update();
 		}
 
 
+		const std::string& get_str() const noexcept { return m_text; }
 
-		void draw(const RenderContext& rc);
+		v3f64 get_size() const noexcept { return m_size * get_scale(); }
+
+
+		void draw(const Shader& sha);
 
 		void reload()
 		{
@@ -77,13 +82,12 @@ namespace gfx
 
 		std::string m_text{};
 
-		Mesh m_mesh{};
-
 		const Font* p_font{ nullptr };
 
-		v4f32 m_color		{ 0.5, 0.8, 0.2, 1. };
-		f32 m_scale_text	{ 1. };
+		v3f64 m_size{};
 
+		v4f32 m_color{ 0.18, 0.18, 0.18, 1. };
+		f32 m_scale_text{ 1. };
 
 		size_t m_size_data{};
 

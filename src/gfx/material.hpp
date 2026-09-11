@@ -1,10 +1,10 @@
 #pragma once
-
 /* -- All Rights Reserved: Allosker 2026
 * https://github.com/Allosker/voxel_engine/blob/main/license.txt
 */
 
 #include "gfx/shader.hpp"
+
 
 namespace gfx
 {
