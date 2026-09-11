@@ -107,6 +107,11 @@ DebugMessage Game::run()
 
 
 	auto& am = AssetsManager::get();
+	auto& model = am.models.begin()->second;
+	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
+	mi.set_pos({1.0, 8.0, 2.0});
+	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
+	mi.m_material.set("tex", model.textures[0]);
 
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
