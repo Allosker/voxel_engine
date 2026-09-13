@@ -107,6 +107,11 @@ DebugMessage Game::run()
 
 
 	auto& am = AssetsManager::get();
+	auto& model = am.models.begin()->second;
+	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
+	mi.set_pos({1.0, 8.0, 2.0});
+	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
+	mi.m_material.set("tex", model.textures[0]);
 
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
@@ -189,13 +194,25 @@ DebugMessage Game::run()
 		window->display(); // Swap Window Buffer With the Graphics Card's One
 
 
-		auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
-		if (frameExecutionTime < 1.f / target_fps)
-		{
-			std::this_thread::sleep_for(std::chrono::duration<f32>(1.f / target_fps - frameExecutionTime));
-		}
-
 		time_elapsed_average.update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - time_start).count());
+
+		const auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
+		const auto targetTime = 1.f / target_fps;
+		if (frameExecutionTime < targetTime)
+		{
+			const auto sleepTime = (targetTime - frameExecutionTime);
+			const auto start = std::chrono::steady_clock::now();
+
+			if (sleepTime > 2)
+			{
+				std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+			}
+
+			while (std::chrono::steady_clock::now() - start < std::chrono::duration<float>(sleepTime))
+			{
+				std::this_thread::yield();
+			}
+		}
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
