@@ -106,13 +106,6 @@ DebugMessage Game::run()
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
 
-	auto& am = AssetsManager::get();
-	auto& model = am.models.begin()->second;
-	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
-	mi.set_pos({1.0, 8.0, 2.0});
-	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
-	mi.m_material.set("tex", model.textures[0]);
-
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
 	{
@@ -123,6 +116,7 @@ DebugMessage Game::run()
 
 		delta_time.update(time_at_frame_start);
 		fps = 1.f / time_elapsed_average.get_average() * 1000.f;
+		fps_sleep = 1.f / time_elapsed_sleep_average.get_average() * 1000.f;
 		delta_time.limit();
 
 
@@ -195,7 +189,7 @@ DebugMessage Game::run()
 
 
 		time_elapsed_average.update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - time_start).count());
-
+		
 		const auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
 		const auto targetTime = 1.f / target_fps;
 		if (frameExecutionTime < targetTime)
@@ -205,14 +199,16 @@ DebugMessage Game::run()
 
 			if (sleepTime > 2)
 			{
-				std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+				std::this_thread::sleep_for(std::chrono::duration<f32>(sleepTime));
 			}
 
-			while (std::chrono::steady_clock::now() - start < std::chrono::duration<float>(sleepTime))
+			while (std::chrono::steady_clock::now() - start < std::chrono::duration<f32>(sleepTime))
 			{
 				std::this_thread::yield();
 			}
 		}
+
+		time_elapsed_sleep_average.update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - time_start).count());
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
@@ -429,8 +425,24 @@ void Game::debug_imgui()
 		{
 			const auto player_loc = gfx::World::to_chunkLoc(player.get_pos());
 
-			ImGui::Text("FPS: %f", fps);
-			ImGui::Text("Ms : %f", time_elapsed_average.get_average());
+			if (ImGui::BeginTable("Performance", 2))
+			{
+				ImGui::TableNextColumn();
+				ImGui::Text("FPS: %f", fps);
+
+				ImGui::TableNextColumn();
+				ImGui::Text("FPS Sleep: %f", fps_sleep);
+
+				ImGui::TableNextRow();
+
+				ImGui::TableNextColumn();
+				ImGui::Text("Ms : %f", time_elapsed_average.get_average());
+
+				ImGui::TableNextColumn();
+				ImGui::Text("Ms  Sleep: %f", time_elapsed_sleep_average.get_average());
+
+				ImGui::EndTable();
+			}
 
 			const auto camVoxelPos = gfx::World::to_voxelPos(player.get_pos());
 			ImGui::Text("Pos Absolute: %d %d %d", camVoxelPos.x, camVoxelPos.y, camVoxelPos.z);

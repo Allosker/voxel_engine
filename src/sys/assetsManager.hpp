@@ -90,4 +90,5 @@ private:
 		fonts.emplace("fonts/november", gfx::Font{ ASSET_PATH"fonts/november/November.ttf" });
 	}
 
+
 };

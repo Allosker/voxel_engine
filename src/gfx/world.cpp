@@ -18,8 +18,8 @@ namespace gfx
 
 			generate_world(v);
 
-			overworld.add_cmeshes(v);
-			overworld.allocate_waiting_cmesh();
+			//overworld.add_cmeshes(v);
+			//overworld.allocate_waiting_cmesh();
 		}
 
 		/*== Debug ==*/

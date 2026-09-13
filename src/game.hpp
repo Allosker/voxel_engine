@@ -137,7 +137,9 @@ private: // Internal Communication/Logic
 	} runtime_settings;
 
 	f32 fps{};
+	f32 fps_sleep{};
 	ValueAverage time_elapsed_average{};
+	ValueAverage time_elapsed_sleep_average{};
 	f32 target_fps{ 160 };
 
 
