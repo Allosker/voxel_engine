@@ -31,17 +31,15 @@ namespace gfx
 		/// Chunk meshes aren't guaranteed to possess a chunk mesh.
 		/// </summary>
 		/// <param name="Location around which to build the chunks"></param>
-		/// <param name="Override for rebuilding all chunks regardless"></param>
 		/// <returns>A list of the newly allocated chunks</returns>
-		std::list<types::chunk_loc> allocate_chunks(types::chunk_loc cloc, bool override = false) noexcept;
+		std::list<types::chunk_loc> allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept;
 
 		/// <summary>
 		/// Deallocate/Allocate new chunks if the point location has changed.
 		/// </summary>
 		/// <param name="Point Location"></param>
-		/// <param name="Override for discarding and then rebuilding all chunks regardless"></param>
 		/// <returns>A list of the newly allocated chunks</returns>
-		std::list<types::chunk_loc> manage_chunks(types::chunk_loc loc, bool override = false) noexcept;
+		std::list<types::chunk_loc> manage_chunks(const types::chunk_loc& loc) noexcept;
 
 		/// <summary>
 		/// Update a chunk mesh for the provided chunk (via its corresponding chunkloc) if there exist one, allocate a new one otherwise
@@ -63,7 +61,10 @@ namespace gfx
 		/// </summary>
 		/// <param name="location of the chunk"></param>
 		/// <param name="Override for discarding all chunks regarless"></param>
-		void deallocate_chunks(types::chunk_loc cloc, bool override = false) noexcept;
+		void deallocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept;
+
+		void discard_all_chunks() noexcept;
+
 
 		/// <summary>
 		/// Add all the elements to the back of the deque, no matter whether the meshes already exist
@@ -179,6 +180,8 @@ namespace gfx
 
 		// Old location around which to allocate the new chunks
 		types::chunk_loc last_loc{};
+
+
 	};
 
 

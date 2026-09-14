@@ -14,7 +14,10 @@ namespace gfx
 
 		if (debug.update_world)
 		{
-			auto v = overworld.manage_chunks(player_loc, reload);
+			if (reload)
+				overworld.discard_all_chunks();
+
+			auto v = overworld.manage_chunks(player_loc);
 
 			generate_world(v);
 
@@ -43,7 +46,7 @@ namespace gfx
 			if (!chunk)
 				continue;
 
-			auto c_pos = chunk->get_position();
+			const auto c_pos = chunk->get_position();
 			bool should_be_empty_chunk{ true };
 
 			for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
