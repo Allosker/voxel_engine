@@ -159,6 +159,11 @@ namespace gfx
 
 		tex.unbind();
 
+		GlobalUniformBlockInstance viewUBI{ *Shader::FindGlobalUniformBlockDefinition("ViewData") };
+		viewUBI.set("vp", (m4f32)camera.get_VP());
+
+		viewUBI.update();
+		viewUBI.bind();
 
 		Shader* currentShader{};
 
@@ -182,7 +187,6 @@ namespace gfx
 				currentShader->bind();
 			}
 
-			meshInstance.m_material.set("vp", (m4f32)camera.get_VP());
 			meshInstance.m_material.set("model", (m4f32)meshInstance.get_transform());
 
 			meshInstance.m_material.updateBlocks();

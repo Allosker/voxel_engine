@@ -7,6 +7,7 @@
 */
 
 #include <string_view>
+#include <unordered_set>
 
 #include "sys/graphics.hpp"
 #include "sys/types.hpp"
@@ -16,28 +17,37 @@
 
 namespace gfx
 {
+	struct UniformDefinition
+	{
+		int32_t block{};
+		int32_t pos{};
+		int32_t size{};
+		uint32_t type{};
+		int32_t textureSlot{};
+
+		std::string name; // Debug only?
+	};
+	using UniformDefinitions = std::unordered_map<StringHash, UniformDefinition>;
+
+	struct UniformBlockDefinition
+	{
+		uint32_t index{};
+		uint32_t totalSize{};
+		uint32_t bindSlot{};
+
+		std::string name; // Debug only?
+	};
+
+	struct GlobalUniformBlockDefinition : UniformBlockDefinition
+	{
+		UniformDefinitions m_uniformDefinitions;
+	};
+
+	static constexpr uint32_t MaxGlobalBlocks = 10; 
+
 	class Shader
 	{
 	public:
-
-		struct UniformDefinition
-		{
-			int32_t block{};
-			int32_t pos{};
-			int32_t size{};
-			uint32_t type{};
-			int32_t textureSlot{};
-
-			std::string name; // Debug only?
-		};
-
-		struct BlockDefinition
-		{
-			uint32_t index{};
-			uint32_t totalSize{};
-
-			std::string name; // Debug only?
-		};
 
 		struct TextureMember
 		{
@@ -81,7 +91,7 @@ namespace gfx
 
 		GLuint get_uni_loc(std::string_view name) const noexcept;
 
-		const std::vector<BlockDefinition>& get_block_definitions() const
+		const std::vector<UniformBlockDefinition>& get_block_definitions() const
 		{
 			return m_blockDefinitions;
 		}
@@ -110,6 +120,8 @@ namespace gfx
 
 		void set_value_loc(GLint location, const m4f32& value) const noexcept;
 
+		static const GlobalUniformBlockDefinition* FindGlobalUniformBlockDefinition(StringHash id);
+
 	private:
 
 		void compile(GLuint s_id, std::string_view name);
@@ -122,7 +134,10 @@ namespace gfx
 		GlId_Shader m_id;
 
 		uint32_t m_textureSlotCount{};
-		std::vector<BlockDefinition> m_blockDefinitions;
-		std::unordered_map<StringHash, UniformDefinition> m_uniformDefinitions;
+		std::vector<UniformBlockDefinition> m_blockDefinitions;
+		UniformDefinitions m_uniformDefinitions;
+
+		static inline std::unordered_set<StringHash> g_globalBlockNames{"ViewData"};
+		static inline std::unordered_map<StringHash, GlobalUniformBlockDefinition> g_globalBlockDefinitions;
 	};
 }
