@@ -23,6 +23,10 @@ namespace gfx
 	{
 	public:
 
+		World()
+			: terrain_data{ {Chunk::g_size<f32>.z, Chunk::g_size<f32>.x} }
+		{}
+
 
 		/// <summary>
 		/// Allocate new chunks and calculates the terrain gen for them,
@@ -83,7 +87,8 @@ namespace gfx
 		} debug;
 
 
-		gfx::TerrainGenContext/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
+		gfx::terrain_gen::Context/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
+		gfx::terrain_gen::Data terrain_data;
 
 		f64 gravity{ -32 };
 

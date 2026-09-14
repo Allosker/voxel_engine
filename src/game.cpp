@@ -499,7 +499,7 @@ void Game::debug_imgui()
 				noise_image = gfx::Image{ (v2u32)v2i32 { gap.x, gap.z }, GL_RGB };
 
 
-				for (i32 x{ min.x }; x < max.x; x++)
+				/*for (i32 x{ min.x }; x < max.x; x++)
 					for (i32 z{ min.z }; z < max.z; z++)
 					{
 						auto t = gfx::continentalness(world.terrain_context, z, x);
@@ -509,7 +509,7 @@ void Game::debug_imgui()
 						noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel()) = grayscale;
 						noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 1) = grayscale;
 						noise_image.getData().at(((x - min.x) + (z - min.z) * gap.x) * noise_image.getChannel() + 2) = grayscale;
-					}
+					}*/
 
 				noise_texture.update(noise_image);
 			}
