@@ -83,14 +83,14 @@ namespace gfx
 			// Put the name on the right side to quickly know which type it is
 
 			m_voxel_types.push_back(VoxelType{ .name{"air"}, 
-				.is_transparent{true}, 
-				.is_solid{false}}
+				.is_transparent{ true }, 
+				.is_solid{ false }}
 			);
 			m_ids.emplace("air"_id, types::type_id_null);
 
 			m_voxel_types.push_back(VoxelType{ .name{"stone"}, 
 				.uvs{{0, 0}, {g_ratio, g_ratio}}, 
-				.has_bounds{true}
+				.has_bounds{ true }
 			});
 			m_ids.emplace("stone"_id, 1);
 

@@ -17,7 +17,7 @@
 
 namespace gfx
 {
-	class RenderContext;
+	struct RenderContext;
 
 	class Rectangle
 		: public Transformable2D

@@ -89,7 +89,7 @@ private:
 
 	void add_fonts()
 	{
-		fonts.emplace("fonts/november", gfx::Font{ ASSET_PATH"fonts/november/November.ttf" });
+		fonts.emplace("fonts/november"_id, gfx::Font{ ASSET_PATH"fonts/november/November.ttf" });
 	}
 
 
