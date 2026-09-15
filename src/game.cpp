@@ -157,15 +157,7 @@ DebugMessage Game::run()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		AssetsManager::get().shaders.at("shaders/world_chunks").bind();
-
-		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
-
 		world.draw(renderer);
-
-		AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
 		debugTimer.add("world draw");
 

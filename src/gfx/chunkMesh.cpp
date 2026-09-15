@@ -4,6 +4,7 @@
 
 #include "voxelType.hpp"
 #include "chunkGrid.hpp"
+#include "sys/assetsManager.hpp"
 
 namespace gfx
 {
@@ -166,36 +167,13 @@ namespace gfx
 
 
 	ChunkMesh::ChunkMesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
+		: material(&AssetsManager::get().shaders.at("shaders/world_chunks"))
 	{
-		create_buffers();
-
+		mesh.create_buffer<VoxelVertex>(false);
 		update_mesh(bake_mesh(current_chunk, grid));
+		
+		material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"));
 	}
-
-	ChunkMesh::ChunkMesh(ChunkMesh&& other) noexcept
-		: m_vao{ other.m_vao }, m_vbo{ other.m_vbo }, m_vertices_count{ other.m_vertices_count }
-	{
-		other.m_vao = 0;
-		other.m_vbo = 0;
-		other.m_vertices_count = 0;
-	}
-
-	ChunkMesh& ChunkMesh::operator=(ChunkMesh&& other) noexcept
-	{
-		if (this == &other)
-			return *this;
-
-		m_vao = other.m_vao = 0;
-		m_vbo = other.m_vbo = 0;
-		m_vertices_count = other.m_vertices_count = 0;
-
-		other.m_vao = 0;
-		other.m_vbo = 0;
-		other.m_vertices_count = 0;
-
-		return *this;
-	}
-
 
 	std::vector<ChunkMesh::VoxelVertex> ChunkMesh::bake_mesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
 	{
@@ -295,51 +273,6 @@ namespace gfx
 
 	void ChunkMesh::update_mesh(const std::vector<VoxelVertex>& vertices) noexcept
 	{
-		if (!m_vao || !m_vbo)
-			create_buffers();
-
-		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(vertices.size()) * sizeof(VoxelVertex), vertices.data(), GL_STATIC_DRAW);
-		m_vertices_count = static_cast<GLsizei>(vertices.size());
-
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		mesh.update_buffer(vertices);
 	}
-
-	void ChunkMesh::create_buffers() noexcept
-	{
-		glCreateVertexArrays(1, &m_vao);
-		glGenBuffers(1, &m_vbo);
-
-		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-
-		glVertexAttribPointer(0, v3f32::length(), GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, position)));
-		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(1, v2f32::length(), GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, uvs)));
-		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(2, 1/*ao value*/, GL_FLOAT, false, sizeof(VoxelVertex), std::bit_cast<void*>(offsetof(VoxelVertex, ao)));
-		glEnableVertexAttribArray(2);
-
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-
-
-	void ChunkMesh::free_resources() noexcept
-	{
-		glDeleteBuffers(1, &m_vbo);
-		glDeleteVertexArrays(1, &m_vao);
-		m_vertices_count = 0;
-	}
-
-
 }

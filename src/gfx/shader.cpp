@@ -252,6 +252,10 @@ namespace gfx
 					blockDef.bindSlot = g_globalBlockDefinitions.size();
 					it = g_globalBlockDefinitions.emplace(blockDef.name, GlobalUniformBlockDefinition{ blockDef }).first;
 				}
+				else
+				{
+					blockDef.bindSlot = it->second.bindSlot;
+				}
 
 				blockIndexRealIndex.push_back(-2);
 				blockIndexToDefinitions.push_back(&it->second.m_uniformDefinitions);

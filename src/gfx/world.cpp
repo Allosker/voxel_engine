@@ -152,12 +152,7 @@ namespace gfx
 
 	void World::draw(Renderer& renderer)
 	{
-		auto& tex = AssetsManager::get().textures.at(VoxelTypeManager::get().atlas_name());
-		tex.bind();
-
 		overworld.draw(renderer);
-
-		tex.unbind();
 
 		for (auto& meshInstance : m_meshInstances)
 		{
