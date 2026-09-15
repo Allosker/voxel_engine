@@ -17,11 +17,9 @@ namespace gfx
 	{
 	public:
 
-		Transformable3D(const v3f64& scale = { 1., 1., 1. }, const types::pos& ori = {})
-			: m_origin{ ori }, m_scale{ scale }
+		Transformable3D(const types::pos& pos = {}, const v3f64& scale = { 1., 1., 1. })
+			: m_position{ pos }, m_scale{ scale }, m_transformNeedUpdate{ true }
 		{
-			if (m_origin.x != 0 || m_origin.y != 0)
-				m_transformNeedUpdate = true;
 		}
 
 		Transformable3D(Transformable3D&&) = default;
@@ -109,7 +107,6 @@ namespace gfx
 		mutable m4f64 m_transformations{ 1 };
 
 		v3f64		m_scale{};
-		v3f64		m_origin{};
 		types::pos	m_position{};
 
 		qf64		m_rotation{ 1., 0., 0., 0. };

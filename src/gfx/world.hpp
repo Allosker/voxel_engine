@@ -12,6 +12,8 @@
 #include "terrainGeneration.hpp"
 #include "gfx/meshInstance.hpp"
 
+#include "gfx/world_item.hpp"
+
 
 namespace gfx
 {
@@ -98,8 +100,10 @@ namespace gfx
 		
 		ChunkGrid overworld{};
 
+		std::vector<WorldItem> m_world_items{};
 
 		types::chunk_loc last_player_loc{}; // remove that when moved into the chunk grid class
+
 
 	};
 }

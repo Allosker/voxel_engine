@@ -158,45 +158,16 @@ namespace gfx
 
 	void World::draw(const Camera& camera) noexcept
 	{
-		auto& tex = AssetsManager::get().textures.at(VoxelTypeManager::get().atlas_name());
+		auto& am = AssetsManager::get();
+
+		auto& tex = am.textures.at(VoxelTypeManager::get().atlas_name());
 		tex.bind();
 
 		overworld.draw();
+	
+		for (auto& i : m_world_items)
+			i.draw({ &am.shaders.at("shaders/world_chunks") });
 
 		tex.unbind();
-
-
-		Shader* currentShader{};
-
-		for (auto& meshInstance : m_meshInstances)
-		{
-			if (!meshInstance.m_mesh)
-			{
-				continue;
-			}
-
-			auto* newShader = &meshInstance.m_material.get_shader();
-
-			if (newShader != currentShader)
-			{
-				if (currentShader)
-				{
-					currentShader->unbind();
-				}
-
-				currentShader = newShader;
-				currentShader->bind();
-			}
-
-			meshInstance.m_material.set("vp", (m4f32)camera.get_VP());
-			meshInstance.m_material.set("model", (m4f32)meshInstance.get_transform());
-
-			meshInstance.m_material.updateBlocks();
-
-			meshInstance.m_material.bindBlocks();
-			meshInstance.m_material.bindTextures();
-
-			meshInstance.m_mesh->draw();
-		}
 	}
 }

@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "sys/hash.hpp"
 #include "sys/types.hpp"
 
 
@@ -25,7 +26,7 @@ namespace gfx
 		/// </summary>
 		std::string name{};
 
-		types::Rect<v2f32> uvs{  };
+		types::Rect<v2f32> uvs{ };
 
 
 		bool is_transparent{ false };
@@ -38,8 +39,6 @@ namespace gfx
 	class VoxelTypeManager
 	{
 	public:
-
-		// = Public Access
 
 		static const VoxelTypeManager& get() noexcept
 		{
@@ -60,7 +59,7 @@ namespace gfx
 		/// <summary>
 		/// Let'em crash
 		/// </summary>
-		const VoxelType& get_type(const std::string& name) const noexcept
+		const VoxelType& get_type(const StringHash& name) const noexcept
 		{
 			return get_type(m_ids.at(name));
 		}
@@ -68,18 +67,18 @@ namespace gfx
 		/// <summary>
 		/// Let'em crash
 		/// </summary>
-		types::type_id get_id(const std::string& name) const noexcept
+		types::type_id get_id(const StringHash& name) const noexcept
 		{
 			return m_ids.at(name);
 		}
 
-		const std::string& atlas_name() const noexcept { return m_atlas; }
+		constexpr const StringHash& atlas_name() const noexcept { return m_atlas; }
 
 
 	private:
 
 
-		explicit VoxelTypeManager() noexcept
+		constexpr explicit VoxelTypeManager() noexcept
 		{
 			// Put the name on the right side to quickly know which type it is
 
@@ -87,25 +86,25 @@ namespace gfx
 				.is_transparent{true}, 
 				.is_solid{false}}
 			);
-			m_ids.emplace("air", types::type_id_null);
+			m_ids.emplace("air"_id, types::type_id_null);
 
 			m_voxel_types.push_back(VoxelType{ .name{"stone"}, 
 				.uvs{{0, 0}, {g_ratio, g_ratio}}, 
 				.has_bounds{true}
 			});
-			m_ids.emplace("stone", 1);
+			m_ids.emplace("stone"_id, 1);
 
 			m_voxel_types.push_back(VoxelType{ .name{"dirt"}, 
 				.uvs{ { 1 * g_ratio, 0 }, { g_ratio, g_ratio } }, 
 				.has_bounds{ true } 
 			});
-			m_ids.emplace("dirt", 2);
+			m_ids.emplace("dirt"_id, 2);
 
 		}
 
-		std::string m_atlas{ "textures/voxels/atlas" };
+		StringHash m_atlas{ "textures/voxels/atlas"_id };
 		std::vector<VoxelType> m_voxel_types{};
-		std::unordered_map<std::string, types::type_id> m_ids;
+		std::unordered_map<StringHash, types::type_id> m_ids;
 
 		/// <summary>
 		/// In pixels 

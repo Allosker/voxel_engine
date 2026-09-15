@@ -19,16 +19,6 @@
 namespace gui
 {
 
-	static void assemble_pos_uvs(auto& out, const auto& pos, const auto& uvs) noexcept
-	{
-		out.emplace_back(gfx::Vertex{ pos[0], uvs[0] });
-		out.emplace_back(gfx::Vertex{ pos[1], uvs[1] });
-		out.emplace_back(gfx::Vertex{ pos[2], uvs[2] });
-		out.emplace_back(gfx::Vertex{ pos[3], uvs[3] });
-		out.emplace_back(gfx::Vertex{ pos[4], uvs[4] });
-		out.emplace_back(gfx::Vertex{ pos[5], uvs[5] });
-	}
-
 	/// <summary>
 	/// 
 	/// </summary>
@@ -204,7 +194,7 @@ namespace gui
 			std::vector<gfx::Vertex> mesh{};
 
 			for (const auto& i : g_model)
-				assemble_pos_uvs(
+				gfx::assemble_pos_uvs<gfx::Vertex>(
 					mesh,
 					i,
 					gfx::calculate_uvs(id)

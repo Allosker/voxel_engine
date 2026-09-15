@@ -30,6 +30,17 @@ namespace gfx
 		};
 	}
 
+	template<typename T>
+	inline void assemble_pos_uvs(std::vector<T>& out, const std::array<v3f32, 6>& pos, const std::vector<v2f32>& uvs) noexcept
+	{
+		out.emplace_back(T{ pos[0], uvs[0] });
+		out.emplace_back(T{ pos[1], uvs[1] });
+		out.emplace_back(T{ pos[2], uvs[2] });
+		out.emplace_back(T{ pos[3], uvs[3] });
+		out.emplace_back(T{ pos[4], uvs[4] });
+		out.emplace_back(T{ pos[5], uvs[5] });
+	}
+
 	struct Voxel
 	{
 

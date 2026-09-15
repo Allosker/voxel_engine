@@ -7,7 +7,6 @@
 */
 
 #include "gfx/mesh.hpp"
-#include "gfx/shader.hpp"
 #include "gfx/texture.hpp"
 #include "gfx/transformable2D.hpp"
 #include "gfx/vertices.hpp"
