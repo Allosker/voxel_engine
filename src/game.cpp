@@ -4,10 +4,10 @@
 #include <thread>
 
 #include "sys/inputManager.hpp"
+#include "sys/debugTimer.hpp"
 
 #include "gfx/rayTraversal.hpp"
-
-
+#include "gfx/renderer.hpp"
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 {
@@ -77,6 +77,7 @@ DebugMessage Game::run()
 	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
 
+	glfwSwapInterval(0);
 
 	camera.set_FBS(window->getSize());
 
@@ -113,9 +114,13 @@ DebugMessage Game::run()
 	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
 	mi.m_material.set("tex", model.textures[0]);
 
+	gfx::Renderer renderer;
+
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
 	{
+		DebugTimer debugTimer;
+
 		time_start = std::chrono::system_clock::now();
 
 		const f32 time_at_frame_start = glfwGetTime();
@@ -130,9 +135,15 @@ DebugMessage Game::run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		debugTimer.add("newFrame");
+
 		gfx::DebugRenderer::get().update(glfwGetTime());
 
+		debugTimer.add("debugger");
+
 		window->clear_states();
+
+		debugTimer.add("clear states");
 
 
 		inputs();
@@ -146,23 +157,23 @@ DebugMessage Game::run()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glEnable(GL_DEPTH_TEST);
-
 
 		AssetsManager::get().shaders.at("shaders/world_chunks").bind();
 
 		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
 		AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1. });
 
-		world.draw(camera);
+		world.draw(renderer);
 
 		AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
 
+		debugTimer.add("world draw");
 
-		/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
+		renderer.draw(camera);
+		
+		gfx::DebugRenderer::get().render3D(camera.get_VP());
 
 		glDisable(GL_DEPTH_TEST);
-
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -182,7 +193,6 @@ DebugMessage Game::run()
 
 		glDisable(GL_BLEND);
 
-
 		/*= Debug Draws =*/
 
 		//gfx::DebugRenderer::get().render2D(orthographic_proj);
@@ -191,8 +201,13 @@ DebugMessage Game::run()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 
+		debugTimer.add("imgui render");
+
 		window->display(); // Swap Window Buffer With the Graphics Card's One
 
+		debugTimer.add("window display");
+
+		//debugTimer.printAll();
 
 		time_elapsed_average.update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - time_start).count());
 
@@ -533,66 +548,4 @@ void Game::debug_imgui()
 	}
 
 
-}
-
-
-
-void Game::render_on_screen()
-{
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glEnable(GL_DEPTH_TEST);
-
-
-	AssetsManager::get().shaders.at("shaders/world_chunks").bind();
-
-	AssetsManager::get().shaders.at("shaders/world_chunks").set_value("vp", camera.get_VP());
-	AssetsManager::get().shaders.at("shaders/world_chunks").set_value("model", m4f32{ 1 });
-
-	AssetsManager::get().textures.at("textures/voxels/stone").bind();
-
-	world.draw(camera);
-
-	AssetsManager::get().textures.at("textures/voxels/stone").unbind();
-
-	AssetsManager::get().shaders.at("shaders/world_chunks").unbind();
-
-
-
-
-
-	/*= Debug Draw =*/ gfx::DebugRenderer::get().render3D(camera.get_VP());
-
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	AssetsManager::get().shaders.at("shaders/twoD").bind();
-
-	/*m_inv_gui.draw(
-		{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
-				{
-					.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-					.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
-				}
-	);*/
-
-	AssetsManager::get().shaders.at("shaders/twoD").unbind();
-
-	glDisable(GL_BLEND);
-
-
-	/*= Debug Draws =*/
-
-	//gfx::DebugRenderer::get().render2D(orthographic_proj);
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-	window->display(); // Swap Window Buffer With the Graphics Card's One
 }

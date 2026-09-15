@@ -1,8 +1,6 @@
 #include "MeshInstance.hpp"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "renderer.hpp"
 
 namespace gfx
 {
@@ -12,4 +10,8 @@ namespace gfx
 
 	}
 
+	void MeshInstance::draw(Renderer& renderer)
+	{
+		renderer.push_command({.mesh = m_mesh, .transform = get_transform(), .material = &m_material});
+	}
 }

@@ -31,7 +31,7 @@ namespace gfx
 
 	struct UniformBlockDefinition
 	{
-		uint32_t index{};
+		//uint32_t index{};
 		uint32_t totalSize{};
 		uint32_t bindSlot{};
 
@@ -48,13 +48,6 @@ namespace gfx
 	class Shader
 	{
 	public:
-
-		struct TextureMember
-		{
-			int32_t uniformLocation{};
-			int32_t slot{};
-		};
-
 		// = Construction/Destruction
 
 		Shader(const filepath& vertShader, const filepath& fragShader, const filepath& geomShader = "");
@@ -106,7 +99,6 @@ namespace gfx
 			return m_textureSlotCount;
 		}
 
-
 		// = Setters
 
 		void set_value(std::string_view name, float value) const noexcept;
@@ -137,7 +129,7 @@ namespace gfx
 		std::vector<UniformBlockDefinition> m_blockDefinitions;
 		UniformDefinitions m_uniformDefinitions;
 
-		static inline std::unordered_set<StringHash> g_globalBlockNames{"ViewData"};
+		static inline std::unordered_set<StringHash> g_globalBlockNames{"ViewData", "InstanceData"};
 		static inline std::unordered_map<StringHash, GlobalUniformBlockDefinition> g_globalBlockDefinitions;
 	};
 }

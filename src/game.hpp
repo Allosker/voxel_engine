@@ -62,11 +62,6 @@ private: // Internal Communication/Logic
 	void debug_imgui();
 
 
-	void render_on_screen();
-
-
-
-
 	std::unique_ptr<Window> window;
 
 	gfx::Camera camera{};
@@ -108,7 +103,7 @@ private: // Internal Communication/Logic
 	{
 		void update(f32 new_value) noexcept
 		{
-			if (values.size() > 1000)
+			if (values.size() > 20)
 			{
 				values.pop_back();
 			}

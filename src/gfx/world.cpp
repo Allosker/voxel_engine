@@ -150,51 +150,18 @@ namespace gfx
 	}
 
 
-	void World::draw(const Camera& camera) noexcept
+	void World::draw(Renderer& renderer)
 	{
 		auto& tex = AssetsManager::get().textures.at(VoxelTypeManager::get().atlas_name());
 		tex.bind();
 
-		overworld.draw();
+		overworld.draw(renderer);
 
 		tex.unbind();
 
-		GlobalUniformBlockInstance viewUBI{ *Shader::FindGlobalUniformBlockDefinition("ViewData") };
-		viewUBI.set("vp", (m4f32)camera.get_VP());
-
-		viewUBI.update();
-		viewUBI.bind();
-
-		Shader* currentShader{};
-
 		for (auto& meshInstance : m_meshInstances)
 		{
-			if (!meshInstance.m_mesh)
-			{
-				continue;
-			}
-
-			auto* newShader = &meshInstance.m_material.get_shader();
-
-			if (newShader != currentShader)
-			{
-				if (currentShader)
-				{
-					currentShader->unbind();
-				}
-
-				currentShader = newShader;
-				currentShader->bind();
-			}
-
-			meshInstance.m_material.set("model", (m4f32)meshInstance.get_transform());
-
-			meshInstance.m_material.updateBlocks();
-
-			meshInstance.m_material.bindBlocks();
-			meshInstance.m_material.bindTextures();
-
-			meshInstance.m_mesh->draw();
+			meshInstance.draw(renderer);
 		}
 	}
 }

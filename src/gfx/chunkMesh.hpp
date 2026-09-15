@@ -13,6 +13,7 @@
 #include "sys/types.hpp"
 
 #include "chunk.hpp"
+#include "drawable.hpp"
 
 
 namespace gfx
@@ -20,7 +21,7 @@ namespace gfx
 	class ChunkGrid;
 
 
-	class ChunkMesh
+	class ChunkMesh : public Drawable
 	{
 	public:
 
@@ -84,7 +85,7 @@ namespace gfx
 		/// <summary>
 		/// Draw the mesh buffer
 		/// </summary>
-		void draw() const noexcept
+		void draw(Renderer& renderer) override
 		{
 			glBindVertexArray(m_vao);
 

@@ -9,6 +9,7 @@
 
 #include "transformable3D.hpp"
 #include "material.hpp"
+#include "drawable.hpp"
 
 
 namespace gfx
@@ -17,7 +18,7 @@ namespace gfx
 	class Shader;
 	class Texture;
 
-	class MeshInstance : public Transformable3D
+	class MeshInstance : public Transformable3D, public Drawable
 	{
 	public:
 		MeshInstance(Mesh* mesh, Shader* shader);
@@ -27,6 +28,8 @@ namespace gfx
 
 		MeshInstance& operator=(const MeshInstance&) = default;
 		MeshInstance& operator=(MeshInstance&& other) = default;
+
+		void draw(Renderer& renderer) override;
 
 		Mesh* m_mesh{};
 		Material m_material;

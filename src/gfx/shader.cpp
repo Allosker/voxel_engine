@@ -225,6 +225,7 @@ namespace gfx
 		glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &maxBlockNameLength);
 		std::vector<GLchar> blockNameBuffer(maxBlockNameLength);
 
+		std::vector<int32_t> blockIndexRealIndex;
 		std::vector<UniformDefinitions*> blockIndexToDefinitions;
 
 		m_blockDefinitions.reserve(numBlocks);
@@ -238,7 +239,7 @@ namespace gfx
 			glGetActiveUniformBlockiv(m_id, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
 			blockDef.totalSize = static_cast<size_t>(blockSize);
 
-			blockDef.index = blockIndex;
+			//blockDef.index = blockIndex;
 			blockDef.name = std::string_view(blockNameBuffer.data(), length);
 
 			if (g_globalBlockNames.contains(blockDef.name))
@@ -252,12 +253,15 @@ namespace gfx
 					it = g_globalBlockDefinitions.emplace(blockDef.name, GlobalUniformBlockDefinition{ blockDef }).first;
 				}
 
+				blockIndexRealIndex.push_back(-2);
 				blockIndexToDefinitions.push_back(&it->second.m_uniformDefinitions);
 			}
 			else
 			{
 				blockDef.bindSlot = MaxGlobalBlocks + m_blockDefinitions.size();
 				m_blockDefinitions.emplace_back(blockDef);
+
+				blockIndexRealIndex.push_back(m_blockDefinitions.size() - 1);
 				blockIndexToDefinitions.push_back(&m_uniformDefinitions);
 			}
 
@@ -302,7 +306,9 @@ namespace gfx
 			}
 
 			auto* targetUniformDefinitions = blockIdx < 0 ? &m_uniformDefinitions : blockIndexToDefinitions[blockIdx];
-			auto& def = (*targetUniformDefinitions)[name] = { blockIdx, pos, size, type, {}, name };
+			const auto realBlockIndex = blockIdx < 0 ? -1 : blockIndexRealIndex[blockIdx];
+
+			auto& def = (*targetUniformDefinitions)[name] = { realBlockIndex, pos, size, type, {}, name };
 
 			if (blockIdx < 0 && (type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE))
 			{
