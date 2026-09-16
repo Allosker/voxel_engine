@@ -10,7 +10,7 @@ project (
 	VoxelEngine
 	VERSION 0.0.1
 	LANGUAGES C CXX 
-)   
+)  
   
 
 # Set Directories 

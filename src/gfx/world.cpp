@@ -21,8 +21,8 @@ namespace gfx
 
 			generate_world(v);
 
-			//overworld.add_cmeshes(v);
-			//overworld.allocate_waiting_cmesh();
+			overworld.add_cmeshes(v);
+			overworld.allocate_waiting_cmesh();
 		}
 
 		/*== Debug ==*/
@@ -158,8 +158,11 @@ namespace gfx
 
 	void World::draw(Renderer& renderer)
 	{
+		overworld.draw(renderer);
+
 		auto& am = AssetsManager::get();
 		auto& tex = am.textures.at(VoxelTypeManager::get().atlas_name());
+
 		tex.bind();
 	
 		for (auto& i : m_world_items)
@@ -167,8 +170,8 @@ namespace gfx
 
 		tex.unbind();
         
-		overworld.draw();
-		for (auto& meshInstance : m_meshInstances)
+		
+
 		for (auto& meshInstance : m_meshInstances)
 		{
 			meshInstance.draw(renderer);
