@@ -167,7 +167,8 @@ namespace gfx
 
 		tex.unbind();
         
-		overworld.draw();
+		overworld.draw(renderer);
+
 		for (auto& meshInstance : m_meshInstances)
 		for (auto& meshInstance : m_meshInstances)
 		{
