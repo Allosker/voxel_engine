@@ -18,6 +18,8 @@
 #include "gfx/texture.hpp"
 #include "sys/types.hpp"
 
+#include "hash.hpp"
+
 
 // Loads all assets the first time "get()" is called.
 // Note: this has to change when there are more assets
@@ -32,11 +34,11 @@ public:
 		return instance;
 	}
 
-	std::unordered_map<std::string, gfx::Texture>	textures;
-	std::unordered_map<std::string, gfx::Shader>	shaders;
-	std::unordered_map<std::string, gfx::Mesh>	    meshes;
-	std::unordered_map<std::string, gfx::Model>	    models;
-	std::unordered_map<std::string, gfx::Font>		fonts;
+	std::unordered_map<StringHash, gfx::Texture>	textures;
+	std::unordered_map<StringHash, gfx::Shader>		shaders;
+	std::unordered_map<StringHash, gfx::Mesh>	    meshes;
+	std::unordered_map<StringHash, gfx::Model>	    models;
+	std::unordered_map<StringHash, gfx::Font>		fonts;
 
 
 	void add_model(std::string id, const filepath& path);
@@ -87,7 +89,8 @@ private:
 
 	void add_fonts()
 	{
-		fonts.emplace("fonts/november", gfx::Font{ ASSET_PATH"fonts/november/November.ttf" });
+		fonts.emplace("fonts/november"_id, gfx::Font{ ASSET_PATH"fonts/november/November.ttf" });
 	}
+
 
 };

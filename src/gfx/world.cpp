@@ -14,12 +14,15 @@ namespace gfx
 
 		if (debug.update_world)
 		{
-			auto v = overworld.manage_chunks(player_loc, reload);
+			if (reload)
+				overworld.discard_all_chunks();
+
+			auto v = overworld.manage_chunks(player_loc);
 
 			generate_world(v);
 
-			overworld.add_cmeshes(v);
-			overworld.allocate_waiting_cmesh();
+			//overworld.add_cmeshes(v);
+			//overworld.allocate_waiting_cmesh();
 		}
 
 		/*== Debug ==*/
@@ -43,15 +46,18 @@ namespace gfx
 			if (!chunk)
 				continue;
 
-			auto c_pos = chunk->get_position();
+			const auto c_pos = chunk->get_position();
 			bool should_be_empty_chunk{ true };
+
+			continentalness(terrain_context, terrain_data, chunk->get_position());
+
 
 			for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
 				for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
 				{
 					auto pos = types::voxel_pos{ x, 0, z } + c_pos;
 
-					i64 height = continentalness(terrain_context, pos.z, pos.x) * 10;
+					i64 height = terrain_data.noise_data.at(z + x * Chunk::g_size<size_t>.z) * 10;
 
 
 					for (u16 y{}; y < Chunk::g_size<u16>.y; y++)
@@ -152,45 +158,16 @@ namespace gfx
 
 	void World::draw(const Camera& camera) noexcept
 	{
-		auto& tex = AssetsManager::get().textures.at(VoxelTypeManager::get().atlas_name());
+		auto& am = AssetsManager::get();
+
+		auto& tex = am.textures.at(VoxelTypeManager::get().atlas_name());
 		tex.bind();
 
 		overworld.draw();
+	
+		for (auto& i : m_world_items)
+			i.draw({ &am.shaders.at("shaders/world_chunks") });
 
 		tex.unbind();
-
-
-		Shader* currentShader{};
-
-		for (auto& meshInstance : m_meshInstances)
-		{
-			if (!meshInstance.m_mesh)
-			{
-				continue;
-			}
-
-			auto* newShader = &meshInstance.m_material.get_shader();
-
-			if (newShader != currentShader)
-			{
-				if (currentShader)
-				{
-					currentShader->unbind();
-				}
-
-				currentShader = newShader;
-				currentShader->bind();
-			}
-
-			meshInstance.m_material.set("vp", (m4f32)camera.get_VP());
-			meshInstance.m_material.set("model", (m4f32)meshInstance.get_transform());
-
-			meshInstance.m_material.updateBlocks();
-
-			meshInstance.m_material.bindBlocks();
-			meshInstance.m_material.bindTextures();
-
-			meshInstance.m_mesh->draw();
-		}
 	}
 }

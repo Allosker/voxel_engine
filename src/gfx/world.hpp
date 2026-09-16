@@ -12,6 +12,8 @@
 #include "terrainGeneration.hpp"
 #include "gfx/meshInstance.hpp"
 
+#include "gfx/world_item.hpp"
+
 
 namespace gfx
 {
@@ -22,6 +24,10 @@ namespace gfx
 	class World
 	{
 	public:
+
+		World()
+			: terrain_data{ {Chunk::g_size<f32>.z, Chunk::g_size<f32>.x} }
+		{}
 
 
 		/// <summary>
@@ -83,7 +89,8 @@ namespace gfx
 		} debug;
 
 
-		gfx::TerrainGenContext/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
+		gfx::terrain_gen::Context/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
+		gfx::terrain_gen::Data terrain_data;
 
 		f64 gravity{ -32 };
 
@@ -93,8 +100,10 @@ namespace gfx
 		
 		ChunkGrid overworld{};
 
+		std::vector<WorldItem> m_world_items{};
 
 		types::chunk_loc last_player_loc{}; // remove that when moved into the chunk grid class
+
 
 	};
 }

@@ -16,6 +16,7 @@
 
 #include "gui/itemStackGUI.hpp"
 #include "sys/inputManager.hpp"
+#include <gfx/shader.hpp>
 
 
 namespace gui
@@ -27,11 +28,11 @@ namespace gui
 
 		InventoryGUI(gfx::Inventory& inv)
 			:m_inv{ inv }, m_board{ {} }, m_hotbar{ {} }, m_selected_slot{ {} }
-		{  
+		{
 			m_board.set_scale(g_scale);
 			m_hotbar.set_scale(g_scale);
 			m_selected_slot.set_scale(g_scale);
-			m_selected_slot.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/selected_slot"));
+			m_selected_slot.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/selected_slot"_id));
 
 			m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{ .scancode{} });
 
@@ -55,7 +56,7 @@ namespace gui
 
 		std::optional<size_t> get_slot_index() const noexcept { return m_index; }
 
-		
+
 		void on_click(Event::MouseButtonEvent event) noexcept;
 
 
@@ -127,7 +128,7 @@ namespace gui
 		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2.f };
 		static constexpr f32 g_outline_hb{ g_outline_thickness_hb_px * g_scale * 2.f };
 		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2.f };
-		
+
 		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5f };
 		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2.f };
 

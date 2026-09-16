@@ -124,5 +124,7 @@ namespace gfx
 		uint32_t m_textureSlotCount{};
 		std::vector<BlockDefinition> m_blockDefinitions;
 		std::unordered_map<StringHash, UniformDefinition> m_uniformDefinitions;
+
+
 	};
 }

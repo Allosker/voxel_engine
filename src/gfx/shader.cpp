@@ -138,12 +138,12 @@ namespace gfx
 		glCompileShader(s_id);
 
 		GLint success;
-		GLchar infoLog[1024];
 
 		glGetShaderiv(s_id, GL_COMPILE_STATUS, &success);
 
 		if (!success)
 		{
+			GLchar infoLog[1024];
 			glGetShaderInfoLog(s_id, 1024, nullptr, infoLog);
 
 			throw std::runtime_error("ERROR::SHADER::COMPILATION_FAILED::" + std::string{name.data()} + '\n' + infoLog + '\n');
@@ -155,12 +155,12 @@ namespace gfx
 		glLinkProgram(s_id);
 
 		GLint success;
-		GLchar infoLog[1024];
-
+		
 		glGetProgramiv(s_id, GL_LINK_STATUS, &success);
 
 		if (!success)
 		{
+			GLchar infoLog[1024];
 			glGetProgramInfoLog(s_id, 1024, nullptr, infoLog);
 
 			throw std::runtime_error(std::string{ "ERROR::SHADER::LINKAGE_FAILED::Shader_Program::" } + infoLog + '\n');
@@ -206,6 +206,7 @@ namespace gfx
 		glDeleteShader(f_ID);
 		if (!geom.empty())
 			glDeleteShader(g_ID);
+
 
 		GLint numBlocks{};
 		glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
