@@ -49,15 +49,14 @@ namespace gfx
 			const auto c_pos = chunk->get_position();
 			bool should_be_empty_chunk{ true };
 
-			continentalness(terrain_context, terrain_data, chunk->get_position());
-
+			generate(terrain_context, terrain_data, chunk->get_position());
 
 			for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
 				for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
 				{
 					auto pos = types::voxel_pos{ x, 0, z } + c_pos;
 
-					i64 height = terrain_data.noise_data.at(z + x * Chunk::g_size<size_t>.z) * 10;
+					i64 height = terrain_data.noise_data.at(x + z * Chunk::g_size<size_t>.z) * 10;
 
 
 					for (u16 y{}; y < Chunk::g_size<u16>.y; y++)
