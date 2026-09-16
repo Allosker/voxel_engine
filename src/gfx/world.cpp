@@ -17,7 +17,7 @@ namespace gfx
 			if (reload)
 				overworld.discard_all_chunks();
 
-			auto v = overworld.manage_chunks(player_loc);
+			auto v = overworld.manage_chunks(player_loc, reload);
 
 			generate_world(v);
 

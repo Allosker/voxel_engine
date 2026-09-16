@@ -40,7 +40,7 @@ namespace gfx
 		/// </summary>
 		/// <param name="Point Location"></param>
 		/// <returns>A list of the newly allocated chunks</returns>
-		std::list<types::chunk_loc> manage_chunks(const types::chunk_loc& loc) noexcept;
+		std::list<types::chunk_loc> manage_chunks(const types::chunk_loc& loc, bool force) noexcept;
 
 		/// <summary>
 		/// Update a chunk mesh for the provided chunk (via its corresponding chunkloc) if there exist one, allocate a new one otherwise
