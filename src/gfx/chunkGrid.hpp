@@ -15,11 +15,12 @@
 
 #include "chunk.hpp"
 #include "chunkMesh.hpp"
+#include "drawable.hpp"
 
 
 namespace gfx
 {
-	class ChunkGrid
+	class ChunkGrid : public Drawable
 	{
 	public:
 
@@ -95,14 +96,10 @@ namespace gfx
 		}
 
 
-		void draw() const noexcept
+		void draw(Renderer& renderer) override
 		{
-			glEnable(GL_CULL_FACE);
-
-			for (const auto& i : m_chunk_meshes)
-				i.second.draw();
-
-			glDisable(GL_CULL_FACE);
+			for (auto& i : m_chunk_meshes)
+				i.second.draw(renderer);
 		}
 
 

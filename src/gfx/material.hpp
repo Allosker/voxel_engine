@@ -17,25 +17,53 @@ namespace gfx
 		Dynamic_Start,
 	};
 
-	struct BlockInstance
+	struct UniformBlockInstance
 	{
-		BlockInstance(const Shader::BlockDefinition& def);
-		~BlockInstance();
+		UniformBlockInstance(const UniformBlockDefinition& def);
 
-		BlockInstance(const BlockInstance&) = delete;
-		BlockInstance& operator=(const BlockInstance&) = delete;
-
-		BlockInstance(BlockInstance&& other) noexcept;
-		BlockInstance& operator=(BlockInstance&& other) noexcept;
+		UniformBlockInstance(UniformBlockInstance&& other) noexcept = default;
+		UniformBlockInstance& operator=(UniformBlockInstance&& other) noexcept  = default;
 
 		void update();
+		void bind() const;
+
+		template<typename T>
+		void set(const UniformDefinition& def, const T& value) noexcept
+		{
+			assert(def.pos + sizeof(T) <= data.size());
+
+			std::memcpy(data.data() + def.pos, &value, sizeof(T));
+
+			isDirty = true;
+		}
 
 	private:
-		uint32_t id = -1;
+		GlId_UBO id;
+		uint32_t bindSlot{};
 		std::vector<char> data;		
-		bool isDirty = true;
+		mutable bool isDirty = true;
+	};
 
-		friend class Material;
+	struct GlobalUniformBlockInstance : public UniformBlockInstance
+	{
+		GlobalUniformBlockInstance(const GlobalUniformBlockDefinition& def) : UniformBlockInstance(def)
+		{
+			defPtr = &def;
+		}
+
+		template<typename T>
+		void set(StringHash name, const T& value) noexcept
+		{
+			auto it = defPtr->m_uniformDefinitions.find(name);
+			assert(it != defPtr->m_uniformDefinitions.end());
+
+			const UniformDefinition& def = it->second;
+			UniformBlockInstance::set(def, value);
+		}
+
+		private: 
+
+		const GlobalUniformBlockDefinition* defPtr{};
 	};
 	
 	class Material
@@ -52,17 +80,11 @@ namespace gfx
 			auto it = m_shader->get_uniform_definitions().find(name);
 			if (it != m_shader->get_uniform_definitions().end())
 			{
-				const Shader::UniformDefinition& def = it->second;
+				const UniformDefinition& def = it->second;
 				if (def.block >= 0)
 				{
 					auto& block = m_blocks[def.block];
-
-					const auto i = sizeof(T);
-					assert(def.pos + sizeof(T) <= block.data.size());
-
-					std::memcpy(block.data.data() + def.pos, &value, sizeof(T));
-
-					block.isDirty = true;
+					block.set(def, value);
 				}
 				else
 				{
@@ -76,6 +98,10 @@ namespace gfx
 						assert(false && "wrong type passed");
 					}
 				}
+			}
+			else
+			{
+				assert(false);
 			}
 		}
 
@@ -91,7 +117,7 @@ namespace gfx
 
 	private:
 
-		std::vector<BlockInstance> m_blocks;
+		std::vector<UniformBlockInstance> m_blocks;
 		std::vector<Texture*> m_textures;
 
 		Shader* m_shader;

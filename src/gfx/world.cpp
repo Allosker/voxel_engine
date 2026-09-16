@@ -156,18 +156,22 @@ namespace gfx
 	}
 
 
-	void World::draw(const Camera& camera) noexcept
+	void World::draw(Renderer& renderer)
 	{
 		auto& am = AssetsManager::get();
-
 		auto& tex = am.textures.at(VoxelTypeManager::get().atlas_name());
 		tex.bind();
-
-		overworld.draw();
 	
 		for (auto& i : m_world_items)
 			i.draw({ &am.shaders.at("shaders/world_chunks") });
 
 		tex.unbind();
+        
+		overworld.draw();
+		for (auto& meshInstance : m_meshInstances)
+		for (auto& meshInstance : m_meshInstances)
+		{
+			meshInstance.draw(renderer);
+		}
 	}
 }

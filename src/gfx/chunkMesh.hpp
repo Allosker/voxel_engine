@@ -13,6 +13,10 @@
 #include "sys/types.hpp"
 
 #include "chunk.hpp"
+#include "drawable.hpp"
+#include "renderer.hpp"
+#include "mesh.hpp"
+#include "material.hpp"
 
 
 namespace gfx
@@ -20,7 +24,7 @@ namespace gfx
 	class ChunkGrid;
 
 
-	class ChunkMesh
+	class ChunkMesh : public Drawable
 	{
 	public:
 
@@ -29,6 +33,13 @@ namespace gfx
 			v3f32 position;
 			v2f32 uvs;
 			f32 ao;
+
+			static void setupAttributes()
+			{
+				DEFINE_VERTEX_VAR(0, VoxelVertex, position);
+				DEFINE_VERTEX_VAR(1, VoxelVertex, uvs);
+				DEFINE_VERTEX_VAR(2, VoxelVertex, ao);
+			}
 		};
 
 	public:
@@ -40,22 +51,9 @@ namespace gfx
 
 		explicit ChunkMesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept;
 
+		ChunkMesh(ChunkMesh&& other) noexcept = default;
+		ChunkMesh& operator=(ChunkMesh&& other) noexcept = default;
 
-		ChunkMesh(ChunkMesh&& other) noexcept;
-		ChunkMesh& operator=(ChunkMesh&& other) noexcept;
-
-		DELETE_COPY_INIT(ChunkMesh);
-
-
-		~ChunkMesh() noexcept
-		{
-			free_resources();
-		}
-
-		/// <summary>
-		/// Return whether the current mesh has a buffer
-		/// </summary>
-		bool has_buffer() const noexcept { return !m_vao && !m_vbo; }
 
 		/// <summary>
 		/// Bake then update the mesh to the chunk mesh buffer
@@ -84,13 +82,9 @@ namespace gfx
 		/// <summary>
 		/// Draw the mesh buffer
 		/// </summary>
-		void draw() const noexcept
+		void draw(Renderer& renderer) override
 		{
-			glBindVertexArray(m_vao);
-
-			glDrawArrays(GL_TRIANGLES, 0, m_vertices_count);
-
-			glBindVertexArray(0);
+			renderer.push_command({.mesh = &mesh, .transform = m4f32(1), .material = &material});
 		}
 
 
@@ -174,28 +168,10 @@ namespace gfx
 
 		bool queued{};
 
-
-	private:
-
-		/// <summary>
-		/// Create vao/vbo buffers if they do not exist already
-		/// </summary>
-		void create_buffers() noexcept;
-
-		/// <summary>
-		/// Free allocated GPU resources
-		/// </summary>
-		void free_resources() noexcept;
-
-
 	private:
 		
-		GLuint m_vao;
-		GLuint m_vbo;
-
-		GLsizei m_vertices_count{};
-
-
+		Mesh mesh;
+		Material material;
 	};
 
 }

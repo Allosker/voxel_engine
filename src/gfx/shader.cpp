@@ -129,6 +129,17 @@ namespace gfx
 	}
 
 
+	const gfx::GlobalUniformBlockDefinition* Shader::FindGlobalUniformBlockDefinition(StringHash id)
+	{
+		const auto it = g_globalBlockDefinitions.find(id);
+		if (it == g_globalBlockDefinitions.end())
+		{
+			return nullptr;
+		}
+
+		return &it->second;
+	}
+
 	// =====================
 	// Private
 	// =====================
@@ -215,18 +226,51 @@ namespace gfx
 		glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &maxBlockNameLength);
 		std::vector<GLchar> blockNameBuffer(maxBlockNameLength);
 
+		std::vector<int32_t> blockIndexRealIndex;
+		std::vector<UniformDefinitions*> blockIndexToDefinitions;
+
+		m_blockDefinitions.reserve(numBlocks);
 		for (GLint blockIndex{}; blockIndex < numBlocks; ++blockIndex)
 		{
 			GLsizei length;
 			glGetActiveUniformBlockName(m_id, blockIndex, maxBlockNameLength, &length, blockNameBuffer.data());
-			BlockDefinition& blockDef = m_blockDefinitions.emplace_back();
+			UniformBlockDefinition blockDef;
 
 			GLint blockSize{};
 			glGetActiveUniformBlockiv(m_id, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
 			blockDef.totalSize = static_cast<size_t>(blockSize);
 
-			blockDef.index = blockIndex;
+			//blockDef.index = blockIndex;
 			blockDef.name = std::string_view(blockNameBuffer.data(), length);
+
+			if (g_globalBlockNames.contains(blockDef.name))
+			{
+				auto it = g_globalBlockDefinitions.find(blockDef.name);
+				if (it == g_globalBlockDefinitions.end())
+				{
+					assert(g_globalBlockDefinitions.size() < MaxGlobalBlocks);
+
+					blockDef.bindSlot = g_globalBlockDefinitions.size();
+					it = g_globalBlockDefinitions.emplace(blockDef.name, GlobalUniformBlockDefinition{ blockDef }).first;
+				}
+				else
+				{
+					blockDef.bindSlot = it->second.bindSlot;
+				}
+
+				blockIndexRealIndex.push_back(-2);
+				blockIndexToDefinitions.push_back(&it->second.m_uniformDefinitions);
+			}
+			else
+			{
+				blockDef.bindSlot = MaxGlobalBlocks + m_blockDefinitions.size();
+				m_blockDefinitions.emplace_back(blockDef);
+
+				blockIndexRealIndex.push_back(m_blockDefinitions.size() - 1);
+				blockIndexToDefinitions.push_back(&m_uniformDefinitions);
+			}
+
+			glUniformBlockBinding(id(), blockIndex, blockDef.bindSlot);
 		}
 
 		GLint uniformCount{};
@@ -263,11 +307,13 @@ namespace gfx
 			}
 			else
 			{
-				assert(m_blockDefinitions.size() > blockIdx);
 				glGetActiveUniformsiv(m_id, 1, &i, GL_UNIFORM_OFFSET, &pos);
 			}
 
-			auto& def = m_uniformDefinitions[name] = {blockIdx, pos, size, type, {}, name};
+			auto* targetUniformDefinitions = blockIdx < 0 ? &m_uniformDefinitions : blockIndexToDefinitions[blockIdx];
+			const auto realBlockIndex = blockIdx < 0 ? -1 : blockIndexRealIndex[blockIdx];
+
+			auto& def = (*targetUniformDefinitions)[name] = { realBlockIndex, pos, size, type, {}, name };
 
 			if (blockIdx < 0 && (type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE))
 			{

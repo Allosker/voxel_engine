@@ -32,9 +32,7 @@ namespace gfx
 		for (int index{}; index < m_blocks.size(); index++)
 		{
 			const auto& block = m_blocks[index]; 
-			
-			glUniformBlockBinding(m_shader->id(), index, index);
-			glBindBufferBase(GL_UNIFORM_BUFFER, index, block.id);
+			block.bind();
 		}
 	}
 
@@ -50,9 +48,10 @@ namespace gfx
 		}
 	}
 
-	BlockInstance::BlockInstance(const Shader::BlockDefinition& def)
+	UniformBlockInstance::UniformBlockInstance(const UniformBlockDefinition& def)
 	{
-		glGenBuffers(1, &id);
+		bindSlot = def.bindSlot;
+
 		glBindBuffer(GL_UNIFORM_BUFFER, id);
 		glBufferData(GL_UNIFORM_BUFFER, def.totalSize, nullptr, GL_DYNAMIC_DRAW);
 
@@ -61,30 +60,7 @@ namespace gfx
 		isDirty = true;
 	}
 
-	BlockInstance& BlockInstance::operator=(BlockInstance&& other) noexcept
-	{
-		id = other.id;
-		data = std::move(other.data);
-		isDirty = other.isDirty;
-
-		other.id = -1;
-		other.data.clear();
-		isDirty = false;
-
-		return *this;
-	}
-
-	BlockInstance::BlockInstance(BlockInstance&& other) noexcept
-	{
-		*this = std::move(other);
-	}
-
-	BlockInstance::~BlockInstance()
-	{
-		glDeleteBuffers(1, &id);
-	}
-
-	void BlockInstance::update()
+	void UniformBlockInstance::update()
 	{
 		if (isDirty)
 		{
@@ -93,6 +69,11 @@ namespace gfx
 			glBindBuffer(GL_UNIFORM_BUFFER, id);
 			glBufferSubData(GL_UNIFORM_BUFFER, 0, data.size(), data.data());
 		}
+	}
+
+	void UniformBlockInstance::bind() const
+	{
+		glBindBufferBase(GL_UNIFORM_BUFFER, bindSlot, id);
 	}
 
 } // namespace gfx

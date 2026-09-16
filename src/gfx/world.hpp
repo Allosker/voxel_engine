@@ -11,6 +11,7 @@
 #include "chunkGrid.hpp"
 #include "terrainGeneration.hpp"
 #include "gfx/meshInstance.hpp"
+#include "drawable.hpp"
 
 #include "gfx/world_item.hpp"
 
@@ -21,7 +22,7 @@ namespace gfx
 	struct Camera;
 	struct MeshInstance;
 
-	class World
+	class World : public Drawable
 	{
 	public:
 
@@ -48,7 +49,7 @@ namespace gfx
 		/// <summary>
 		/// First draws chunk grids, then entities
 		/// </summary>
-		void draw(const Camera& camera) noexcept;
+		void draw(Renderer& renderer);
 
 
 		ChunkGrid& get_chunkGrid() noexcept { return overworld; }

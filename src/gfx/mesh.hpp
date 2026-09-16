@@ -103,8 +103,6 @@ namespace gfx
 	template<typename T>
 	inline void Mesh::update_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept
 	{
-		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, VertexRGBA> || std::is_same_v<T, Vertex2DRGBA>)
-			&& "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
 		assert((m_vao || m_vbo || m_ebo) && "ERROR::MESH::UPDATING_BUFFER::No VAO/VBO/EBO exist for the current mesh");
 
 		glBindVertexArray(m_vao);
@@ -128,8 +126,6 @@ namespace gfx
 	template<typename T>
 	inline void Mesh::update_buffer(const std::vector<T>& vertices, GLenum draw_mode) noexcept
 	{
-		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, VertexRGBA> || std::is_same_v<T, Vertex2DRGBA>)
-			&& "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
 		assert((m_vao || m_vbo) && "ERROR::MESH::UPDATING_BUFFER::No VAO/VBO exist for the current mesh");
 		assert(!m_ebo && "ERROR::MESH::UPDATING_BUFFER::An EBO exists and the current mesh does not support it");
 
@@ -139,7 +135,6 @@ namespace gfx
 		m_nb_elements = static_cast<GLsizei>(vertices.size());
 		glBufferData(GL_ARRAY_BUFFER, m_nb_elements * sizeof(T), vertices.data(), draw_mode);
 
-
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
@@ -147,8 +142,6 @@ namespace gfx
 	template<typename T>
 	inline void Mesh::create_buffer(bool create_ebo) noexcept
 	{
-		static_assert((std::is_same_v<T, Vertex> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, VertexRGBA> || std::is_same_v<T, Vertex2DRGBA>)
-			&& "ERROR::MESH::CREATING_BUFFER::Type is not a predefined vertex one");
 		if (m_vao || m_ebo || m_vao)
 		{
 			glDeleteBuffers(GL_ELEMENT_ARRAY_BUFFER, &m_ebo);
@@ -161,20 +154,10 @@ namespace gfx
 		if (create_ebo)
 			glGenBuffers(1, &m_ebo);
 
-
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-
-		glVertexAttribPointer(0, decltype(T::pos)::length(), GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, pos)));
-		glEnableVertexAttribArray(0);
-
-		if constexpr (std::is_same_v<T, VertexRGBA> || std::is_same_v<T, Vertex2DRGBA>)
-			glVertexAttribPointer(1, decltype(T::color)::length(), GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, color)));
-		else
-			glVertexAttribPointer(1, decltype(T::uvs)::length(), GL_FLOAT, false, sizeof(T), std::bit_cast<void*>(offsetof(T, uvs)));
-		glEnableVertexAttribArray(1);
-
+		T::setupAttributes();
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
