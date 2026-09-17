@@ -8,12 +8,11 @@
 #include "sys/types.hpp"
 
 #include "gfx/camera.hpp"
+#include "gfx/material.hpp"
 
 namespace gfx
 {
 	class Mesh;
-	struct Camera;
-	class Material;
 
 	enum class RenderLayer : uint64_t
 	{
@@ -134,5 +133,8 @@ namespace gfx
 		glm::vec4 m_viewZRow;
 
 		std::vector<DrawCommand> m_commands;
+
+		GlobalUniformBlockInstance viewUBI{ *Shader::FindGlobalUniformBlockDefinition("ViewData") };
+		GlobalUniformBlockInstance instanceUBI{ *Shader::FindGlobalUniformBlockDefinition("InstanceData") };
 	};
 }

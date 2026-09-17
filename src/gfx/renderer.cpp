@@ -21,13 +21,10 @@ namespace gfx
 	{
 		glEnable(GL_DEPTH_TEST);
 
-		GlobalUniformBlockInstance viewUBI{ *Shader::FindGlobalUniformBlockDefinition("ViewData") };
 		viewUBI.set("vp", m_viewMatrix);
-
 		viewUBI.update();
 		viewUBI.bind();
 
-		GlobalUniformBlockInstance instanceUBI{ *Shader::FindGlobalUniformBlockDefinition("InstanceData") };
 		instanceUBI.bind();
 
 		std::sort(m_commands.begin(), m_commands.end());
