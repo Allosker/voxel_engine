@@ -4,7 +4,6 @@
 #include <thread>
 
 #include "sys/inputManager.hpp"
-#include "sys/debugTimer.hpp"
 
 #include "gfx/rayTraversal.hpp"
 #include "gfx/renderer.hpp"
@@ -77,7 +76,7 @@ DebugMessage Game::run()
 	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	camera.set_FBS(window->getSize());
 
@@ -119,7 +118,7 @@ DebugMessage Game::run()
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
 	{
-		DebugTimer debugTimer;
+		debugTimer.start();
 
 		time_start = std::chrono::system_clock::now();
 
@@ -483,6 +482,8 @@ void Game::debug_imgui()
 
 			}
 			ImGui::EndGroup();
+
+			debugTimer.showInImgui();
 
 
 		}
