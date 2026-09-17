@@ -153,15 +153,13 @@ DebugMessage Game::run()
 
 		debug();
 
-
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer.start(camera);
 
 		world.draw(renderer);
 
 		debugTimer.add("world draw");
 
-		renderer.draw(camera);
+		renderer.draw();
 		
 		gfx::DebugRenderer::get().render3D(camera.get_VP());
 
