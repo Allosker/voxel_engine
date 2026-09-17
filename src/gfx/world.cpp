@@ -168,8 +168,6 @@ namespace gfx
 			i.draw({ &am.shaders.at("shaders/world_chunks") });
 
 		tex.unbind();
-        
-		overworld.draw(renderer);
 
 		for (auto& meshInstance : m_meshInstances)
 		{

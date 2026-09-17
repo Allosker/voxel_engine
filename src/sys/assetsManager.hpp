@@ -47,18 +47,12 @@ public:
 private:
 
 	AssetsManager() noexcept
-	try
 	{
 		add_shaders();
 		add_textures();
 		add_models();
 		add_fonts();
 	}
-	catch (const std::runtime_error& e)
-	{
-		std::println("{}", e.what());
-	}
-
 
 	void add_shaders()
 	{

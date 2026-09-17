@@ -153,35 +153,17 @@ DebugMessage Game::run()
 
 		debug();
 
-		renderer.start(camera);
+		renderer.start(camera, orthographic_proj);
 
 		world.draw(renderer);
 
-		debugTimer.add("world draw");
+		m_inv_gui.draw(renderer);
 
 		renderer.draw();
+
+		debugTimer.add("renderer");
 		
 		gfx::DebugRenderer::get().render3D(camera.get_VP());
-
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		AssetsManager::get().shaders.at("shaders/twoD").bind();
-
-		m_inv_gui.draw(
-			{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
-			{
-				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-				.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
-			},
-			AssetsManager::get().shaders.at("shaders/text")
-		);
-
-		AssetsManager::get().shaders.at("shaders/twoD").unbind();
-
-
-		glDisable(GL_BLEND);
 
 		/*= Debug Draws =*/
 

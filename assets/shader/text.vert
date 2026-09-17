@@ -2,8 +2,15 @@
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUvs;
 
-uniform mat4 model;
-uniform mat4 vp;
+layout(packed) uniform ViewData
+{
+  mat4 vp;
+};
+
+layout(packed) uniform InstanceData
+{
+  mat4 model;
+};
 
 out vec2 Uvs;
 

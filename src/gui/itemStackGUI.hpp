@@ -11,8 +11,9 @@
 #include "gfx/renderContext.hpp"
 #include "gfx/transformable3D.hpp"
 #include "gfx/voxel.hpp"
-
 #include "gfx/text.hpp"
+#include "gfx/drawable.hpp"
+
 #include "sys/assetsManager.hpp"
 
 
@@ -23,7 +24,7 @@ namespace gui
 	/// 
 	/// </summary>
 	class ItemStackGUI
-		: public gfx::Transformable3D
+		: public gfx::Transformable3D, public gfx::Drawable
 	{
 		static constexpr std::array<std::array<v3f32, 6>, 6> g_model
 		{
@@ -114,7 +115,8 @@ namespace gui
 	public:
 
 		ItemStackGUI() noexcept
-			: m_text{ &AssetsManager::get().fonts.at("fonts/november") }
+			: m_text{ &AssetsManager::get().fonts.at("fonts/november") },
+			m_material{&AssetsManager::get().shaders.at("shaders/text")}
 		{
 			m_mesh.create_buffer<gfx::Vertex>(false);
 			m_text.set_scale(0.5);
@@ -163,26 +165,13 @@ namespace gui
 		bool should_be_drawn() const noexcept { return m_should_be_drawn; }
 
 
-		void draw_model(const gfx::RenderContext& rc) noexcept
+		void draw(gfx::Renderer& renderer) noexcept
 		{
 			if (!m_should_be_drawn) return;
 
-			rc.sha->set_value("model", get_transform());
-
-			rc.tex->bind();
-
-			m_mesh.draw();
-
-			rc.tex->unbind();
+			renderer.push_command(&m_mesh, m3f32{}, &m_material);
+			m_text.draw(renderer);
 		}
-
-		void draw_text(const gfx::Shader& text_sha) noexcept
-		{
-			if (!m_should_be_drawn) return;
-
-			m_text.draw(text_sha);
-		}
-
 
 	private:
 		
@@ -212,7 +201,7 @@ namespace gui
 	private:
 
 		gfx::Mesh m_mesh;
-
+		gfx::Material m_material;
 		gfx::Text m_text;
 		
 		types::type_id m_id{};

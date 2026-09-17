@@ -1,6 +1,6 @@
 #include "gfx/rectangle.hpp"
 
-#include "gfx/renderContext.hpp"
+#include "gfx/renderer.hpp"
 
 
 namespace gfx
@@ -8,7 +8,7 @@ namespace gfx
 
 	void Rectangle::update_sprite(const Texture* tex) noexcept
 	{
-		m_tex = tex;
+		m_material.set("tex"_id, tex);
 
 		if (!tex)
 		{
@@ -16,13 +16,12 @@ namespace gfx
 			return;
 		}
 
-
 		m_mesh.update_buffer<Vertex2D>(
 			{
-				{ {-m_tex->get_size().x, -m_tex->get_size().y }, { 0, 1 } },
-				{ { m_tex->get_size().x, -m_tex->get_size().y }, { 1, 1 } },
-				{ { m_tex->get_size().x,  m_tex->get_size().y }, { 1, 0 } },
-				{ {-m_tex->get_size().x,  m_tex->get_size().y }, { 0, 0 } }
+				{ {-tex->get_size().x, -tex->get_size().y }, { 0, 1 } },
+				{ { tex->get_size().x, -tex->get_size().y }, { 1, 1 } },
+				{ { tex->get_size().x,  tex->get_size().y }, { 1, 0 } },
+				{ {-tex->get_size().x,  tex->get_size().y }, { 0, 0 } }
 			},
 			{
 				0, 1, 2,
@@ -31,22 +30,11 @@ namespace gfx
 			GL_STATIC_DRAW
 		);
 
-		set_size(m_tex->get_size());
+		set_size(tex->get_size());
 	}
 
-	void Rectangle::draw(const RenderContext& rc) noexcept
+	void Rectangle::draw(Renderer& renderer) noexcept
 	{
-		if (!m_tex) return;
-
-		rc.sha->set_value("model", get_transform());
-
-
-		m_tex->bind();
-
-		m_mesh.draw();
-
-		m_tex->unbind();
+		renderer.push_command(&m_mesh, get_transform(), &m_material, RenderLayer::UI);
 	}
-
-
 }

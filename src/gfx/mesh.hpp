@@ -103,7 +103,7 @@ namespace gfx
 	template<typename T>
 	inline void Mesh::update_buffer(const std::vector<T>& vertices, const std::vector<GLuint>& indices, GLenum draw_mode) noexcept
 	{
-		assert((m_vao || m_vbo || m_ebo) && "ERROR::MESH::UPDATING_BUFFER::No VAO/VBO/EBO exist for the current mesh");
+		assert((m_vao && m_vbo && m_ebo) && "ERROR::MESH::UPDATING_BUFFER::No VAO/VBO/EBO exist for the current mesh");
 
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);

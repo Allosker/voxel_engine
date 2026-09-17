@@ -7,10 +7,12 @@
 
 #include "gfx/image.hpp"
 #include "gfx/mesh.hpp"
-#include "gfx/renderContext.hpp"
-#include "sys/types.hpp"
-
+#include "gfx/renderer.hpp"
 #include "gfx/transformable3D.hpp"
+#include "gfx/material.hpp"
+#include "gfx/drawable.hpp"
+
+#include "sys/types.hpp"
 
 #include "font.hpp"
 #include "shader.hpp"
@@ -21,23 +23,13 @@ namespace gfx
 
 
 	class Text
-		: public Transformable3D
+		: public Transformable3D, public Drawable
 	{
 	public:
 
 		Text() noexcept = delete;
 
 		Text(const Font* font, std::string_view str = {});
-
-		Text(Text& other) noexcept;
-		Text(Text&& other) noexcept;
-
-		Text& operator=(Text& other) noexcept;
-		Text& operator=(Text&& other) noexcept;
-
-		~Text() noexcept;
-
-
 
 		void set_str(const std::string& str)
 		{
@@ -64,7 +56,7 @@ namespace gfx
 		v3f64 get_size() const noexcept { return m_size * get_scale(); }
 
 
-		void draw(const Shader& sha);
+		void draw(Renderer& renderer);
 
 		void reload()
 		{
@@ -91,10 +83,8 @@ namespace gfx
 
 		size_t m_size_data{};
 
-		GLuint m_vao{};
-		GLuint m_vbo{};
-
-
+		Mesh m_mesh;
+		Material m_material;
 	};
 
 

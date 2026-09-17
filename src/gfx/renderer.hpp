@@ -27,7 +27,7 @@ namespace gfx
 	{
 		DrawKey(RenderLayer layer, float depth)
 		{
-			value = (std::to_underlying(layer) << renderLayerOffset) & renderLayerMask;
+			value = ((uint64_t)std::to_underlying(layer) << renderLayerOffset) & renderLayerMask;
 
 			if (layer != RenderLayer::UI)
 			{
@@ -124,13 +124,25 @@ namespace gfx
 			});
 		}
 
-		void start(const Camera& camera);
+		void push_command(Mesh* mesh, m3f32 transform, Material* material)
+		{
+			m_commands.emplace_back(DrawCommand{
+				.key = {RenderLayer::UI, 0.f},
+				.mesh = mesh,
+				.transform = transform,
+				.material = material
+			});
+		}
+
+		void start(const Camera& camera, m4f32 uiViewMatrix);
 		void draw();
 
 	private:
 		Camera m_camera;
 		m4f32 m_viewMatrix;
 		glm::vec4 m_viewZRow;
+
+		m4f32 m_uiViewMatrix;
 
 		std::vector<DrawCommand> m_commands;
 
