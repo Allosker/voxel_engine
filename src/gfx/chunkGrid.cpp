@@ -4,7 +4,7 @@
 namespace gfx
 {
 
-	std::list<types::chunk_loc> ChunkGrid::allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept
+	void ChunkGrid::allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept
 	{
 		std::list<types::chunk_loc> ret{};
 
@@ -18,32 +18,15 @@ namespace gfx
 
 					if (m_chunks.try_emplace(loc, Chunk{ loc }).second)
 					{
-						ret.emplace_back(loc);
-						//add_cmesh(loc);
-					}
-
-					if (z == old_min.z || y == old_min.y || x == old_min.x || z == old_max.z || y == old_max.y || x == old_max.x)
-					{
-						if (const auto* const cmptr = at_chunkMesh(loc); cmptr && !cmptr->queued)
-							add_cmesh(loc);
+						m_chunkGenQueue.insert(loc);
 					}
 				}
 			}
 		}
-
-		old_min = min;
-		old_max = max;
-
-		return ret;
 	}
 
-	std::list<types::chunk_loc> ChunkGrid::manage_chunks(const types::chunk_loc& loc, bool force) noexcept
+	void ChunkGrid::manage_chunks(const types::chunk_loc& loc, bool force) noexcept
 	{
-		if (!force && loc == last_loc)
-			return {};
-		last_loc = loc;
-
-
 		const auto r_dist = static_cast<i64>(parameters.r_dist);
 		const auto r_height = static_cast<i64>(parameters.r_height);
 
@@ -62,7 +45,7 @@ namespace gfx
 
 
 		deallocate_chunks(min, max);
-		return allocate_chunks(min, max);
+		allocate_chunks(min, max);
 	}
 
 	bool ChunkGrid::update_cmesh(const types::chunk_loc& loc) noexcept
@@ -88,26 +71,34 @@ namespace gfx
 		return false;
 	}
 
-	bool ChunkGrid::allocate_waiting_cmesh() noexcept
+	void ChunkGrid::dirty_cmesh(const types::chunk_loc& loc) noexcept
 	{
-		std::pair<types::chunk_loc, bool> elem{};
+		m_chunkMeshQueue.insert(loc);
+	}
 
-		bool successful{ true };
-
-		do
+	void ChunkGrid::generatePendingMeshes(const types::chunk_loc& player_loc) noexcept
+	{
+		while (!m_chunkMeshQueue.empty())
 		{
-			if (m_waiting_cmesh.empty())
-				return successful;
+			const auto squareDist = [](const types::chunk_loc & a, const types::chunk_loc & b)
+			{
+				return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
+			};
 
-			elem = m_waiting_cmesh.front();
-			m_waiting_cmesh.pop_front();
+			auto closest = std::min_element(m_chunkMeshQueue.begin(), m_chunkMeshQueue.end(),
+				[&](const types::chunk_loc& a, const types::chunk_loc& b) {
+					return squareDist(a, player_loc) < squareDist(b, player_loc);
+				}
+			);
 
-			successful = update_cmesh(elem.first) && successful;
+			const auto elem = *closest;
+			m_chunkMeshQueue.erase(closest);
 
-		} while (elem.second);
-
-
-		return successful;
+			if (update_cmesh(elem))
+			{
+				break;
+			}
+		}
 	}
 
 	void ChunkGrid::deallocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept
