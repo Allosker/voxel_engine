@@ -17,6 +17,7 @@
 #include "renderer.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
+#include "transformable3d.hpp"
 
 
 namespace gfx
@@ -24,7 +25,7 @@ namespace gfx
 	class ChunkGrid;
 
 
-	class ChunkMesh : public Drawable
+	class ChunkMesh : public Drawable, public Transformable3D
 	{
 	public:
 
@@ -84,7 +85,7 @@ namespace gfx
 		/// </summary>
 		void draw(Renderer& renderer) override
 		{
-			renderer.push_command(&mesh, &material, RenderLayer::Opaque);
+			renderer.push_command(&mesh, get_transform(), &material, RenderLayer::Opaque);
 		}
 
 

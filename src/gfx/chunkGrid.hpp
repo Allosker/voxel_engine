@@ -76,8 +76,11 @@ namespace gfx
 
 		Voxel at(types::voxel_pos pos) const noexcept
 		{
-			auto cloc = pos / Chunk::g_size<i64>.x; 
-
+			const types::chunk_loc cloc{
+				integer_div_floor(pos.x, Chunk::g_size<i64>.x),
+				integer_div_floor(pos.y, Chunk::g_size<i64>.y),
+				integer_div_floor(pos.z, Chunk::g_size<i64>.z)
+			};
 
 			const Chunk* chunk = at_chunk(cloc);
 
