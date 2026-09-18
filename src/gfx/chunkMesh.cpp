@@ -135,6 +135,8 @@ namespace
 	{
 		std::vector<VoxelVertex> ret;
 
+		const auto start = std::chrono::steady_clock::now();
+
 		const auto edgedGridSize = Chunk::g_size<i32>.z + 2;
 		std::vector<Voxel> edgedGrid(edgedGridSize * edgedGridSize * edgedGridSize);
 
@@ -256,7 +258,6 @@ namespace
 			return solidGrid[(pos.x + 1) + (pos.y + 1) * edgedGridSize + (pos.z + 1) * edgedGridSize * edgedGridSize];
 		};
 
-		const auto start = std::chrono::steady_clock::now();
 		for (i32 z{}; z < Chunk::g_size<i32>.z; z++)
 		{
 			for (i32 y{}; y < Chunk::g_size<i32>.y; y++)
