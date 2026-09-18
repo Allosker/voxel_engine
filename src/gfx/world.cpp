@@ -34,26 +34,51 @@ namespace gfx
 
 	void World::generatePendingChunks(const types::chunk_loc& player_loc) noexcept
 	{
+		const auto timeBudget = 4 / 1000.f;
+		const auto start = std::chrono::steady_clock::now();
+
+		int generatedCount{};
+
 		auto& chunkGenQueue = overworld.m_chunkGenQueue;
-		if (chunkGenQueue.empty())
+		while(!chunkGenQueue.empty())
 		{
-			return;
+			generatedCount++;
+
+			const auto chunkStart = std::chrono::steady_clock::now();
+
+			const auto squareDist = [](const types::chunk_loc& a, const types::chunk_loc& b)
+			{
+				return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
+			};
+			const auto closest = std::min_element(chunkGenQueue.begin(), chunkGenQueue.end(),
+				[&](const types::chunk_loc& a, const types::chunk_loc& b) {
+					return squareDist(a, player_loc) < squareDist(b, player_loc);
+				}
+			);
+
+			const auto elem = *closest;
+			chunkGenQueue.erase(closest);
+
+			generateChunk(elem);
+
+			const auto end = std::chrono::steady_clock::now();
+
+			const auto chunkTime = std::chrono::duration<float>{end - chunkStart}.count();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+
+			if (totalTime + chunkTime > timeBudget)
+			{
+				break;
+			}
 		}
 
-		const auto squareDist = [](const types::chunk_loc& a, const types::chunk_loc& b)
+		if (generatedCount)
 		{
-			return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
-		};
-		auto closest = std::min_element(chunkGenQueue.begin(), chunkGenQueue.end(),
-			[&](const types::chunk_loc& a, const types::chunk_loc& b) {
-				return squareDist(a, player_loc) < squareDist(b, player_loc);
-			}
-		);
+			const auto end = std::chrono::steady_clock::now();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
 
-		const auto elem = *closest;
-		chunkGenQueue.erase(closest);
-
-		generateChunk(elem);
+			std::println("generated chunks: {} {}ms", generatedCount, totalTime * 1000.f);
+		}
 	}
 
 	void World::generateChunk(const types::chunk_loc& loc) noexcept

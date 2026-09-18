@@ -1,5 +1,6 @@
 #include "chunkGrid.hpp"
 
+#include <print>
 
 namespace gfx
 {
@@ -78,8 +79,17 @@ namespace gfx
 
 	void ChunkGrid::generatePendingMeshes(const types::chunk_loc& player_loc) noexcept
 	{
+		const auto timeBudget = 4 / 1000.f;
+		const auto start = std::chrono::steady_clock::now();
+
+		int generatedCount{};
+
 		while (!m_chunkMeshQueue.empty())
 		{
+			generatedCount++;
+
+			const auto chunkStart = std::chrono::steady_clock::now();
+
 			const auto squareDist = [](const types::chunk_loc & a, const types::chunk_loc & b)
 			{
 				return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
@@ -94,11 +104,27 @@ namespace gfx
 			const auto elem = *closest;
 			m_chunkMeshQueue.erase(closest);
 
-			if (update_cmesh(elem))
+			update_cmesh(elem);
+
+			const auto end = std::chrono::steady_clock::now();
+
+			const auto chunkTime = std::chrono::duration<float>{end - chunkStart}.count();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+
+			if (totalTime + chunkTime > timeBudget)
 			{
 				break;
 			}
 		}
+
+		if (generatedCount)
+		{
+			const auto end = std::chrono::steady_clock::now();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+
+			std::println("generated chunk meshes: {} {}ms", generatedCount, totalTime * 1000.f);
+		}
+
 	}
 
 	void ChunkGrid::deallocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept
