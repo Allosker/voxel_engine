@@ -10,33 +10,6 @@ namespace gfx
 		load(path);
 	}
 
-	Font::Font(Font&& other) noexcept
-		: m_texture_id{ other.m_texture_id }, m_characters{ other.m_characters }, m_btmp_size{ other.m_btmp_size }
-	{
-		other.m_texture_id = {};
-		std::map<u8, Character>{}.swap(other.m_characters);
-		other.m_btmp_size = {};
-	}
-
-	Font& Font::operator=(Font&& other) noexcept
-	{
-		if (this == &other) return *this;
-
-		m_texture_id = other.m_texture_id;
-		m_characters = other.m_characters;
-		m_btmp_size = other.m_btmp_size;
-
-		other.m_texture_id = {};
-		std::map<u8, Character>{}.swap(other.m_characters);
-		other.m_btmp_size = {};
-
-		return *this;
-	}
-
-	Font::~Font() noexcept
-	{
-		glDeleteTextures(1, &m_texture_id);
-	}
 
 	void Font::load(const filepath& path) noexcept
 	{
@@ -45,20 +18,7 @@ namespace gfx
 
 		Image temp{ std::move(create_bitmap(path)) };
 
-		glGenTextures(1, &m_texture_id);
-		glBindTexture(GL_TEXTURE_2D, m_texture_id);
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RED,
-			temp.getSize().x,
-			temp.getSize().y,
-			0,
-			GL_RED,
-			GL_UNSIGNED_BYTE,
-			temp.data()
-		);
-
+		m_tex.load(temp);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

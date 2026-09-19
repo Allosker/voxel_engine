@@ -64,7 +64,6 @@ namespace gui
 		{
 			if (m_inv.is_active())
 				m_board.draw(renderer);
-
 			m_hotbar.draw(renderer);
 			m_selected_slot.draw(renderer);
 

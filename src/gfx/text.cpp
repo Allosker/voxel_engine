@@ -11,6 +11,7 @@ namespace gfx
 	Text::Text(const Font* font, std::string_view str)
 		: p_font{ font }, m_text{ str }, m_material{&AssetsManager::get().shaders.at("shaders/text")}
 	{
+		m_material.set("tex", &p_font->get_tex());
 		m_mesh.create_buffer<Vertex2D>(false);
 		update();
 	}
@@ -19,7 +20,7 @@ namespace gfx
 	{
 		assert(p_font && "ERROR::TEXT::Cannot draw because no font is attached");
 
-
+		
 		m_material.set("TextColor"_id, m_color);
 		renderer.push_command(&m_mesh, (m4f32)get_transform(), &m_material);
 	}
@@ -36,7 +37,7 @@ namespace gfx
 
 		for (const auto& c : m_text)
 		{
-			Character ch{ p_font->getCharacter(c) };
+			Character ch{ p_font->get_character(c) };
 
 			u8 cha = c;
 

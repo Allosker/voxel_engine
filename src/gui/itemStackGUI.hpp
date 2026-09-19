@@ -115,11 +115,12 @@ namespace gui
 	public:
 
 		ItemStackGUI() noexcept
-			: m_text{ &AssetsManager::get().fonts.at("fonts/november") },
-			m_material{&AssetsManager::get().shaders.at("shaders/text")}
+			: m_text{ &AssetsManager::get().fonts.at("fonts/november"_id) },
+			m_material{&AssetsManager::get().shaders.at("shaders/twoD_to_3D"_id) }
 		{
 			m_mesh.create_buffer<gfx::Vertex>(false);
 			m_text.set_scale(0.5);
+			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 		}
 
 		/// <summary>
@@ -169,9 +170,10 @@ namespace gui
 		{
 			if (!m_should_be_drawn) return;
 
-			renderer.push_command(&m_mesh, m3f32{}, &m_material);
+			renderer.push_command(&m_mesh, get_transform(), &m_material, gfx::RenderLayer::UI_3D_opaque);
 			m_text.draw(renderer);
 		}
+
 
 	private:
 		

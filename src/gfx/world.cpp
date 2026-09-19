@@ -76,8 +76,6 @@ namespace gfx
 		{
 			const auto end = std::chrono::steady_clock::now();
 			const auto totalTime = std::chrono::duration<float>{end - start}.count();
-
-			std::println("generated chunks: {} {}ms", generatedCount, totalTime * 1000.f);
 		}
 	}
 

@@ -19,6 +19,8 @@ namespace gfx
 		Opaque = 0,
 		Transparent = 1,
 		UI = 2,
+		UI_3D_opaque = 3,
+		UI_3D_transparent = 4,
 
 		COUNT
 	};
@@ -128,6 +130,16 @@ namespace gfx
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {RenderLayer::UI, 0.f},
+				.mesh = mesh,
+				.transform = transform,
+				.material = material
+			});
+		}
+
+		void push_command(Mesh* mesh, m3f32 transform, Material* material, RenderLayer layer)
+		{
+			m_commands.emplace_back(DrawCommand{
+				.key = {layer, 0.f},
 				.mesh = mesh,
 				.transform = transform,
 				.material = material
