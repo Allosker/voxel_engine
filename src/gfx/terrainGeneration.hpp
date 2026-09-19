@@ -40,6 +40,7 @@ namespace gfx::terrain_gen
 	inline void generate(Context& context, Data& data, v3f32 chunk_pos) noexcept
 	{
 		data.noise_data.resize(Chunk::g_size<f32>.x * Chunk::g_size<f32>.z);
+
 		auto minMax = context.noise->GenUniformGrid2D(
 			data.noise_data.data(),
 			chunk_pos.x, chunk_pos.z,

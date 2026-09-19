@@ -102,7 +102,7 @@ namespace gfx
 
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		chunk->at(voxel_l) = new_voxel;
-
+		m_world_items.emplace_back(new_voxel, voxel_p);
 
 
 		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
@@ -162,14 +162,17 @@ namespace gfx
 		auto& am = AssetsManager::get();
 		auto& tex = am.textures.at(VoxelTypeManager::get().atlas_name());
 
+		
+		am.shaders.at("shaders/world_chunks").bind();
 		tex.bind();
 	
 		for (auto& i : m_world_items)
 			i.draw({ &am.shaders.at("shaders/world_chunks") });
 
 		tex.unbind();
-        
-		overworld.draw(renderer);
+		am.shaders.at("shaders/world_chunks").unbind();
+		
+       
 
 		for (auto& meshInstance : m_meshInstances)
 		{

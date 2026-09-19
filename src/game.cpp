@@ -77,7 +77,7 @@ DebugMessage Game::run()
 	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
 
-	glfwSwapInterval(0);
+	//glfwSwapInterval(0);
 
 	camera.set_FBS(window->getSize());
 

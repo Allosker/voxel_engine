@@ -81,6 +81,7 @@ namespace gfx
 
 		void loadModel(const filepath path);
 
+
 	public:
 
 		struct Debug
