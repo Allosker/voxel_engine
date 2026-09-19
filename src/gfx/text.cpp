@@ -22,7 +22,7 @@ namespace gfx
 		assert(p_font && "ERROR::TEXT::Cannot draw because no font is attached");
 
 		m_material.set("TextColor"_id, m_color);
-		renderer.push_command(&m_mesh, (m4f32)get_transform(), &m_material);
+		renderer.push_command(&m_mesh, (m4f32)get_transform(), &m_material, gfx::RenderLayer::UI);
 	}
 
 	void Text::update()

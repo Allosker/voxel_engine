@@ -126,12 +126,12 @@ namespace gfx
 			});
 		}
 
-		void push_command(Mesh* mesh, m4f32 transform, Material* material)
+		void push_command(Mesh* mesh, m3f32 transform, Material* material)
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {RenderLayer::UI, 0.f},
 				.mesh = mesh,
-				.transform = transform,
+				.transform = static_cast<m4f32>(transform),
 				.material = material
 			});
 		}
@@ -141,7 +141,7 @@ namespace gfx
 			m_commands.emplace_back(DrawCommand{
 				.key = {layer, 0.f},
 				.mesh = mesh,
-				.transform = transform,
+				.transform = static_cast<m4f32>(transform),
 				.material = material
 			});
 		}
