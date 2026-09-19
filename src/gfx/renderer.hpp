@@ -148,7 +148,9 @@ namespace gfx
 		void start(const Camera& camera, m4f32 uiViewMatrix);
 		void draw();
 
+
 	private:
+
 		Camera m_camera;
 		m4f32 m_viewMatrix;
 		glm::vec4 m_viewZRow;

@@ -168,10 +168,13 @@ namespace gfx
 
 		bool queued{};
 
+
 	private:
 		
 		Mesh mesh;
 		Material material;
+
+
 	};
 
 }

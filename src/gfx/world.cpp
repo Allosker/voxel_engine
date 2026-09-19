@@ -1,11 +1,10 @@
 #include "world.hpp"
 
 #include "debugRenderer.hpp"
-#include "camera.hpp"
-#include "rayTraversal.hpp"
 #include "meshInstance.hpp"
-#include "texture.hpp"
-#include "sys/assetsManager.hpp"
+#include "rayTraversal.hpp"
+#include <chrono>
+
 
 namespace gfx
 {
@@ -17,7 +16,7 @@ namespace gfx
 				overworld.discard_all_chunks();
 
 			overworld.manage_chunks(player_loc, reload);
-			generatePendingChunks(player_loc);
+			generate_pending_chunks(player_loc);
 			overworld.generatePendingMeshes(player_loc);
 		}
 
@@ -32,7 +31,7 @@ namespace gfx
 			}
 	}
 
-	void World::generatePendingChunks(const types::chunk_loc& player_loc) noexcept
+	void World::generate_pending_chunks(const types::chunk_loc& player_loc) noexcept
 	{
 		const auto timeBudget = 4 / 1000.f;
 		const auto start = std::chrono::steady_clock::now();
@@ -59,7 +58,7 @@ namespace gfx
 			const auto elem = *closest;
 			chunkGenQueue.erase(closest);
 
-			generateChunk(elem);
+			generate_chunk(elem);
 
 			const auto end = std::chrono::steady_clock::now();
 
@@ -79,7 +78,7 @@ namespace gfx
 		}
 	}
 
-	void World::generateChunk(const types::chunk_loc& loc) noexcept
+	void World::generate_chunk(const types::chunk_loc& loc) noexcept
 	{
 		auto* chunk = overworld.at_chunk(loc);
 		if (!chunk)

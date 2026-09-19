@@ -13,6 +13,8 @@
 #include "gfx/voxel.hpp"
 #include "material.hpp"
 #include "sys/assetsManager.hpp"
+#include "sys/hash.hpp"
+#include <sys/types.hpp>
 
 
 namespace gfx
@@ -25,7 +27,7 @@ namespace gfx
 	public:
 
 		WorldItem(types::type_id id, const types::pos& pos)
-			: Transformable3D{ pos }, m_material{ &AssetsManager::get().shaders.at("shaders/world_chunks") }
+			: Transformable3D{ pos }, m_material{ &AssetsManager::get().shaders.at("shaders/world_entities"_id) }
 		{
 			m_mesh.create_buffer<Vertex>(false);
 
@@ -38,6 +40,9 @@ namespace gfx
 					gfx::calculate_uvs(id)
 				);
 			m_mesh.update_buffer(mesh, GL_STATIC_DRAW);
+
+			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
+			set_scale(0.2);
 		}
 
 

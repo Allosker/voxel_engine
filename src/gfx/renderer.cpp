@@ -22,8 +22,6 @@ namespace gfx
 
 	void Renderer::draw()
 	{
-		glEnable(GL_DEPTH_TEST);
-
 		viewUBI.bind();
 		instanceUBI.bind();
 

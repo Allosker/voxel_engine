@@ -38,8 +38,8 @@ namespace gfx
 		/// <param name="Player's location"></param>
 		void update_grid(types::chunk_loc player_loc, bool reload = false) noexcept;
 
-		void generatePendingChunks(const types::chunk_loc& player_loc) noexcept;
-		void generateChunk(const types::chunk_loc& loc) noexcept;
+		void generate_pending_chunks(const types::chunk_loc& player_loc) noexcept;
+		void generate_chunk(const types::chunk_loc& loc) noexcept;
 
 		Voxel get_voxel(types::voxel_pos voxel_p) const noexcept;
 		bool set_voxel(types::voxel_pos voxel_p, Voxel new_voxel) noexcept;
@@ -80,7 +80,7 @@ namespace gfx
 			return static_cast<types::voxel_pos>(types::pos{ std::floor(pos.x), std::floor(pos.y), std::floor(pos.z) });
 		}
 
-		void loadModel(const filepath path);
+		void load_model(const filepath path);
 
 
 	public:
