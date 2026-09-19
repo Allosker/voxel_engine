@@ -37,9 +37,9 @@ namespace gfx
 		return ret;
 	}
 
-	std::list<types::chunk_loc> ChunkGrid::manage_chunks(const types::chunk_loc& loc) noexcept
+	std::list<types::chunk_loc> ChunkGrid::manage_chunks(const types::chunk_loc& loc, bool force) noexcept
 	{
-		if (loc == last_loc)
+		if (!force && loc == last_loc)
 			return {};
 		last_loc = loc;
 

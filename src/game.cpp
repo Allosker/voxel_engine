@@ -4,7 +4,6 @@
 #include <thread>
 
 #include "sys/inputManager.hpp"
-#include "sys/debugTimer.hpp"
 
 #include "gfx/rayTraversal.hpp"
 #include "gfx/renderer.hpp"
@@ -77,7 +76,7 @@ DebugMessage Game::run()
 	glEnable(GL_MULTISAMPLE);
 	init_imgui(*window).print_to_console();
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	camera.set_FBS(window->getSize());
 
@@ -119,7 +118,7 @@ DebugMessage Game::run()
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
 	while (window->isOpen())
 	{
-		DebugTimer debugTimer;
+		debugTimer.start();
 
 		time_start = std::chrono::system_clock::now();
 
@@ -154,37 +153,17 @@ DebugMessage Game::run()
 
 		debug();
 
-
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer.start(camera, orthographic_proj);
 
 		world.draw(renderer);
 
-		debugTimer.add("world draw");
+		m_inv_gui.draw(renderer);
 
-		renderer.draw(camera);
+		renderer.draw();
+
+		debugTimer.add("renderer");
 		
 		gfx::DebugRenderer::get().render3D(camera.get_VP());
-
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		AssetsManager::get().shaders.at("shaders/twoD").bind();
-
-		m_inv_gui.draw(
-			{ .sha{ &AssetsManager::get().shaders.at("shaders/twoD") } },
-			{
-				.sha{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D") },
-				.tex{ &AssetsManager::get().textures.at("textures/voxels/atlas") }
-			},
-			AssetsManager::get().shaders.at("shaders/text")
-		);
-
-		AssetsManager::get().shaders.at("shaders/twoD").unbind();
-
-
-		glDisable(GL_BLEND);
 
 		/*= Debug Draws =*/
 
@@ -483,6 +462,8 @@ void Game::debug_imgui()
 
 			}
 			ImGui::EndGroup();
+
+			debugTimer.showInImgui();
 
 
 		}

@@ -11,18 +11,18 @@
 
 #include "gfx/inventory.hpp"
 #include "gfx/rectangle.hpp"
-#include "gfx/renderContext.hpp"
+#include "gfx/drawable.hpp"
+#include <gfx/shader.hpp>
+
+#include "sys/inputManager.hpp"
 #include "sys/assetsManager.hpp"
 
 #include "gui/itemStackGUI.hpp"
-#include "sys/inputManager.hpp"
-#include <gfx/shader.hpp>
-
 
 namespace gui
 {
 
-	class InventoryGUI
+	class InventoryGUI : public gfx::Drawable
 	{
 	public:
 
@@ -60,47 +60,27 @@ namespace gui
 		void on_click(Event::MouseButtonEvent event) noexcept;
 
 
-		void draw(const gfx::RenderContext& inv_c, const gfx::RenderContext& is_c, const gfx::Shader& text_sha) noexcept
+		void draw(gfx::Renderer& renderer) noexcept
 		{
 			if (m_inv.is_active())
-				m_board.draw(inv_c);
-			m_hotbar.draw(inv_c);
-			m_selected_slot.draw(inv_c);
+				m_board.draw(renderer);
 
-			glEnable(GL_DEPTH_TEST);
-
-			is_c.sha->bind();
+			m_hotbar.draw(renderer);
+			m_selected_slot.draw(renderer);
 
 			for (auto& i : m_item_stacks_hb)
-				i.draw_model(is_c);
+				i.draw(renderer);
 
 			if (m_inv.is_active())
 			{
 				for (auto& i : m_item_stacks)
-					i.draw_model(is_c);
+					i.draw(renderer);
 
-				m_temp.draw_model(is_c);
+				m_temp.draw(renderer);
 			}
-
-			is_c.sha->unbind();
-
-
-			glDisable(GL_DEPTH_TEST);
-
-			text_sha.bind();
 
 			for (auto& i : m_item_stacks_hb)
-				i.draw_text(text_sha);
-
-			if (m_inv.is_active())
-			{
-				for (auto& i : m_item_stacks)
-					i.draw_text(text_sha);
-
-				m_temp.draw_text(text_sha);
-			}
-
-			text_sha.unbind();
+				i.draw(renderer);
 		}
 
 

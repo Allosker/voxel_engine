@@ -7,21 +7,17 @@
 */
 
 #include <memory>
+#include <deque>
 
 #include "sys/opengl_debug.hpp"
 #include "sys/types.hpp"
-
 #include "sys/window.hpp"
+#include "sys/debugTimer.hpp"
 
 #include "gfx/camera.hpp"
-
-
 #include "gfx/world.hpp"
-
 #include "gfx/player.hpp"
-
 #include "gfx/playerInventory.hpp"
-#include <deque>
 
 
 // Only one instance of the game must exist at a time
@@ -138,6 +134,7 @@ private: // Internal Communication/Logic
 	f32 target_fps{ 160 };
 
 
+	DebugTimer debugTimer;
 
 
 	v2f32 last_mouse_window_pos{};
