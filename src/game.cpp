@@ -78,7 +78,7 @@ DebugMessage Game::run()
 
 	glfwSwapInterval(0);
 
-	camera.set_FBS(window->getSize());
+	camera.set_FBS((v2f64)window->getSize());
 
 
 	AssetsManager::get(); // load all assets
@@ -164,7 +164,7 @@ DebugMessage Game::run()
 
 		debugTimer.add("renderer");
 		
-		gfx::DebugRenderer::get().render3D(camera.get_VP());
+		gfx::DebugRenderer::get().render3D(static_cast<m4f32>(camera.get_VP()));
 
 
 		/*= Debug Draws =*/
@@ -230,7 +230,7 @@ void Game::inputs()
 
 		if (auto f = event->get_if<Event::Resized>())
 		{
-			camera.set_FBS(f->size);
+			camera.set_FBS((v2f64)f->size);
 		}
 
 		if (auto key = event->get_if<Event::KeyEvent>())
@@ -373,7 +373,7 @@ void Game::logic()
 	player.update(world, delta_time.get());
 
 
-	m_inv_gui.update(Window::to_gui_coordinates(*window, window->get_cursor_pos()));
+	m_inv_gui.update(Window::to_gui_coordinates(*window, (v2f32)window->get_cursor_pos()));
 
 }
 
@@ -477,7 +477,7 @@ void Game::debug_imgui()
 	{
 		if (ImGui::Begin("Terrain Generation", &show_tg))
 		{
-			static gfx::Image noise_image{ v2i32{}, GL_RED };
+			static gfx::Image noise_image{ v2u32{}, GL_RED };
 			static gfx::Texture noise_texture{ noise_image };
 
 			static i32 renderdistance{};   

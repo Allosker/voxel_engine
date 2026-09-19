@@ -19,8 +19,6 @@ namespace gfx
 		Opaque = 0,
 		Transparent = 1,
 		UI = 2,
-		UI_3D_opaque = 3,
-		UI_3D_transparent = 4,
 
 		COUNT
 	};
@@ -62,6 +60,7 @@ namespace gfx
 			return value < other.value;
 		}
 	
+
 	private:
 		static constexpr uint64_t bits = 64;
 
