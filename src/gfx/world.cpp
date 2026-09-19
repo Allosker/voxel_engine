@@ -11,18 +11,14 @@ namespace gfx
 {
 	void World::update_grid(types::chunk_loc player_loc, bool reload) noexcept
 	{
-
 		if (debug.update_world)
 		{
 			if (reload)
 				overworld.discard_all_chunks();
 
-			auto v = overworld.manage_chunks(player_loc, reload);
-
-			generate_world(v);
-
-			overworld.add_cmeshes(v);
-			overworld.allocate_waiting_cmesh();
+			overworld.manage_chunks(player_loc, reload);
+			generatePendingChunks(player_loc);
+			overworld.generatePendingMeshes(player_loc);
 		}
 
 		/*== Debug ==*/
@@ -36,47 +32,107 @@ namespace gfx
 			}
 	}
 
-	void World::generate_world(const std::list<types::chunk_loc>& clocs) noexcept
+	void World::generatePendingChunks(const types::chunk_loc& player_loc) noexcept
 	{
-		const auto& vtm = VoxelTypeManager::get();
+		const auto timeBudget = 4 / 1000.f;
+		const auto start = std::chrono::steady_clock::now();
 
-		for (const auto& i : clocs)
+		int generatedCount{};
+
+		auto& chunkGenQueue = overworld.m_chunkGenQueue;
+		while(!chunkGenQueue.empty())
 		{
-			auto* chunk = overworld.at_chunk(i);
-			if (!chunk)
-				continue;
+			generatedCount++;
 
-			const auto c_pos = chunk->get_position();
-			bool should_be_empty_chunk{ true };
+			const auto chunkStart = std::chrono::steady_clock::now();
 
-			generate(terrain_context, terrain_data, chunk->get_position());
+			const auto squareDist = [](const types::chunk_loc& a, const types::chunk_loc& b)
+			{
+				return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
+			};
+			const auto closest = std::min_element(chunkGenQueue.begin(), chunkGenQueue.end(),
+				[&](const types::chunk_loc& a, const types::chunk_loc& b) {
+					return squareDist(a, player_loc) < squareDist(b, player_loc);
+				}
+			);
 
-			for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
-				for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
+			const auto elem = *closest;
+			chunkGenQueue.erase(closest);
+
+			generateChunk(elem);
+
+			const auto end = std::chrono::steady_clock::now();
+
+			const auto chunkTime = std::chrono::duration<float>{end - chunkStart}.count();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+
+			if (totalTime + chunkTime > timeBudget)
+			{
+				break;
+			}
+		}
+
+		if (generatedCount)
+		{
+			const auto end = std::chrono::steady_clock::now();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+
+			std::println("generated chunks: {} {}ms", generatedCount, totalTime * 1000.f);
+		}
+	}
+
+	void World::generateChunk(const types::chunk_loc& loc) noexcept
+	{
+		auto* chunk = overworld.at_chunk(loc);
+		if (!chunk)
+		{
+			return;
+		}
+
+		const auto c_pos = chunk->get_position();
+		bool should_be_empty_chunk{ true };
+
+		generate(terrain_context, terrain_data, chunk->get_position());
+
+		const auto& vtm = VoxelTypeManager::get();
+		const auto dirtId = vtm.get_id("dirt"_id);
+		const auto stoneId = vtm.get_id("stone"_id);
+
+		for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
+		{
+			for (u16 x{}; x < Chunk::g_size<u16>.x; x++)
+			{
+				auto pos = types::voxel_pos{ x, 0, z } + c_pos;
+
+				const i64 height = terrain_data.noise_data.at(x + z * Chunk::g_size<size_t>.z) * 10;
+				const i64 localHeight = height - c_pos.y;
+
+				if (localHeight < 0)
 				{
-					auto pos = types::voxel_pos{ x, 0, z } + c_pos;
-
-					i64 height = terrain_data.noise_data.at(x + z * Chunk::g_size<size_t>.z) * 10;
-
-
-					for (u16 y{}; y < Chunk::g_size<u16>.y; y++)
-					{
-						pos.y = y + c_pos.y;
-
-						if (pos.y <= height)
-						{
-							should_be_empty_chunk = false;
-							
-							if (pos.y == height)
-								chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("dirt") });
-							else
-								chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("stone") });
-						}
-					}
+					continue;
 				}
 
-			if (should_be_empty_chunk)
-				chunk->set_empty();
+				should_be_empty_chunk = false;
+
+				if (localHeight < Chunk::g_size<size_t>.y)
+				{
+					chunk->set_voxel_at({ x,localHeight,z }, Voxel{ dirtId });
+				}
+
+				for (u16 y = 0; y < std::min(localHeight, Chunk::g_size<i64>.x); y++)
+				{
+					chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("stone") });
+				}
+			}
+		}
+
+		if (should_be_empty_chunk)
+		{
+			chunk->set_empty();
+		}
+		else
+		{
+			overworld.dirty_cmesh(loc);
 		}
 	}
 
@@ -106,34 +162,34 @@ namespace gfx
 
 
 		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[4], true);
+			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[4]);
 		if (voxel_l.y == Chunk::g_size<i32>.y - 1)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[2], true);
+			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[2]);
 		if (voxel_l.x == Chunk::g_size<i32>.x - 1)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[0], true);
+			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[0]);
 		if (voxel_l.z == 0)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[5], true);
+			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[5]);
 		if (voxel_l.y == 0)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[3], true);
+			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[3]);
 		if (voxel_l.x == 0)
-			overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[1], true);
+			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[1]);
 
 
-		overworld.add_priority_cmesh(loc, true);
+		overworld.dirty_cmesh(loc);
 
 
 		// Represent each direction index
 		const auto check_all_dirs = [&](const size_t i, const size_t first, const size_t second, const size_t i2, const size_t first2, const size_t second2)
 			{
 				if (voxel_l[i] == Chunk::g_size<i32>[i] - 1 && voxel_l[i2] == Chunk::g_size<i32>[i2] - 1)
-					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[first] + Chunk::dirs<i64>[first2]);
+					overworld.dirty_cmesh(loc + Chunk::dirs<i64>[first] + Chunk::dirs<i64>[first2]);
 				if (voxel_l[i] == Chunk::g_size<i32>[i] - 1 && voxel_l[i2] == 0)
-					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[first] + Chunk::dirs<i64>[second2]);
+					overworld.dirty_cmesh(loc + Chunk::dirs<i64>[first] + Chunk::dirs<i64>[second2]);
 
 				if (voxel_l[i] == 0 && voxel_l[i2] == Chunk::g_size<i32>[i2] - 1)
-					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[first2]);
+					overworld.dirty_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[first2]);
 				if (voxel_l[i] == 0 && voxel_l[i2] == 0)
-					overworld.add_priority_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[second2]);
+					overworld.dirty_cmesh(loc + Chunk::dirs<i64>[second] + Chunk::dirs<i64>[second2]);
 			};
 
 		check_all_dirs(2, 4, 5, 1, 2, 3);

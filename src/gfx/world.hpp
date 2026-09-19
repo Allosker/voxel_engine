@@ -38,7 +38,8 @@ namespace gfx
 		/// <param name="Player's location"></param>
 		void update_grid(types::chunk_loc player_loc, bool reload = false) noexcept;
 
-		void generate_world(const std::list<types::chunk_loc>& clocs) noexcept;
+		void generatePendingChunks(const types::chunk_loc& player_loc) noexcept;
+		void generateChunk(const types::chunk_loc& loc) noexcept;
 
 		Voxel get_voxel(types::voxel_pos voxel_p) const noexcept;
 		bool set_voxel(types::voxel_pos voxel_p, Voxel new_voxel) noexcept;
