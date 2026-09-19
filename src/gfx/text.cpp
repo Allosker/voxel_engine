@@ -1,15 +1,16 @@
 #include "text.hpp"
 
 #include <cassert>
-#include <utility>
 
 #include "sys/assetsManager.hpp"
+#include "vertices.hpp"
+
 
 namespace gfx
 {
 
 	Text::Text(const Font* font, std::string_view str)
-		: p_font{ font }, m_text{ str }, m_material{&AssetsManager::get().shaders.at("shaders/text")}
+		: p_font{ font }, m_text{ str }, m_material{ &AssetsManager::get().shaders.at("shaders/text") }
 	{
 		m_material.set("tex", &p_font->get_tex());
 		m_mesh.create_buffer<Vertex2D>(false);
@@ -20,7 +21,6 @@ namespace gfx
 	{
 		assert(p_font && "ERROR::TEXT::Cannot draw because no font is attached");
 
-		
 		m_material.set("TextColor"_id, m_color);
 		renderer.push_command(&m_mesh, (m4f32)get_transform(), &m_material);
 	}
@@ -55,7 +55,7 @@ namespace gfx
 					{ v2f32{pos.x + size.x,		pos.y},					static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y })				},
 					{ v2f32{pos.x + size.x,		pos.y + size.y},		static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y + ch.size.y})	},
 				});
-			
+
 			tPos.x += (ch.advance >> 6) * m_scale_text;
 			height = std::max(height, ch.size.y * m_scale_text);
 		}

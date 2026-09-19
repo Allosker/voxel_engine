@@ -126,7 +126,7 @@ namespace gfx
 			});
 		}
 
-		void push_command(Mesh* mesh, m3f32 transform, Material* material)
+		void push_command(Mesh* mesh, m4f32 transform, Material* material)
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {RenderLayer::UI, 0.f},
