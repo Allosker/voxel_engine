@@ -115,11 +115,14 @@ namespace gfx
 		void bindTextures() const noexcept;
 		void bindBlocks() const noexcept;
 
+
 	private:
 
 		std::vector<UniformBlockInstance> m_blocks;
 		std::vector<const Texture*> m_textures;
 
 		Shader* m_shader;
+
+
 	};
 }

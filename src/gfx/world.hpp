@@ -82,16 +82,38 @@ namespace gfx
 
 		void load_model(const filepath path);
 
-		void remove_world_item(const WorldItem& wi)
-		{
-			const auto cloc = to_chunkLoc(wi.get_pos());
-			auto* c = get_chunkGrid().at_chunk(cloc);
-			auto* cm = get_chunkGrid().at_chunkMesh(cloc);
 
-			if (c)
-				c->get_world_items().erase(wi.get_pos());
-			if (cm)
-				cm->get_world_items().erase(wi.get_pos());
+		const std::unordered_map<i32, WorldItem>& get_entities() const noexcept { return m_items; }
+
+		void add_entity(WorldItem&& wi) noexcept
+		{
+			m_items.try_emplace(m_entity_assign_count++, std::move(wi));
+			m_items.at(m_entity_assign_count - 1).handle.id = m_entity_assign_count;
+		}
+
+		void remove_entity(const WorldItem& wi) noexcept
+		{
+			m_items.erase(wi.handle.id);
+		}
+
+		/// <summary>
+		/// Loop through all entities and removes the ones responding true to the lambda expression
+		/// <para> Note: the lambda expression accepts the entity being processed</para>
+		/// </summary>
+		/// <param name="lambda"></param>
+		template<typename LAMBDA>
+		void remove_entities_if(LAMBDA lambda) noexcept
+		{
+			std::unordered_map<i32, WorldItem>::iterator i{ m_items.begin() };
+			while (i != m_items.end())
+			{
+				if (lambda(i->second))
+				{
+					i = m_items.erase(i);
+				}
+				else
+					i++;
+			}
 		}
 
 
@@ -105,7 +127,7 @@ namespace gfx
 
 		static constexpr f32 time_budget{ 4.f / 1000.f };
 
-		gfx::terrain_gen::Context/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
+		gfx::terrain_gen::Context terrain_context{};
 		gfx::terrain_gen::Data terrain_data;
 
 		f64 gravity{ -32 };
@@ -117,6 +139,9 @@ namespace gfx
 		ChunkGrid overworld{};
 
 		types::chunk_loc last_player_loc{}; // remove that when moved into the chunk grid class
+		
+		std::unordered_map<i32, WorldItem> m_items{};
+		i32 m_entity_assign_count{};
 
 
 	};

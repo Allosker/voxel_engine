@@ -277,10 +277,4 @@ namespace gfx
 		mesh.update_buffer(vertices);
 	}
 
-	void ChunkMesh::update_entity_meshes(const Chunk& current_chunk) noexcept
-	{
-		for (const auto& [key, val] : current_chunk.get_world_items())
-			m_entities.try_emplace(key, val);
-	}
-
 }

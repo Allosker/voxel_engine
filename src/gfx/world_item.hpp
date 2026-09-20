@@ -17,55 +17,30 @@
 #include "sys/assetsManager.hpp"
 #include "sys/hash.hpp"
 #include "sys/types.hpp"
-#include <cassert>
-#include <vector>
 
 
 namespace gfx
 {
 
+	struct EntityHandle
+	{
+		i32 id{};
+	};
+
 	class WorldItem
-		: public Transformable3D
+		: public Transformable3D, public Drawable
 	{
 	public:
 
 		WorldItem(types::type_id id, const types::pos& pos)
-			: Transformable3D{ pos }, m_hitbox{ pos, v3f64{ 0.2 } }, m_id{ id }
-		{
-			set_scale(0.2);
-			set_pos(pos + 0.5 - get_scale() / 2.);
-		}
-
-		DEFAULT_COPY_INIT(WorldItem);
-		DEFAULT_MOVE_INIT(WorldItem);
-
-		types::type_id get_id() const noexcept { return m_id; }
-
-		const phy::HitboxAABB& get_hitbox() const noexcept { return m_hitbox; }
-
-
-	private:
-
-		phy::HitboxAABB m_hitbox;
-		types::type_id m_id;
-
-
-	};
-
-
-	class WorldItemMesh
-		: public Drawable
-	{
-	public:
-
-		WorldItemMesh(const WorldItem& wi)
-			: m_wi{ wi }, m_material{ &AssetsManager::get().shaders.at("shaders/world_entities"_id) }
+			: Transformable3D{ pos }, m_hitbox{ {}, {} }, m_id{ id },
+			m_material{ &AssetsManager::get().shaders.at("shaders/world_entities"_id) }
 		{
 			m_mesh.create_buffer<Vertex>(false);
 
-			std::vector<Vertex> mesh{};
+			std::vector<Vertex> mesh{};  
 
-			const std::vector<v2f32>& uvs = calculate_uvs(m_wi.get_id());
+			const std::vector<v2f32>& uvs = calculate_uvs(m_id);
 			for (const auto& i : Voxel::g_model)
 				assemble_pos_uvs<Vertex>(
 					mesh,
@@ -76,26 +51,40 @@ namespace gfx
 			m_mesh.update_buffer(mesh, GL_STATIC_DRAW);
 
 			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
+
+			set_scale(0.2);
+			set_pos(pos + 0.5 - get_scale() / 2.); 
+
+			m_hitbox.set_pos(get_pos() + get_scale() / 2.);
+			m_hitbox.set_extent(get_scale() / 2.);
 		}
 
-		DELETE_COPY_INIT(WorldItemMesh);
-		DEFAULT_MOVE_INIT(WorldItemMesh);
+		DELETE_COPY_INIT(WorldItem);
+		DEFAULT_MOVE_INIT(WorldItem);
 
 
-		void draw(Renderer& renderer) noexcept override
+		const phy::HitboxAABB& get_hitbox() const noexcept { return m_hitbox; }
+
+		types::type_id get_id() const noexcept { return m_id; }
+
+
+		void draw(Renderer& renderer) noexcept
 		{
-			renderer.push_command(&m_mesh, static_cast<m4f32>(m_wi.get_transform()), &m_material, RenderLayer::Opaque);
+			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Opaque);
 		}
+
+
+		EntityHandle handle{};
 
 
 	private:
 
 		Material m_material;
+		phy::HitboxAABB m_hitbox;
 		Mesh m_mesh{};
 
-		const WorldItem& m_wi;
-
-
+		types::type_id m_id{};
+		
 	};
 
 

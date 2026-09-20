@@ -64,7 +64,6 @@ namespace gfx
 		void update(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
 		{
 			update_mesh(bake_mesh(current_chunk, grid));
-			update_entity_meshes(current_chunk);
 		}
 
 		/// <summary>
@@ -82,24 +81,11 @@ namespace gfx
 		void update_mesh(const std::vector<VoxelVertex>& vertices) noexcept;
 
 		/// <summary>
-		/// Update the entities contained in the associated chunk
-		/// </summary>
-		/// /// <param name="Current Chunk"></param>
-		void update_entity_meshes(const Chunk& current_chunk) noexcept;
-
-		std::unordered_map<types::pos, WorldItemMesh>& get_world_items() noexcept { return m_entities; }
-		const std::unordered_map<types::pos, WorldItemMesh>& get_world_items() const noexcept { return m_entities; }
-
-
-		/// <summary>
 		/// Draw the mesh buffer
 		/// </summary>
 		void draw(Renderer& renderer) override
 		{
 			renderer.push_command(&mesh, &material, RenderLayer::Opaque);
-
-			for (auto& i : m_entities)
-				i.second.draw(renderer);
 		}
 
 
@@ -188,8 +174,6 @@ namespace gfx
 		
 		Material material;
 		Mesh mesh;
-		std::unordered_map<types::pos, WorldItemMesh> m_entities;
-
 
 	};
 

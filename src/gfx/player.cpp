@@ -102,17 +102,15 @@ void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv
 	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
 	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
 
-	auto* c = world.get_chunkGrid().at_chunk(floored_pos_min);
-
-	if (c)
-	for (const auto& i : c->get_world_items())
+	world.remove_entities_if([&](const WorldItem& item)
 	{
-		if (phy::intersects(hitbox, i.second.get_hitbox()))
+		if (phy::intersects(hitbox, item.get_hitbox()))
 		{
-			world.remove_world_item(i.second);
-			inv.get_inventory().add_items({ i.second.get_id(), {} }, 1);
+			inv.get_inventory().add_items({ item.get_id(), {} }, 1);
+			return true;
 		}
-	}
+		return false;
+	});
 	
 }
 
