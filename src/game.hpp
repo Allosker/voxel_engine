@@ -142,11 +142,12 @@ private: // Internal Communication/Logic
 
 	struct RenderSettings
 	{
-		u32 MSAA{ 16 };
+		u32 MSAA{ 8 };
 
 	} render_settings;
 
 	// Debug
 	bool compute_noise_map{ false };
+
 
 };

@@ -46,7 +46,8 @@ public:
 	void clear_states() noexcept;
 
 
-	bool toggle_cursor() noexcept;
+	void toggle_cursor() noexcept;
+	void set_cursor_sight(bool b) noexcept;
 
 	std::optional<Event> poll_event() noexcept
 	{
@@ -90,7 +91,7 @@ public:
 
 	bool isOpen() const noexcept { return !glfwWindowShouldClose(m_window); }
 
-	bool isCursorHidden() const noexcept { return m_cursor_hidden; }
+	bool is_cursor_visible() const noexcept { return m_cursor_visible; }
 
 	bool isKeyPressed(Keys key) const noexcept { return glfwGetKey(m_window, static_cast<int>(key)) == GLFW_PRESS; }
 	bool isKeyReleased(Keys key) const noexcept { return glfwGetKey(m_window, static_cast<int>(key)) == GLFW_RELEASE; }
@@ -120,7 +121,7 @@ private:
 
 	v2i32 m_size{};
 
-	bool m_cursor_hidden{ true };
+	bool m_cursor_visible{ true };
 
 
 };

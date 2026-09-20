@@ -48,12 +48,12 @@ namespace gfx
 				{
 					Vertex2D
 					{ v2f32{pos.x, pos.y + size.y},						static_cast<v2f32>(v2u32 { ch.pos.x, ch.pos.y + ch.size.y })				},
-					{ pos,												static_cast<v2f32>(ch.pos)													},
 					{ v2f32{pos.x + size.x, pos.y},						static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y })				},
-
+					{ pos,												static_cast<v2f32>(ch.pos)													},
+					
 					{ v2f32{pos.x,				pos.y + size.y},		static_cast<v2f32>(v2u32 { ch.pos.x,				ch.pos.y + ch.size.y })	},
-					{ v2f32{pos.x + size.x,		pos.y},					static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y })				},
 					{ v2f32{pos.x + size.x,		pos.y + size.y},		static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y + ch.size.y})	},
+					{ v2f32{pos.x + size.x,		pos.y},					static_cast<v2f32>(v2u32 { ch.pos.x + ch.size.x,	ch.pos.y })				},
 				});
 
 			tPos.x += (ch.advance >> 6) * m_scale_text;

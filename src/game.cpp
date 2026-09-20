@@ -24,7 +24,6 @@ static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 	* 2560, 1440
 	*/
 	std::unique_ptr<Window> window = std::make_unique<Window>(v2i32{ 640, 360 }, "test");
-	window->toggle_cursor();
 
 	if (AA)
 		glEnable(GL_MULTISAMPLE);
@@ -77,6 +76,9 @@ DebugMessage Game::run()
 	init_imgui(*window).print_to_console();
 
 	glfwSwapInterval(0);
+
+
+	window->set_cursor_sight(true);
 
 	camera.set_FBS((v2f64)window->getSize());
 
@@ -247,7 +249,7 @@ void Game::inputs()
 				window->toggle_cursor();
 
 			if (sys::InputManager::pressed(*key, Keys::Tab))
-				player_inventory.get_inventory().toggle();
+				player_inventory.toggle(*window);
 
 			if (sys::InputManager::pressed(*key, Keys::F2))
 				world.debug.show_chunk_borders = !world.debug.show_chunk_borders;
@@ -304,7 +306,7 @@ void Game::inputs()
 			last_mouse_window_pos = p->pos;
 
 			// Do after last_mouse_window_pos was updated to avoid jumps
-			if (!window->isCursorHidden())
+			if (!window->is_cursor_visible())
 			{
 
 				offset *= 0.1;
@@ -394,7 +396,7 @@ void Game::debug_imgui()
 	static bool show_player{ true };
 
 	// Clear Inputs when window->cursor can't be seen, avoids weird behaviours
-	if (window->isCursorHidden())
+	if (window->is_cursor_visible())
 	{
 		auto& io = ImGui::GetIO();
 

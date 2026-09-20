@@ -67,12 +67,16 @@ void Window::clear_states() noexcept
 // CallBacks
 // =====================
 
-bool Window::toggle_cursor() noexcept
+void Window::toggle_cursor() noexcept
 {
-	m_cursor_hidden = !m_cursor_hidden;
+	set_cursor_sight(!m_cursor_visible);
+}
 
-	glfwSetInputMode(m_window, GLFW_CURSOR, m_cursor_hidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-	return m_cursor_hidden;
+void Window::set_cursor_sight(bool b) noexcept
+{
+	m_cursor_visible = b;
+
+	glfwSetInputMode(m_window, GLFW_CURSOR, m_cursor_visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 
