@@ -30,7 +30,7 @@ namespace gfx
 	public:
 
 		WorldItem(types::type_id id, const types::pos& pos)
-			: Transformable3D{ pos }, m_hitbox{ pos, v3f64{ 0.2 } }
+			: Transformable3D{ pos }, m_hitbox{ pos, v3f64{ 0.2 } }, m_id{ id }
 		{
 			set_scale(0.2);
 			set_pos(pos + 0.5 - get_scale() / 2.);
@@ -40,6 +40,8 @@ namespace gfx
 		DEFAULT_MOVE_INIT(WorldItem);
 
 		types::type_id get_id() const noexcept { return m_id; }
+
+		const phy::HitboxAABB& get_hitbox() const noexcept { return m_hitbox; }
 
 
 	private:
@@ -59,8 +61,6 @@ namespace gfx
 		WorldItemMesh(const WorldItem& wi)
 			: m_wi{ wi }, m_material{ &AssetsManager::get().shaders.at("shaders/world_entities"_id) }
 		{
-			assert(wi && "ERROR::WorldItemMesh::World Items Mesh requires a non-null world item");
-
 			m_mesh.create_buffer<Vertex>(false);
 
 			std::vector<Vertex> mesh{};

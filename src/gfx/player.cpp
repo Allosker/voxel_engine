@@ -59,7 +59,7 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 	}
 }
 
-void gfx::Player::update_position(const World& world, f64 dt) noexcept
+void gfx::Player::update_position(World& world, f64 dt) noexcept
 {
 
 	if (glm::length2(v2f64{ m_mov.velocity.x, m_mov.velocity.z }) > m_mov.max_speed * m_mov.max_speed)
@@ -91,7 +91,30 @@ void gfx::Player::update_position(const World& world, f64 dt) noexcept
 	m_mov.moving_ver = false;
 }
 
-void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
+void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv, f64 dt) noexcept
+{
+	auto hitbox = m_hitbox;
+	hitbox.move(get_pos());
+	if (debug.show_hitbox)
+		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0, 1 }, 0., false);
+
+
+	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
+	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
+
+
+	for (const auto& i : world.get_chunkGrid().at_chunk(floored_pos_min)->get_world_items())
+	{
+		if (phy::intersects(hitbox, i.second.get_hitbox()))
+		{
+			world.remove_world_item(i.second);
+			inv.get_inventory().add_items({ i.second.get_id(), {} }, 1);
+		}
+	}
+	
+}
+
+void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 {
 	m_mov.isOnGround = false;
 
@@ -102,12 +125,11 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 
 	auto hitbox = m_hitbox;
 	hitbox.move(get_pos());
-	if (debug.show_hitbox)
+	if (debug.show_hitbox)       
 		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0, 1 }, 0., false);
 
 
 	const Chunk* chunk = nullptr;
-	const Chunk* outter_chunk = nullptr;
 
 	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
 	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
@@ -133,7 +155,7 @@ void gfx::Player::resolve_collisions(const World& world, f64 dt) noexcept
 
 			if (phy::intersects(hitbox, voxel))
 			{
-				auto offset =phy::get_MTV(hitbox, voxel);
+				auto offset = phy::get_MTV(hitbox, voxel);
 
 				if (offset.x == 0. && offset.y == 0. && offset.z == 0.) continue;
 

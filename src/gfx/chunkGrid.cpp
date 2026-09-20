@@ -77,9 +77,8 @@ namespace gfx
 		m_chunkMeshQueue.insert(loc);
 	}
 
-	void ChunkGrid::generatePendingMeshes(const types::chunk_loc& player_loc) noexcept
+	void ChunkGrid::generatePendingMeshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept
 	{
-		const auto timeBudget = 4 / 1000.f;
 		const auto start = std::chrono::steady_clock::now();
 
 		int generatedCount{};
@@ -111,7 +110,7 @@ namespace gfx
 			const auto chunkTime = std::chrono::duration<float>{end - chunkStart}.count();
 			const auto totalTime = std::chrono::duration<float>{end - start}.count();
 
-			if (totalTime + chunkTime > timeBudget)
+			if (totalTime + chunkTime > time_budget)
 			{
 				break;
 			}

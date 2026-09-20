@@ -17,6 +17,7 @@
 #include "phy/hitboxAABB.hpp"
 
 #include "debugRenderer.hpp"
+#include "gfx/playerInventory.hpp"
 
 
 namespace gfx
@@ -47,18 +48,22 @@ namespace gfx
 
 		void move(Keys key, f64 dt) noexcept;
 
-		void update(const World& world, f64 dt) noexcept
+		void update(World& world, PlayerInventory& inv, f64 dt) noexcept
 		{
 			update_position(world, dt);
-			resolve_collisions(world, dt);
+
+			resolve_collisions_world(world, dt);
+			resolve_collisions_entities(world, inv, dt);
 		}
 
 
 	private:
 
-		void update_position(const World& world, f64 dt) noexcept;
+		void update_position(World& world, f64 dt) noexcept;
 
-		void resolve_collisions(const World& world, f64 dt) noexcept;
+		void resolve_collisions_world(World& world, f64 dt) noexcept;
+
+		void resolve_collisions_entities(World& world, PlayerInventory& inv, f64 dt) noexcept;
 
 
 	private:

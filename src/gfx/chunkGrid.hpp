@@ -55,7 +55,7 @@ namespace gfx
 		/// - Allows for greater control over which chunk meshes have to be loaded first
 		/// </summary>
 		/// <returns>false if could not create chunk mesh</returns>
-		void generatePendingMeshes(const types::chunk_loc& player_loc) noexcept;
+		void generatePendingMeshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept;
 
 		/// <summary>
 		/// Deallocate chunks from memory around a point in chunk coordinates

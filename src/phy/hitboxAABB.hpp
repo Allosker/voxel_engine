@@ -13,18 +13,17 @@ namespace phy
 {
 	class HitboxAABB;
 
+	/// <summary>
+	/// Exclusive bounds, we do not wish to consider two overlapping hitboxes to be intersecting 
+	/// </summary>
+	/// <returns>Whether the two hitboxes intersect</returns>
+	bool intersects(const HitboxAABB& a, const HitboxAABB& b) noexcept;
+
 	/// <summary> Consider two cases:
 	/// <para>- Intersecting -> MTV </para>
 	/// <para>- Not Intersecting -> empty vector </para>
 	/// </summary>
 	/// <returns>The MTV (minimum translation vector) to stop intersecting with the current AABB</returns>
-	bool intersects(const HitboxAABB& a, const HitboxAABB& b) noexcept;
-
-	/// <summary>
-	/// Exclusive bounds, we do not wish to consider two overlapping hitboxes to be intersecting 
-	/// </summary>
-	/// <param name="other"></param>
-	/// <returns>Whether the two hitboxes intersect</returns>
 	v3f64 get_MTV(const HitboxAABB& a, const HitboxAABB& b) noexcept;
 
 

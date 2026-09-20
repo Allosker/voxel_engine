@@ -17,7 +17,7 @@ namespace gfx
 
 			overworld.manage_chunks(player_loc, reload);
 			generate_pending_chunks(player_loc);
-			overworld.generatePendingMeshes(player_loc);
+			overworld.generatePendingMeshes(player_loc, time_budget);
 		}
 
 		/*== Debug ==*/
@@ -33,7 +33,6 @@ namespace gfx
 
 	void World::generate_pending_chunks(const types::chunk_loc& player_loc) noexcept
 	{
-		const auto timeBudget = 4 / 1000.f;
 		const auto start = std::chrono::steady_clock::now();
 
 		int generatedCount{};
@@ -65,7 +64,7 @@ namespace gfx
 			const auto chunkTime = std::chrono::duration<float>{end - chunkStart}.count();
 			const auto totalTime = std::chrono::duration<float>{end - start}.count();
 
-			if (totalTime + chunkTime > timeBudget)
+			if (totalTime + chunkTime > time_budget)
 			{
 				break;
 			}
@@ -156,7 +155,7 @@ namespace gfx
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		auto& c_voxel = chunk->at(voxel_l);
 
-		chunk->add_entity({ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
+		chunk->add_entity(WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
 
 		c_voxel = new_voxel;
 

@@ -82,6 +82,18 @@ namespace gfx
 
 		void load_model(const filepath path);
 
+		void remove_world_item(const WorldItem& wi)
+		{
+			const auto cloc = to_chunkLoc(wi.get_pos());
+			auto* c = get_chunkGrid().at_chunk(cloc);
+			auto* cm = get_chunkGrid().at_chunkMesh(cloc);
+
+			if (c)
+				c->get_world_items().erase(wi.get_pos());
+			if (cm)
+				cm->get_world_items().erase(wi.get_pos());
+		}
+
 
 	public:
 
@@ -91,6 +103,7 @@ namespace gfx
 			bool update_world{ true };
 		} debug;
 
+		static constexpr f32 time_budget{ 120 / 1000.f };
 
 		gfx::terrain_gen::Context/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
 		gfx::terrain_gen::Data terrain_data;

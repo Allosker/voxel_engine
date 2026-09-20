@@ -87,6 +87,9 @@ namespace gfx
 		/// /// <param name="Current Chunk"></param>
 		void update_entity_meshes(const Chunk& current_chunk) noexcept;
 
+		std::unordered_map<types::pos, WorldItemMesh>& get_world_items() noexcept { return m_entities; }
+		const std::unordered_map<types::pos, WorldItemMesh>& get_world_items() const noexcept { return m_entities; }
+
 
 		/// <summary>
 		/// Draw the mesh buffer
