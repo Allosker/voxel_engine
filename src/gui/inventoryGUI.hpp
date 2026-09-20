@@ -11,18 +11,19 @@
 
 #include "gfx/inventory.hpp"
 #include "gfx/rectangle.hpp"
-#include "gfx/renderContext.hpp"
+#include "gfx/drawable.hpp"
+#include <gfx/shader.hpp>
+
+#include "sys/inputManager.hpp"
 #include "sys/assetsManager.hpp"
 
 #include "gui/itemStackGUI.hpp"
-#include "sys/inputManager.hpp"
-#include <gfx/shader.hpp>
-
 
 namespace gui
 {
 
-	class InventoryGUI
+	class InventoryGUI 
+		: public gfx::Drawable
 	{
 	public:
 
@@ -37,9 +38,9 @@ namespace gui
 			m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{ .scancode{} });
 
 			m_temp.set_scale(g_over_ISG_scale);
-			m_temp.set_pos(v3f32{ 0., 0., 0. } + g_slot_size / 2.f);
-			m_temp.rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
-			m_temp.rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+			m_temp.set_pos(v3f64{ 0., 0., 0. } + (f64)g_slot_size / 2.f);
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
 			m_temp.set_scale_text(g_over_ISG_text_scale);
 		}
 
@@ -60,47 +61,26 @@ namespace gui
 		void on_click(Event::MouseButtonEvent event) noexcept;
 
 
-		void draw(const gfx::RenderContext& inv_c, const gfx::RenderContext& is_c, const gfx::Shader& text_sha) noexcept
+		void draw(gfx::Renderer& renderer) noexcept
 		{
 			if (m_inv.is_active())
-				m_board.draw(inv_c);
-			m_hotbar.draw(inv_c);
-			m_selected_slot.draw(inv_c);
-
-			glEnable(GL_DEPTH_TEST);
-
-			is_c.sha->bind();
+				m_board.draw(renderer);
+			m_hotbar.draw(renderer);
+			m_selected_slot.draw(renderer);
 
 			for (auto& i : m_item_stacks_hb)
-				i.draw_model(is_c);
+				i.draw(renderer);
 
 			if (m_inv.is_active())
 			{
 				for (auto& i : m_item_stacks)
-					i.draw_model(is_c);
+					i.draw(renderer);
 
-				m_temp.draw_model(is_c);
+				m_temp.draw(renderer);
 			}
-
-			is_c.sha->unbind();
-
-
-			glDisable(GL_DEPTH_TEST);
-
-			text_sha.bind();
 
 			for (auto& i : m_item_stacks_hb)
-				i.draw_text(text_sha);
-
-			if (m_inv.is_active())
-			{
-				for (auto& i : m_item_stacks)
-					i.draw_text(text_sha);
-
-				m_temp.draw_text(text_sha);
-			}
-
-			text_sha.unbind();
+				i.draw(renderer);
 		}
 
 
@@ -121,19 +101,19 @@ namespace gui
 		///		textures/gui/inventory/medium.png
 		///		textures/gui/inventory/big.png
 		/// </summary>
-		static constexpr f32 g_outline_thickness_px{ 13.f };
-		static constexpr f32 g_outline_thickness_hb_px{ 6.f };
-		static constexpr f32 c_absolute_slot_size_px{ 32.f };
-		static constexpr f32 g_scale{ 1.5f };
-		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2.f };
-		static constexpr f32 g_outline_hb{ g_outline_thickness_hb_px * g_scale * 2.f };
-		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2.f };
+		static constexpr f32 g_outline_thickness_px{ 13. };
+		static constexpr f32 g_outline_thickness_hb_px{ 6. };
+		static constexpr f32 c_absolute_slot_size_px{ 32. };
+		static constexpr f32 g_scale{ 1.5 };
+		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2. };
+		static constexpr f32 g_outline_hb{ g_outline_thickness_hb_px * g_scale * 2. };
+		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2. };
 
-		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5f };
-		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2.f };
+		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5 };
+		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2. };
 
-		static constexpr f32 g_base_ISG_text_scale{ 0.4f };
-		static constexpr f32 g_over_ISG_text_scale{ 0.48f };
+		static constexpr f32 g_base_ISG_text_scale{ 0.4 };
+		static constexpr f32 g_over_ISG_text_scale{ 0.48 };
 
 
 		/// <summary>

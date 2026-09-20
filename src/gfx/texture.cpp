@@ -9,9 +9,9 @@ namespace gfx
 	// =====================
 
 
-	Texture::Texture(Type type) : m_type{ type }
+	Texture::Texture(Type type) 
+		: m_type{ type }
 	{
-		glGenTextures(1, &m_id);
 		glBindTexture(m_type, m_id);
 
 		glTexParameteri(m_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -21,58 +21,22 @@ namespace gfx
 		glTexParameteri(m_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 
-	Texture::Texture(const filepath& tex_path, Type type) : 
-	Texture{ type }
+	Texture::Texture(const filepath& tex_path, Type type)
+		: Texture{ type }
 	{
 		load(tex_path);
 	}
 
-	Texture::Texture(u8* buffer, u32 size) : 
-	Texture{ Type::tex2D }
+	Texture::Texture(u8* buffer, u32 size) 
+		: Texture{ Type::tex2D }
 	{
-		load_from_memory(buffer, size);
+		load(buffer, size);
 	}
 
-	Texture::Texture(const Image& image) : 
-	Texture{ Type::tex2D }
+	Texture::Texture(const Image& image) 
+		: Texture{ Type::tex2D }
 	{
-		m_width = static_cast<i32>(image.getSize().x);
-		m_height = static_cast<i32>(image.getSize().y);
-		glTexImage2D(m_type, 0, image.getFormat(), m_width, m_height, 0, image.getFormat(), GL_UNSIGNED_BYTE, image.getData().data());
-
-		glGenerateMipmap(m_type);
-	}
-
-	Texture::Texture(Texture&& other) noexcept
-		: m_type{ other.m_type }, m_width{ other.m_width }, m_height{ other.m_height }, m_id{ other.m_id }
-	{
-		other.m_id = 0;
-		other.m_height = 0;
-		other.m_width = 0;
-		other.m_type = {};
-	}
-
-	Texture& Texture::operator=(Texture&& other) noexcept
-	{
-		if (this == &other)
-			return *this;
-
-		m_type = other.m_type;
-		m_width = other.m_width;
-		m_height = other.m_height;
-		m_id = other.m_id;
-
-		other.m_id = 0;
-		other.m_height = 0;
-		other.m_width = 0;
-		other.m_type = {};
-
-		return *this;
-	}
-
-	Texture::~Texture() noexcept
-	{
-		unload();
+		load(image);
 	}
 
 
@@ -82,6 +46,8 @@ namespace gfx
 
 	void Texture::load(const filepath& tex_path)
 	{
+		if (!m_id.m_id) glGenTextures(1, &m_id.m_id);
+
 		std::int32_t nrChannels{};
 
 		stbi_set_flip_vertically_on_load(true);
@@ -111,8 +77,10 @@ namespace gfx
 		stbi_image_free(data);
 	}
 
-	void Texture::load_from_memory(u8* buffer, u32 size)
+	void Texture::load(u8* buffer, u32 size)
 	{
+		if (!m_id.m_id) glGenTextures(1, &m_id.m_id);
+
 		std::int32_t nrChannels{};
 
 		stbi_set_flip_vertically_on_load(true);
@@ -142,6 +110,18 @@ namespace gfx
 		stbi_image_free(data);
 	}
 
+	void Texture::load(const Image& image)
+	{
+		if (!m_id.m_id) glGenTextures(1, &m_id.m_id);
+
+		m_width = static_cast<i32>(image.getSize().x);
+		m_height = static_cast<i32>(image.getSize().y);
+
+		glTexImage2D(m_type, 0, image.getFormat(), m_width, m_height, 0, image.getFormat(), GL_UNSIGNED_BYTE, image.getData().data());
+
+		glGenerateMipmap(m_type);
+	}
+
 	void Texture::update(const Image& image) noexcept
 	{
 		glBindTexture(m_type, m_id);
@@ -155,7 +135,7 @@ namespace gfx
 
 	void Texture::unload() const noexcept
 	{
-		glDeleteTextures(1, &m_id);
+		glDeleteTextures(1, &m_id.m_id);
 	}
 
 	void Texture::bind(uint32_t slot) const noexcept

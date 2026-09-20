@@ -88,7 +88,7 @@ namespace gfx
 				}
 				else
 				{
-					if constexpr (std::is_same_v<T, Texture*>)
+					if constexpr (std::is_same_v<T, Texture*> || std::is_same_v<T, const Texture*>)
 					{
 						assert(def.type == GL_SAMPLER_2D || def.type == GL_SAMPLER_3D);
 						m_textures[def.textureSlot] = value;
@@ -118,7 +118,7 @@ namespace gfx
 	private:
 
 		std::vector<UniformBlockInstance> m_blocks;
-		std::vector<Texture*> m_textures;
+		std::vector<const Texture*> m_textures;
 
 		Shader* m_shader;
 	};

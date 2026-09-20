@@ -7,8 +7,7 @@
 */
 
 #include <unordered_map>
-#include <list>
-#include <deque>
+#include <set>
 
 
 #include "sys/types.hpp"
@@ -33,14 +32,14 @@ namespace gfx
 		/// </summary>
 		/// <param name="Location around which to build the chunks"></param>
 		/// <returns>A list of the newly allocated chunks</returns>
-		std::list<types::chunk_loc> allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept;
+		void allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept;
 
 		/// <summary>
 		/// Deallocate/Allocate new chunks if the point location has changed.
 		/// </summary>
 		/// <param name="Point Location"></param>
 		/// <returns>A list of the newly allocated chunks</returns>
-		std::list<types::chunk_loc> manage_chunks(const types::chunk_loc& loc, bool force) noexcept;
+		void manage_chunks(const types::chunk_loc& loc, bool force) noexcept;
 
 		/// <summary>
 		/// Update a chunk mesh for the provided chunk (via its corresponding chunkloc) if there exist one, allocate a new one otherwise
@@ -48,13 +47,15 @@ namespace gfx
 		/// <param name="Location of the chunk"></param>
 		/// <returns>false if could not create chunk mesh</returns>
 		bool update_cmesh(const types::chunk_loc& loc) noexcept;
+
+		void dirty_cmesh(const types::chunk_loc& loc) noexcept;
 		
 		/// <summary>
 		/// Allocate a new chunk mesh in sequence from the Queue
 		/// - Allows for greater control over which chunk meshes have to be loaded first
 		/// </summary>
 		/// <returns>false if could not create chunk mesh</returns>
-		bool allocate_waiting_cmesh() noexcept;
+		void generatePendingMeshes(const types::chunk_loc& player_loc) noexcept;
 
 		/// <summary>
 		/// Deallocate chunks from memory around a point in chunk coordinates
@@ -65,36 +66,6 @@ namespace gfx
 		void deallocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept;
 
 		void discard_all_chunks() noexcept;
-
-
-		/// <summary>
-		/// Add all the elements to the back of the deque, no matter whether the meshes already exist
-		/// </summary>
-		/// /// <param name="Location of the chunk"></param>
-		void add_cmeshes(const std::list<types::chunk_loc>& cloc) noexcept
-		{
-			for (const auto& i : cloc)
-				m_waiting_cmesh.push_back({ i, false });
-		}
-
-		/// <summary>
-		/// Add the element to the back of the deque
-		/// </summary>
-		/// /// <param name="Location of the chunk"></param>
-		void add_cmesh(const types::chunk_loc& cloc, bool keep_updating_whereupon = false) noexcept
-		{
-			if (auto l = m_chunk_meshes.find(cloc); l != m_chunk_meshes.end())
-				l->second.queued = true;
-			m_waiting_cmesh.push_back({ cloc, keep_updating_whereupon });
-		}
-
-		void add_priority_cmesh(const types::chunk_loc& cloc, bool keep_updating_whereupon = false) noexcept
-		{
-			if (auto l = m_chunk_meshes.find(cloc); l != m_chunk_meshes.end())
-				l->second.queued = true;
-			m_waiting_cmesh.push_front({cloc, keep_updating_whereupon});
-		}
-
 
 		void draw(Renderer& renderer) override
 		{
@@ -160,25 +131,13 @@ namespace gfx
 			u32 r_height{ 2 };   // in chunks
 		} parameters;
 
+		std::unordered_set<types::chunk_loc> m_chunkGenQueue{};
+		std::unordered_set<types::chunk_loc> m_chunkMeshQueue{};
 
 	private:
 
 		std::unordered_map<types::chunk_loc, Chunk> m_chunks{};
 		std::unordered_map<types::chunk_loc, ChunkMesh> m_chunk_meshes{};
-
-		/// <summary>
-		/// The first element represents the location of the chunk mesh to be created/updated
-		/// <para>The second element represents whether we should stop updating chunk meshes whereupon </para>
-		/// </summary>
-		std::deque<std::pair<types::chunk_loc, bool>> m_waiting_cmesh{};
-
-		types::chunk_loc old_min{};
-		types::chunk_loc old_max{};
-
-		// Old location around which to allocate the new chunks
-		types::chunk_loc last_loc{};
-
-
 	};
 
 

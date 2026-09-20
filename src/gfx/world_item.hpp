@@ -7,10 +7,14 @@
 * ==============================================-
 */
 
-#include "gfx/transformable3D.hpp"
 #include "gfx/mesh.hpp"
+#include "gfx/renderer.hpp"
+#include "gfx/transformable3D.hpp"
 #include "gfx/voxel.hpp"
-#include "gfx/renderContext.hpp"
+#include "material.hpp"
+#include "sys/assetsManager.hpp"
+#include "sys/hash.hpp"
+#include <sys/types.hpp>
 
 
 namespace gfx
@@ -18,12 +22,12 @@ namespace gfx
 
 
 	class WorldItem
-		: public Transformable3D
+		: public Transformable3D, public Drawable
 	{
-	public: 
+	public:
 
 		WorldItem(types::type_id id, const types::pos& pos)
-			: Transformable3D{ pos }
+			: Transformable3D{ pos }, m_material{ &AssetsManager::get().shaders.at("shaders/world_entities"_id) }
 		{
 			m_mesh.create_buffer<Vertex>(false);
 
@@ -36,20 +40,23 @@ namespace gfx
 					gfx::calculate_uvs(id)
 				);
 			m_mesh.update_buffer(mesh, GL_STATIC_DRAW);
+
+			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
+			set_scale(0.2);
 		}
 
 
-		void draw(const gfx::RenderContext& rc) noexcept
+		void draw(Renderer& renderer) noexcept
 		{
-			rc.sha->set_value("model", get_transform());
-
-			m_mesh.draw();
+			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Opaque);
 		}
 
 
 	private:
 
 		Mesh m_mesh{};
+		Material m_material;
+
 
 	};
 

@@ -1,16 +1,19 @@
 #version 460 core
 
-uniform sampler2D Texture;
-
 in vec2 Uvs;
-uniform vec4 TextColor;
 
 out vec4 FragColor;
 
+layout(packed) uniform MaterialData
+{ 
+	vec4 TextColor;
+};
+
+uniform sampler2D tex;
 
 void main()
 {
-	vec4 sampled = vec4(1, 1, 1, texture(Texture, Uvs / textureSize(Texture, 0)).r ); 
+	vec4 sampled = vec4(1, 1, 1, texture(tex, Uvs / textureSize(tex, 0)).r ); 
 	FragColor = TextColor * sampled;
 	//FragColor.a = sampled.a;
 	//FragColor = vec4(0, 0, 0, 1);

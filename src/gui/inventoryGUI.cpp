@@ -184,11 +184,12 @@ namespace gui
 
 	void InventoryGUI::change_textures(gfx::Inventory::Size size) noexcept
 	{
+		m_hotbar.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/hotbar_small"));
+
 		switch (size)
 		{
 			case gfx::Inventory::Size::Small:
 				m_board.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/small"));
-				m_hotbar.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/hotbar_small"));
 				break;
 
 			case gfx::Inventory::Size::Medium:
@@ -216,9 +217,9 @@ namespace gui
 					isg = &stacks.back();
 
 					isg->set_scale(g_base_ISG_scale);
-					isg->set_pos(v3f32{ slot_pos, -100. } + g_slot_size / 2.f);
-					isg->rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
-					isg->rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+					isg->set_pos(v3f64{ slot_pos, -100. } + (f64)g_slot_size / 2.);
+					isg->rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
+					isg->rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
 					isg->set_scale_text(g_base_ISG_text_scale);
 				}
 				else
@@ -242,7 +243,7 @@ namespace gui
 		if (m_inv.is_active())
 		{
 			m_nb_slots = m_inv.get_nb_slots();
-			m_board.get_hitbox().set_extent(m_board.get_texture()->get_size());
+			m_board.get_hitbox().set_extent(m_board.get_size());
 			m_board.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y / 2 - m_hotbar.get_size().y });
 
 			const auto target_size_inv = m_nb_slots.x * m_nb_slots.y;
@@ -264,7 +265,7 @@ namespace gui
 			}
 		}
 
-		m_hotbar.get_hitbox().set_extent(m_hotbar.get_texture()->get_size());
+		m_hotbar.get_hitbox().set_extent(m_hotbar.get_size());
 		m_hotbar.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y - m_hotbar.get_size().y });
 
 		types::pos2d slot_pos{ m_hotbar.get_pos() - m_hotbar.get_size() + g_outline_hb };

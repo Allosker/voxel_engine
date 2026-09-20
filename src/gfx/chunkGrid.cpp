@@ -1,10 +1,11 @@
 #include "chunkGrid.hpp"
 
+#include <print>
 
 namespace gfx
 {
 
-	std::list<types::chunk_loc> ChunkGrid::allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept
+	void ChunkGrid::allocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept
 	{
 		std::list<types::chunk_loc> ret{};
 
@@ -18,32 +19,15 @@ namespace gfx
 
 					if (m_chunks.try_emplace(loc, Chunk{ loc }).second)
 					{
-						ret.emplace_back(loc);
-						//add_cmesh(loc);
-					}
-
-					if (z == old_min.z || y == old_min.y || x == old_min.x || z == old_max.z || y == old_max.y || x == old_max.x)
-					{
-						if (const auto* const cmptr = at_chunkMesh(loc); cmptr && !cmptr->queued)
-							add_cmesh(loc);
+						m_chunkGenQueue.insert(loc);
 					}
 				}
 			}
 		}
-
-		old_min = min;
-		old_max = max;
-
-		return ret;
 	}
 
-	std::list<types::chunk_loc> ChunkGrid::manage_chunks(const types::chunk_loc& loc, bool force) noexcept
+	void ChunkGrid::manage_chunks(const types::chunk_loc& loc, bool force) noexcept
 	{
-		if (!force && loc == last_loc)
-			return {};
-		last_loc = loc;
-
-
 		const auto r_dist = static_cast<i64>(parameters.r_dist);
 		const auto r_height = static_cast<i64>(parameters.r_height);
 
@@ -62,7 +46,7 @@ namespace gfx
 
 
 		deallocate_chunks(min, max);
-		return allocate_chunks(min, max);
+		allocate_chunks(min, max);
 	}
 
 	bool ChunkGrid::update_cmesh(const types::chunk_loc& loc) noexcept
@@ -88,26 +72,57 @@ namespace gfx
 		return false;
 	}
 
-	bool ChunkGrid::allocate_waiting_cmesh() noexcept
+	void ChunkGrid::dirty_cmesh(const types::chunk_loc& loc) noexcept
 	{
-		std::pair<types::chunk_loc, bool> elem{};
+		m_chunkMeshQueue.insert(loc);
+	}
 
-		bool successful{ true };
+	void ChunkGrid::generatePendingMeshes(const types::chunk_loc& player_loc) noexcept
+	{
+		const auto timeBudget = 4 / 1000.f;
+		const auto start = std::chrono::steady_clock::now();
 
-		do
+		int generatedCount{};
+
+		while (!m_chunkMeshQueue.empty())
 		{
-			if (m_waiting_cmesh.empty())
-				return successful;
+			generatedCount++;
 
-			elem = m_waiting_cmesh.front();
-			m_waiting_cmesh.pop_front();
+			const auto chunkStart = std::chrono::steady_clock::now();
 
-			successful = update_cmesh(elem.first) && successful;
+			const auto squareDist = [](const types::chunk_loc & a, const types::chunk_loc & b)
+			{
+				return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
+			};
 
-		} while (elem.second);
+			auto closest = std::min_element(m_chunkMeshQueue.begin(), m_chunkMeshQueue.end(),
+				[&](const types::chunk_loc& a, const types::chunk_loc& b) {
+					return squareDist(a, player_loc) < squareDist(b, player_loc);
+				}
+			);
 
+			const auto elem = *closest;
+			m_chunkMeshQueue.erase(closest);
 
-		return successful;
+			update_cmesh(elem);
+
+			const auto end = std::chrono::steady_clock::now();
+
+			const auto chunkTime = std::chrono::duration<float>{end - chunkStart}.count();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+
+			if (totalTime + chunkTime > timeBudget)
+			{
+				break;
+			}
+		}
+
+		if (generatedCount)
+		{
+			const auto end = std::chrono::steady_clock::now();
+			const auto totalTime = std::chrono::duration<float>{end - start}.count();
+		}
+
 	}
 
 	void ChunkGrid::deallocate_chunks(const types::chunk_loc& min, const types::chunk_loc& max) noexcept

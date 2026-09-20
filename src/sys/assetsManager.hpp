@@ -47,22 +47,17 @@ public:
 private:
 
 	AssetsManager() noexcept
-	try
 	{
 		add_shaders();
 		add_textures();
 		add_models();
 		add_fonts();
 	}
-	catch (const std::runtime_error& e)
-	{
-		std::println("{}", e.what());
-	}
-
 
 	void add_shaders()
 	{
 		shaders.emplace("shaders/world_chunks", gfx::Shader{ (filepath)ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
+		shaders.emplace("shaders/world_entities", gfx::Shader{ (filepath)ASSET_PATH"shader/world_entities.vert", ASSET_PATH"shader/world_entities.frag" });
 		shaders.emplace("shaders/static_mesh", gfx::Shader{ (filepath)ASSET_PATH"shader/static_mesh.vert", ASSET_PATH"shader/static_mesh.frag" });
 		shaders.emplace("shaders/twoD", gfx::Shader{ (filepath)ASSET_PATH"shader/twoD.vert", ASSET_PATH"shader/twoD.frag" });
 		shaders.emplace("shaders/twoD_to_3D", gfx::Shader{ (filepath)ASSET_PATH"shader/twoD_to_3D.vert", ASSET_PATH"shader/twoD_to_3D.frag" });

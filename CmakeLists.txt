@@ -116,6 +116,7 @@ target_link_libraries(VoxelEngine PRIVATE glm::glm)
 
 target_compile_definitions(VoxelEngine PRIVATE
     GLM_ENABLE_EXPERIMENTAL
+	GLM_FORCE_EXPLICIT_CTOR
 )
 
  

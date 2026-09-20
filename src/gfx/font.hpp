@@ -14,6 +14,7 @@
 #include "sys/types.hpp"
 
 #include "gfx/image.hpp"
+#include "gfx/texture.hpp"
 
 
 namespace gfx
@@ -34,19 +35,15 @@ namespace gfx
 
 		Font(const filepath& path, u8 btmp_size = 48) noexcept;
 
-		Font(Font&& other) noexcept;
-		Font& operator=(Font&& other) noexcept;
+		DELETE_COPY_INIT(Font);
+		DEFAULT_MOVE_INIT(Font);
 
-		~Font() noexcept;
-
-
-		const Character& getCharacter(u8 c) const noexcept { return m_characters.at(c); }
-
+		const Character& get_character(u8 c) const noexcept { return m_characters.at(c); }
 
 
 		void update_resolution(const filepath& path, u8 btmp_size) noexcept
 		{
-			glDeleteTextures(1, &m_texture_id);
+			m_tex.unload();
 			m_characters.clear();
 			m_btmp_size = btmp_size;
 			load(path);
@@ -55,12 +52,11 @@ namespace gfx
 
 		void load(const filepath& path) noexcept;
 
-		void bind() const noexcept { glBindTexture(GL_TEXTURE_2D, m_texture_id); }
+		Texture& get_tex() noexcept { return m_tex; }
+		const Texture& get_tex() const noexcept { return m_tex; }
 
 
 	private:
-
-		// = Actors
 
 		Image create_bitmap(const filepath& path) noexcept;
 		
@@ -69,7 +65,7 @@ namespace gfx
 
 		std::map<u8, Character> m_characters{};
 
-		GLuint	m_texture_id{};
+		Texture m_tex;
 		u8		m_btmp_size{};
 
 

@@ -84,7 +84,7 @@ namespace gfx
 		/// </summary>
 		void draw(Renderer& renderer) override
 		{
-			renderer.push_command({.mesh = &mesh, .transform = m4f32(1), .material = &material});
+			renderer.push_command(&mesh, &material, RenderLayer::Opaque);
 		}
 
 
@@ -168,10 +168,13 @@ namespace gfx
 
 		bool queued{};
 
+
 	private:
 		
 		Mesh mesh;
 		Material material;
+
+
 	};
 
 }

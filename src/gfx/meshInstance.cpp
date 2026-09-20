@@ -12,6 +12,7 @@ namespace gfx
 
 	void MeshInstance::draw(Renderer& renderer)
 	{
-		renderer.push_command({.mesh = m_mesh, .transform = get_transform(), .material = &m_material});
+		renderer.push_command(m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Opaque);
 	}
+
 }
