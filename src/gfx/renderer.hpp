@@ -19,6 +19,7 @@ namespace gfx
 		Opaque = 0,
 		Transparent = 1,
 		UI = 2,
+		UI_Model = 3, // For 3D models directly inside of the UI
 
 		COUNT
 	};
@@ -60,6 +61,7 @@ namespace gfx
 			return value < other.value;
 		}
 	
+
 	private:
 		static constexpr uint64_t bits = 64;
 
@@ -129,7 +131,17 @@ namespace gfx
 			m_commands.emplace_back(DrawCommand{
 				.key = {RenderLayer::UI, 0.f},
 				.mesh = mesh,
-				.transform = transform,
+				.transform = static_cast<m4f32>(transform),
+				.material = material
+			});
+		}
+
+		void push_command(Mesh* mesh, m3f32 transform, Material* material, RenderLayer layer)
+		{
+			m_commands.emplace_back(DrawCommand{
+				.key = {layer, 0.f},
+				.mesh = mesh,
+				.transform = static_cast<m4f32>(transform),
 				.material = material
 			});
 		}
@@ -137,7 +149,9 @@ namespace gfx
 		void start(const Camera& camera, m4f32 uiViewMatrix);
 		void draw();
 
+
 	private:
+
 		Camera m_camera;
 		m4f32 m_viewMatrix;
 		glm::vec4 m_viewZRow;

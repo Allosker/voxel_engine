@@ -48,5 +48,6 @@ namespace gfx
 
 	using GlId_Shader = GlId < []() { return glCreateProgram(); }, [](auto id) {glDeleteProgram(id); } > ;
 	using GlId_UBO = GlId < []() { GLuint id; glGenBuffers(1, &id); return id; }, [](auto id) { glDeleteBuffers(1, &id); } > ;
+	using GlId_Texture = GlId < []() { GLuint id; glGenTextures(1, &id); return id; }, [](auto id) { glDeleteTextures(1, &id); } > ;
 
 } // render

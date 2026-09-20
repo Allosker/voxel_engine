@@ -7,6 +7,7 @@
 
 #include "sys/graphics.hpp"
 #include "sys/types.hpp"
+#include "gfx/gl.hpp"
 
 #include "image.hpp"
 
@@ -36,19 +37,15 @@ namespace gfx
 		Texture(const Image& image);
 		Texture(u8* buffer, u32 size);
 
-
 		DELETE_COPY_INIT(Texture);
+		DEFAULT_MOVE_INIT(Texture);
 
-		Texture(Texture&& other) noexcept;
-		Texture& operator=(Texture&& other) noexcept;
+		~Texture() noexcept = default;
 
-		~Texture() noexcept;
-
-
-	// = Actors
 
 		void load(const filepath& tex_path);
-		void load_from_memory(u8* buffer, u32 size);
+		void load(u8* buffer, u32 size);
+		void load(const Image& image);
 
 		void update(const Image& image) noexcept;
 
@@ -58,8 +55,6 @@ namespace gfx
 
 		void unbind() const noexcept;
 
-
-	// = Getters
 
 		GLuint id() const noexcept { return m_id; }
 
@@ -72,7 +67,7 @@ namespace gfx
 
 		std::int32_t m_width{}, m_height{};
 
-		GLuint m_id{};
+		GlId_Texture m_id{};
 
 	};
 

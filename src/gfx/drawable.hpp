@@ -18,4 +18,5 @@ namespace gfx
 
 		virtual void draw(Renderer& renderer) = 0;
 	};
+
 }

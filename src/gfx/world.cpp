@@ -1,11 +1,10 @@
 #include "world.hpp"
 
 #include "debugRenderer.hpp"
-#include "camera.hpp"
-#include "rayTraversal.hpp"
 #include "meshInstance.hpp"
-#include "texture.hpp"
-#include "sys/assetsManager.hpp"
+#include "rayTraversal.hpp"
+#include <chrono>
+
 
 namespace gfx
 {
@@ -17,7 +16,7 @@ namespace gfx
 				overworld.discard_all_chunks();
 
 			overworld.manage_chunks(player_loc, reload);
-			generatePendingChunks(player_loc);
+			generate_pending_chunks(player_loc);
 			overworld.generatePendingMeshes(player_loc);
 		}
 
@@ -32,7 +31,7 @@ namespace gfx
 			}
 	}
 
-	void World::generatePendingChunks(const types::chunk_loc& player_loc) noexcept
+	void World::generate_pending_chunks(const types::chunk_loc& player_loc) noexcept
 	{
 		const auto timeBudget = 4 / 1000.f;
 		const auto start = std::chrono::steady_clock::now();
@@ -59,7 +58,7 @@ namespace gfx
 			const auto elem = *closest;
 			chunkGenQueue.erase(closest);
 
-			generateChunk(elem);
+			generate_chunk(elem);
 
 			const auto end = std::chrono::steady_clock::now();
 
@@ -76,12 +75,10 @@ namespace gfx
 		{
 			const auto end = std::chrono::steady_clock::now();
 			const auto totalTime = std::chrono::duration<float>{end - start}.count();
-
-			std::println("generated chunks: {} {}ms", generatedCount, totalTime * 1000.f);
 		}
 	}
 
-	void World::generateChunk(const types::chunk_loc& loc) noexcept
+	void World::generate_chunk(const types::chunk_loc& loc) noexcept
 	{
 		auto* chunk = overworld.at_chunk(loc);
 		if (!chunk)
@@ -92,7 +89,7 @@ namespace gfx
 		const auto c_pos = chunk->get_position();
 		bool should_be_empty_chunk{ true };
 
-		generate(terrain_context, terrain_data, chunk->get_position());
+		generate(terrain_context, terrain_data, (v3f32)chunk->get_position());
 
 		const auto& vtm = VoxelTypeManager::get();
 		const auto dirtId = vtm.get_id("dirt"_id);
@@ -158,7 +155,8 @@ namespace gfx
 
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		chunk->at(voxel_l) = new_voxel;
-		m_world_items.emplace_back(new_voxel, voxel_p);
+
+		m_world_items.emplace_back(new_voxel, static_cast<v3f64>(voxel_p));
 
 
 		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
@@ -214,22 +212,10 @@ namespace gfx
 	void World::draw(Renderer& renderer)
 	{
 		overworld.draw(renderer);
-
-		auto& am = AssetsManager::get();
-		auto& tex = am.textures.at(VoxelTypeManager::get().atlas_name());
-
-		
-		am.shaders.at("shaders/world_chunks").bind();
-		tex.bind();
 	
 		for (auto& i : m_world_items)
-			i.draw({ &am.shaders.at("shaders/world_chunks") });
-
-		tex.unbind();
-		am.shaders.at("shaders/world_chunks").unbind();
+			i.draw(renderer);
 		
-       
-
 		for (auto& meshInstance : m_meshInstances)
 		{
 			meshInstance.draw(renderer);

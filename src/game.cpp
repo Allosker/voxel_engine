@@ -78,7 +78,7 @@ DebugMessage Game::run()
 
 	glfwSwapInterval(0);
 
-	camera.set_FBS(window->getSize());
+	camera.set_FBS((v2f64)window->getSize());
 
 
 	AssetsManager::get(); // load all assets
@@ -159,11 +159,13 @@ DebugMessage Game::run()
 
 		m_inv_gui.draw(renderer);
 
+
 		renderer.draw();
 
 		debugTimer.add("renderer");
 		
-		gfx::DebugRenderer::get().render3D(camera.get_VP());
+		gfx::DebugRenderer::get().render3D(static_cast<m4f32>(camera.get_VP()));
+
 
 		/*= Debug Draws =*/
 
@@ -178,6 +180,7 @@ DebugMessage Game::run()
 		window->display(); // Swap Window Buffer With the Graphics Card's One
 
 		debugTimer.add("window display");
+
 
 		//debugTimer.printAll();
 
@@ -227,7 +230,7 @@ void Game::inputs()
 
 		if (auto f = event->get_if<Event::Resized>())
 		{
-			camera.set_FBS(f->size);
+			camera.set_FBS((v2f64)f->size);
 		}
 
 		if (auto key = event->get_if<Event::KeyEvent>())
@@ -370,7 +373,7 @@ void Game::logic()
 	player.update(world, delta_time.get());
 
 
-	m_inv_gui.update(Window::to_gui_coordinates(*window, window->get_cursor_pos()));
+	m_inv_gui.update(Window::to_gui_coordinates(*window, (v2f32)window->get_cursor_pos()));
 
 }
 
@@ -454,7 +457,7 @@ void Game::debug_imgui()
 
 			ImGui::BeginGroup();
 			{
-				const u32 max{ 8 };
+				const u32 max{ 32 };
 				const u32 min{ 1 };
 
 				ImGui::SliderScalar("Render Distance", ImGuiDataType_U32, &world.get_chunkGrid().parameters.r_dist, &min, &max);
@@ -474,13 +477,13 @@ void Game::debug_imgui()
 	{
 		if (ImGui::Begin("Terrain Generation", &show_tg))
 		{
-			static gfx::Image noise_image{ v2i32{}, GL_RED };
+			static gfx::Image noise_image{ v2u32{}, GL_RED };
 			static gfx::Texture noise_texture{ noise_image };
 
-			static i32 renderdistance{};
+			static i32 renderdistance{};   
 			const i32 l1{ 0 }, l2{ 100 };
 			ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
-
+			     
 			auto pos = static_cast<v3i32>(camera.get_pos());
 			v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
 			v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };

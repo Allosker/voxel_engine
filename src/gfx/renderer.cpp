@@ -22,8 +22,6 @@ namespace gfx
 
 	void Renderer::draw()
 	{
-		glEnable(GL_DEPTH_TEST);
-
 		viewUBI.bind();
 		instanceUBI.bind();
 
@@ -56,37 +54,51 @@ namespace gfx
 			{
 				currentLayer = newLayer;
 
-				if (currentLayer == RenderLayer::Opaque)
-				{
-					glEnable(GL_DEPTH_TEST);
-					glDepthMask(GL_TRUE);
-					glDisable(GL_BLEND);
-					glEnable(GL_CULL_FACE);
 
-					viewUBI.set("vp", m_viewMatrix);
-					viewUBI.update();
-				}
-				else if (currentLayer == RenderLayer::Transparent)
+				switch(currentLayer)
 				{
-					glEnable(GL_DEPTH_TEST);
-					glDepthMask(GL_FALSE);
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					glDisable(GL_CULL_FACE);
+					case RenderLayer::Opaque:
+						glEnable(GL_DEPTH_TEST);
+						glDepthMask(GL_TRUE);
+						glDisable(GL_BLEND);
+						glEnable(GL_CULL_FACE);
 
-					viewUBI.set("vp", m_viewMatrix);
-					viewUBI.update();
-				}
-				else if (currentLayer == RenderLayer::UI)
-				{
-					glDisable(GL_DEPTH_TEST);
-					glDepthMask(GL_FALSE);
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					glDisable(GL_CULL_FACE);
+						viewUBI.set("vp", m_viewMatrix);
+						viewUBI.update();
+						break;
 
-					viewUBI.set("vp", m_uiViewMatrix);
-					viewUBI.update();
+					case RenderLayer::Transparent:
+						glEnable(GL_DEPTH_TEST);
+						glDepthMask(GL_TRUE);
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glDisable(GL_CULL_FACE);
+
+						viewUBI.set("vp", m_viewMatrix);
+						viewUBI.update();
+						break;
+
+					case RenderLayer::UI:
+						glDisable(GL_DEPTH_TEST);
+						glDepthMask(GL_FALSE);
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glEnable(GL_CULL_FACE);
+
+						viewUBI.set("vp", m_uiViewMatrix);
+						viewUBI.update();
+						break;
+
+					case RenderLayer::UI_Model:
+						glEnable(GL_DEPTH_TEST);
+						glDepthMask(GL_TRUE);
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glDisable(GL_CULL_FACE);
+
+						viewUBI.set("vp", m_uiViewMatrix);
+						viewUBI.update();
+						break;
 				}
 			}
 

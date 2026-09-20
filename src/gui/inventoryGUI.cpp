@@ -217,9 +217,9 @@ namespace gui
 					isg = &stacks.back();
 
 					isg->set_scale(g_base_ISG_scale);
-					isg->set_pos(v3f32{ slot_pos, -100. } + g_slot_size / 2.f);
-					isg->rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
-					isg->rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+					isg->set_pos(v3f64{ slot_pos, -100. } + (f64)g_slot_size / 2.);
+					isg->rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
+					isg->rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
 					isg->set_scale_text(g_base_ISG_text_scale);
 				}
 				else

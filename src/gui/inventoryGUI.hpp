@@ -22,7 +22,8 @@
 namespace gui
 {
 
-	class InventoryGUI : public gfx::Drawable
+	class InventoryGUI 
+		: public gfx::Drawable
 	{
 	public:
 
@@ -37,9 +38,9 @@ namespace gui
 			m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{ .scancode{} });
 
 			m_temp.set_scale(g_over_ISG_scale);
-			m_temp.set_pos(v3f32{ 0., 0., 0. } + g_slot_size / 2.f);
-			m_temp.rotate(glm::angleAxis<f32>(glm::radians(70.f), glm::normalize(v3f32{ 1, 0, 0 })));
-			m_temp.rotate(glm::angleAxis<f32>(glm::radians(45.f), glm::normalize(v3f32{ 0, 0, 1 })));
+			m_temp.set_pos(v3f64{ 0., 0., 0. } + (f64)g_slot_size / 2.f);
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
 			m_temp.set_scale_text(g_over_ISG_text_scale);
 		}
 
@@ -64,7 +65,6 @@ namespace gui
 		{
 			if (m_inv.is_active())
 				m_board.draw(renderer);
-
 			m_hotbar.draw(renderer);
 			m_selected_slot.draw(renderer);
 
@@ -101,19 +101,19 @@ namespace gui
 		///		textures/gui/inventory/medium.png
 		///		textures/gui/inventory/big.png
 		/// </summary>
-		static constexpr f32 g_outline_thickness_px{ 13.f };
-		static constexpr f32 g_outline_thickness_hb_px{ 6.f };
-		static constexpr f32 c_absolute_slot_size_px{ 32.f };
-		static constexpr f32 g_scale{ 1.5f };
-		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2.f };
-		static constexpr f32 g_outline_hb{ g_outline_thickness_hb_px * g_scale * 2.f };
-		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2.f };
+		static constexpr f32 g_outline_thickness_px{ 13. };
+		static constexpr f32 g_outline_thickness_hb_px{ 6. };
+		static constexpr f32 c_absolute_slot_size_px{ 32. };
+		static constexpr f32 g_scale{ 1.5 };
+		static constexpr f32 g_outline{ g_outline_thickness_px * g_scale * 2. };
+		static constexpr f32 g_outline_hb{ g_outline_thickness_hb_px * g_scale * 2. };
+		static constexpr f32 g_slot_size{ c_absolute_slot_size_px * g_scale * 2. };
 
-		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5f };
-		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2.f };
+		static constexpr f32 g_base_ISG_scale{ g_slot_size / 2.5 };
+		static constexpr f32 g_over_ISG_scale{ g_slot_size / 2. };
 
-		static constexpr f32 g_base_ISG_text_scale{ 0.4f };
-		static constexpr f32 g_over_ISG_text_scale{ 0.48f };
+		static constexpr f32 g_base_ISG_text_scale{ 0.4 };
+		static constexpr f32 g_over_ISG_text_scale{ 0.48 };
 
 
 		/// <summary>

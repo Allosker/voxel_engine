@@ -167,12 +167,12 @@ namespace gfx
 
 
 	ChunkMesh::ChunkMesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
-		: material(&AssetsManager::get().shaders.at("shaders/world_chunks"))
+		: material{ &AssetsManager::get().shaders.at("shaders/world_chunks"_id) }
 	{
 		mesh.create_buffer<VoxelVertex>(false);
 		update_mesh(bake_mesh(current_chunk, grid));
 		
-		material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"));
+		material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 	}
 
 	std::vector<ChunkMesh::VoxelVertex> ChunkMesh::bake_mesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
