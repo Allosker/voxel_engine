@@ -6,7 +6,7 @@ namespace gfx
 	{
 		if (m_type == types::type_id_null)
 			m_type = type;
-		else if (m_type != type) return 0;
+		else if (m_type != type) return count;
 
 		u32 remainder{};
 

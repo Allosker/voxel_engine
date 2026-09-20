@@ -85,7 +85,7 @@ namespace gfx
 
 		/// <summary>
 		/// Add the specified count, if types match
-		/// <para> 0 is returned if the types do not match </para> 
+		/// <para> "count" is returned if the types do not match </para> 
 		/// </summary>
 		/// <param name="tid"></param>
 		/// <param name="count"></param>
@@ -102,8 +102,7 @@ namespace gfx
 		u32 take(Type type, u32 count) noexcept;
 
 		/// <summary> 
-		/// Clear the item stack as well
-		/// <para> 0 is returned if the tyoes do not match </para>
+		/// Clear the item stack
 		/// </summary>
 		/// <returns>The count of *this</returns>
 		u16 take_all() noexcept
@@ -114,7 +113,7 @@ namespace gfx
 		}
 
 		/// <summary>
-		/// Clear the tid and the count of *this
+		/// Clear the t_id and the count of *this
 		/// </summary>
 		void clear() noexcept
 		{
