@@ -170,7 +170,7 @@ namespace gui
 		{
 			if (!m_should_be_drawn) return;
 
-			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, gfx::RenderLayer::UI);
+			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, gfx::RenderLayer::UI_Model);
 			m_text.draw(renderer);
 		}
 

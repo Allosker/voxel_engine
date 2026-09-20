@@ -19,6 +19,7 @@ namespace gfx
 		Opaque = 0,
 		Transparent = 1,
 		UI = 2,
+		UI_Model = 3, // For 3D models directly inside of the UI
 
 		COUNT
 	};
