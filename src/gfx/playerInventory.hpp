@@ -42,8 +42,6 @@ namespace gfx
 		gfx::Inventory& get_inventory() noexcept { return m_inv; }
 
 
-
-
 	private:
 
 

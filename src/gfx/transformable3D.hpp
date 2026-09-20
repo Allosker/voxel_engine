@@ -22,11 +22,8 @@ namespace gfx
 		{
 		}
 
-		Transformable3D(Transformable3D&&) = default;
-		Transformable3D(Transformable3D&) = default;
-
-		Transformable3D& operator=(Transformable3D&&) = default;
-		Transformable3D& operator=(Transformable3D&) = default;
+		DEFAULT_COPY_INIT(Transformable3D);
+		DEFAULT_MOVE_INIT(Transformable3D);
 
 		~Transformable3D() = default;
 

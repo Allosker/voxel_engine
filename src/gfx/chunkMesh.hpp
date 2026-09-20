@@ -17,6 +17,7 @@
 #include "renderer.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
+#include "world_item.hpp"
 
 
 namespace gfx
@@ -24,7 +25,8 @@ namespace gfx
 	class ChunkGrid;
 
 
-	class ChunkMesh : public Drawable
+	class ChunkMesh 
+		: public Drawable
 	{
 	public:
 
@@ -42,10 +44,9 @@ namespace gfx
 			}
 		};
 
+
 	public:
 
-
-	// = Init
 
 		ChunkMesh() noexcept = default;
 
@@ -63,6 +64,7 @@ namespace gfx
 		void update(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
 		{
 			update_mesh(bake_mesh(current_chunk, grid));
+			update_entity_meshes(current_chunk);
 		}
 
 		/// <summary>
@@ -80,11 +82,21 @@ namespace gfx
 		void update_mesh(const std::vector<VoxelVertex>& vertices) noexcept;
 
 		/// <summary>
+		/// Update the entities contained in the associated chunk
+		/// </summary>
+		/// /// <param name="Current Chunk"></param>
+		void update_entity_meshes(const Chunk& current_chunk) noexcept;
+
+
+		/// <summary>
 		/// Draw the mesh buffer
 		/// </summary>
 		void draw(Renderer& renderer) override
 		{
 			renderer.push_command(&mesh, &material, RenderLayer::Opaque);
+
+			for (auto& i : m_entities)
+				i.second.draw(renderer);
 		}
 
 
@@ -164,15 +176,16 @@ namespace gfx
         };
 
         // Ambient Occlusion values in range [0;1] representing each stage (right to left)
-        static constexpr std::array<f32, 4> ao_values{ 0.85f, 0.9f, 0.95f, 1.f }; 
+        static constexpr std::array<f32, 4> ao_values{ 0.85f, 0.9f, 0.95f, 1.f };
 
 		bool queued{};
 
 
 	private:
 		
-		Mesh mesh;
 		Material material;
+		Mesh mesh;
+		std::unordered_map<types::pos, WorldItemMesh> m_entities;
 
 
 	};

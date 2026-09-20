@@ -13,6 +13,7 @@
 #include "sys/types.hpp"
 
 #include "voxel.hpp"
+#include "world_item.hpp"
 
 
 namespace gfx
@@ -60,10 +61,14 @@ namespace gfx
 
 		types::chunk_loc get_location() const noexcept { return m_loc; }
 
+		std::unordered_map<types::pos, WorldItem>& get_world_items() noexcept { return m_entities; }
+		const std::unordered_map<types::pos, WorldItem>& get_world_items() const noexcept { return m_entities; }
+
 
 		void set_voxel_at(types::voxel_loc loc, Voxel new_voxel) noexcept;
-
 		void set_empty() noexcept;
+
+		void add_entity(const WorldItem& wi) { m_entities.emplace(wi.get_pos(), wi); }
 
 
 	public:
@@ -108,6 +113,7 @@ namespace gfx
 	private:
 
 		std::vector<Voxel> m_voxels{};
+		std::unordered_map<types::pos, WorldItem> m_entities{};
 
 		types::chunk_loc m_loc{};
 		bool m_empty{ false };

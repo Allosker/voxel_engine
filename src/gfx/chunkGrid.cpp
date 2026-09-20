@@ -101,7 +101,7 @@ namespace gfx
 				}
 			);
 
-			const auto elem = *closest;
+			const auto& elem = *closest;
 			m_chunkMeshQueue.erase(closest);
 
 			update_cmesh(elem);

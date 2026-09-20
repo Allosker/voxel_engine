@@ -2,9 +2,10 @@
 
 #include <cassert>
 
-#include "voxelType.hpp"
 #include "chunkGrid.hpp"
 #include "sys/assetsManager.hpp"
+#include "voxel.hpp"
+#include "voxelType.hpp"
 
 namespace gfx
 {
@@ -109,57 +110,57 @@ namespace gfx
 
 		switch (index)
 		{
-		case 0: // Left (+x)
-			return {
-				physical_ao[1],
-				physical_ao[0],
-				physical_ao[3],
-				physical_ao[2]
-			};
+			case 0: // Left (+x)
+				return {
+					physical_ao[1],
+					physical_ao[0],
+					physical_ao[3],
+					physical_ao[2]
+				};
 
-		case 1: // Right (-x)
-			return {
-				physical_ao[3],
-				physical_ao[2],
-				physical_ao[1],
-				physical_ao[0]
-			};
+			case 1: // Right (-x)
+				return {
+					physical_ao[3],
+					physical_ao[2],
+					physical_ao[1],
+					physical_ao[0]
+				};
 
-		case 2: // Up (+y)
-			return {
-				physical_ao[3],
-				physical_ao[2],
-				physical_ao[1],
-				physical_ao[0]
-			};
+			case 2: // Up (+y)
+				return {
+					physical_ao[3],
+					physical_ao[2],
+					physical_ao[1],
+					physical_ao[0]
+				};
 
-		case 3: // Down (-y)
-			return {
-				physical_ao[1],
-				physical_ao[0],
-				physical_ao[3],
-				physical_ao[2]
-			};
+			case 3: // Down (-y)
+				return {
+					physical_ao[1],
+					physical_ao[0],
+					physical_ao[3],
+					physical_ao[2]
+				};
 
-		case 4: // Front (+z)
-			return {
-				physical_ao[0],
-				physical_ao[2],
-				physical_ao[1],
-				physical_ao[3]
-			};
+			case 4: // Front (+z)
+				return {
+					physical_ao[0],
+					physical_ao[2],
+					physical_ao[1],
+					physical_ao[3]
+				};
 
-		case 5: // Back (-z)
-			return {
-				physical_ao[1],
-				physical_ao[3],
-				physical_ao[0],
-				physical_ao[2]
-			};
+			case 5: // Back (-z)
+				return {
+					physical_ao[1],
+					physical_ao[3],
+					physical_ao[0],
+					physical_ao[2]
+				};
 
-		default:
-			assert("ERROR::CHUNKMESH::AO_CALCULATING::Cannot calculate AO for the given face, index out of bound");
-			return {};
+			default:
+				assert("ERROR::CHUNKMESH::AO_CALCULATING::Cannot calculate AO for the given face, index out of bound");
+				return {};
 		}
 	}
 
@@ -171,7 +172,7 @@ namespace gfx
 	{
 		mesh.create_buffer<VoxelVertex>(false);
 		update_mesh(bake_mesh(current_chunk, grid));
-		
+
 		material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 	}
 
@@ -201,11 +202,13 @@ namespace gfx
 
 					if (!voxel)
 						continue;
-					
+
 
 					const auto abs_pos = v3f32{ (f32)x,(f32)y,(f32)z } + static_cast<v3f32>(current_chunk.get_position());
 
 					std::array<f32, 4> ao_corners{};
+
+					const auto& uvs = calculate_uvs(voxel.type_id);
 
 					for (size_t i{}; i < Chunk::dirs<i8>.size(); i++)
 					{
@@ -251,12 +254,10 @@ namespace gfx
 
 						if (is_face_visible)
 						{
-							
-
 							assemble_pos_uvs(
 								ret,
 								Voxel::g_model[i],
-								calculate_uvs(voxel.type_id),
+								uvs,
 								calculate_ao(targetChunk, i, v_loc_dir, grid),
 								abs_pos
 							);
@@ -275,4 +276,11 @@ namespace gfx
 	{
 		mesh.update_buffer(vertices);
 	}
+
+	void ChunkMesh::update_entity_meshes(const Chunk& current_chunk) noexcept
+	{
+		for (const auto& [key, val] : current_chunk.get_world_items())
+			m_entities.try_emplace(key, val);
+	}
+
 }

@@ -108,12 +108,6 @@ DebugMessage Game::run()
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
 
-	auto& am = AssetsManager::get();
-	auto& model = am.models.begin()->second;
-	auto& mi = world.m_meshInstances.emplace_back(model.mesh, &am.shaders.at("shaders/static_mesh"));
-	mi.set_pos({1.0, 8.0, 2.0});
-	mi.m_material.set("u_tint", v4f32(1, 0, 0, 1));
-	mi.m_material.set("tex", model.textures[0]);
 
 	gfx::Renderer renderer;
 
@@ -160,7 +154,6 @@ DebugMessage Game::run()
 		world.draw(renderer);
 
 		m_inv_gui.draw(renderer);
-
 
 		renderer.draw();
 

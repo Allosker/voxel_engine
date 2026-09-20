@@ -154,9 +154,11 @@ namespace gfx
 			return false;
 
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
-		chunk->at(voxel_l) = new_voxel;
+		auto& c_voxel = chunk->at(voxel_l);
 
-		m_world_items.emplace_back(new_voxel, static_cast<v3f64>(voxel_p));
+		chunk->add_entity({ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
+
+		c_voxel = new_voxel;
 
 
 		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
@@ -212,9 +214,6 @@ namespace gfx
 	void World::draw(Renderer& renderer)
 	{
 		overworld.draw(renderer);
-	
-		for (auto& i : m_world_items)
-			i.draw(renderer);
 		
 		for (auto& meshInstance : m_meshInstances)
 		{

@@ -1,8 +1,9 @@
 #include "renderer.hpp"
 
-#include "mesh.hpp"
 #include "camera.hpp"
 #include "material.hpp"
+#include "mesh.hpp"
+#include <algorithm>
 
 namespace gfx
 {
@@ -55,7 +56,7 @@ namespace gfx
 				currentLayer = newLayer;
 
 
-				switch(currentLayer)
+				switch (currentLayer)
 				{
 					case RenderLayer::Opaque:
 						glEnable(GL_DEPTH_TEST);
