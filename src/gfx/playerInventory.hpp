@@ -24,20 +24,22 @@ namespace gfx
 		{
 			m_inv.toggle();
 
-			is_active = !is_active;
+			m_is_active = !m_is_active;
 
-			if (is_active)
+			if (m_is_active)
 			{
-				was_cursor_visible = window.is_cursor_visible();
+				m_was_cursor_visible = window.is_cursor_visible();
 				window.set_cursor_sight(true);
 			}
 			else
 			{
-				if (!was_cursor_visible)
+				if (!m_was_cursor_visible)
 					window.set_cursor_sight(false);
 			}
 			
 		}
+
+		bool is_active() const noexcept { return m_is_active; }
 
 		gfx::Inventory& get_inventory() noexcept { return m_inv; }
 
@@ -47,8 +49,8 @@ namespace gfx
 
 		gfx::Inventory		m_inv;
 
-		bool is_active{};
-		bool was_cursor_visible{}; // when the inventory was toggled on
+		bool m_is_active{};
+		bool m_was_cursor_visible{}; // when the inventory was toggled on
 
 	};
 

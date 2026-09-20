@@ -42,10 +42,16 @@ namespace gfx
 		return count;
 	}
 
-	u32 Inventory::remove_items(ItemStack::Type type, u32 count) noexcept
+	u32 Inventory::take_items(ItemStack::Type type, u32 count) noexcept
 	{
 		m_change++;
 		return {};
+	}
+
+	u32 Inventory::take_current(u32 count) noexcept
+	{
+		m_change++;
+		return get_selected_item().take(get_selected_item().get_type(), count);
 	}
 
 	void Inventory::clear() noexcept

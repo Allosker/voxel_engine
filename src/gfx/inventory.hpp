@@ -108,6 +108,9 @@ namespace gfx
 
 		size_t get_index_hb() const noexcept { return m_index_hb; }
 
+		ItemStack& get_selected_item() noexcept { return m_item_stacks_hb.at(m_index_hb); }
+		const ItemStack& get_selected_item() const noexcept { return m_item_stacks_hb.at(m_index_hb); }
+
 
 		void toggle() noexcept { m_active = !m_active; m_change++; }
 
@@ -121,14 +124,25 @@ namespace gfx
 		[[nodiscard]] u32 add_items(ItemStack::Type type, u32 count) noexcept;
 
 		/// <summary>
-		/// Tries to remove the Item.s, returns how many could be removed 
+		/// Tries to take the Item.s, returns how many could be taken 
 		/// <para>If none could, returns 0</para>
 		/// <para>Note: count can be any number in I</para> 
 		/// </summary>
 		/// <param name="type"></param>
 		/// <param name="count"></param>
 		/// <returns>The count of removed item</returns>
-		[[nodiscard]] u32 remove_items(ItemStack::Type type, u32 count) noexcept;
+		[[nodiscard]] u32 take_items(ItemStack::Type type, u32 count) noexcept;
+
+		/// <summary>
+		/// Tries to take the Item.s from the currently selected hotbar slot, returns how many could be removed 
+		/// <para>If none could, returns 0</para>
+		/// <para>Note: count can be any number in I</para>
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="count"></param>
+		/// <returns>The count of removed item</returns>
+		[[nodiscard]] u32 take_current(u32 count) noexcept;
+
 
 		void clear() noexcept;
 

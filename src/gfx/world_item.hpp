@@ -21,10 +21,11 @@
 
 namespace gfx
 {
+	using EntityId = i32;
 
 	struct EntityHandle
 	{
-		i32 id{};
+		EntityId id{};
 	};
 
 	class WorldItem

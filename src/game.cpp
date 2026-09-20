@@ -262,9 +262,6 @@ void Game::inputs()
 			if (sys::InputManager::pressed(*key, Keys::G))
 				player.m_mov.ghost = !player.m_mov.ghost;
 
-			if (sys::InputManager::pressed(*key, Keys::E))
-				player_inventory.get_inventory().add_items({ 1, {} }, 100);
-
 		}
 
 		if (runtime_settings.paused)
@@ -278,7 +275,7 @@ void Game::inputs()
 			sys::InputManager::get().add_mouseButton_event(*mouse);
 
 
-			if (player_inventory.get_inventory().is_active()) return;
+			if (player_inventory.is_active()) return;
 
 
 			if (sys::InputManager::pressed(*mouse, MouseButtons::Left))
@@ -289,6 +286,23 @@ void Game::inputs()
 					auto pos = r->voxel_pos;
 
 					world.set_voxel(pos, gfx::Voxel{ .type_id{} });
+				}
+			}
+
+			if (sys::InputManager::pressed(*mouse, MouseButtons::Right))
+			{
+				if (const auto id = player_inventory.get_inventory().get_selected_item().get_type().id)
+				{
+
+					if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
+					{
+						ray = *r;
+						auto pos = r->voxel_pos;
+
+						world.set_voxel(pos + static_cast<types::voxel_pos>(r->normal), gfx::Voxel{ .type_id{ id } });
+						
+						player_inventory.get_inventory().take_current(1);
+					}
 				}
 			}
 		}

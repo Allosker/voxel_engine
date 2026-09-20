@@ -155,7 +155,8 @@ namespace gfx
 		const auto voxel_l = Chunk::to_voxelLoc(*chunk, voxel_p);
 		auto& c_voxel = chunk->at(voxel_l);
 
-		add_entity(WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
+		if (new_voxel.type_id == types::type_id_null)
+			add_entity(WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
 
 		c_voxel = new_voxel;
 
@@ -176,7 +177,7 @@ namespace gfx
 
 		overworld.dirty_cmesh(loc);
 
-
+		
 		// Represent each direction index
 		const auto check_all_dirs = [&](const size_t i, const size_t first, const size_t second, const size_t i2, const size_t first2, const size_t second2)
 			{
