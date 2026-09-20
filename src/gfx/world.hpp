@@ -103,7 +103,7 @@ namespace gfx
 			bool update_world{ true };
 		} debug;
 
-		static constexpr f32 time_budget{ 120 / 1000.f };
+		static constexpr f32 time_budget{ 4.f / 1000.f };
 
 		gfx::terrain_gen::Context/*<FastNoise::FractalFBm, FastNoise::Simplex>*/ terrain_context{};
 		gfx::terrain_gen::Data terrain_data;
