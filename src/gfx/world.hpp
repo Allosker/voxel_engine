@@ -27,6 +27,8 @@ namespace gfx
 	{
 	public:
 
+		using EntityContainer = std::unordered_map<types::chunk_loc, std::vector<WorldItem>>;
+
 		World()
 			: terrain_data{ {Chunk::g_size<f32>.z, Chunk::g_size<f32>.x} }
 		{
@@ -89,7 +91,7 @@ namespace gfx
 		/// </summary>
 		/// <param name="loc"></param>
 		/// <returns></returns>
-		const std::unordered_map<types::chunk_loc, std::vector<WorldItem>>& get_entities(const types::chunk_loc& loc) const noexcept { return m_entities; }
+		const EntityContainer& get_entities(const types::chunk_loc& loc) const noexcept { return m_entities; }
 
 		/// <summary>
 		/// Considers the loc to be valid
@@ -98,7 +100,17 @@ namespace gfx
 		/// <param name="wi"></param>
 		void add_entity(const types::chunk_loc& loc, WorldItem&& wi) noexcept
 		{
-			m_entities.at(loc).push_back(std::move(wi));
+			auto it = m_entities.find(loc);
+
+			if (it != m_entities.end())
+			{
+				it->second.emplace_back(std::move(wi));
+			}
+			else
+			{
+				m_entities.emplace(loc, std::vector<WorldItem>{});
+				m_entities.at(loc).emplace_back(std::move(wi));
+			}
 		}
 		  
 		/// <summary>
@@ -110,16 +122,23 @@ namespace gfx
 		template<typename LAMBDA>
 		void remove_entities_if(const types::chunk_loc& loc, LAMBDA lambda) noexcept
 		{
-			auto& entities = m_entities.at(loc);
-			std::vector<WorldItem>::iterator i{};
-			while (i != entities.end())
+			if (m_entities.empty()) return;
+
+			auto it = m_entities.find(loc);
+
+			if (it != m_entities.end())
 			{
-				if (lambda(*i))
+
+				std::vector<WorldItem>::iterator i{ it->second.begin() };
+				while (i != it->second.end())
 				{
-					i = entities.erase(i);
+					if (lambda(*i))
+					{
+						i = it->second.erase(i);
+					}
+					else
+						i++;
 				}
-				else
-					i++;
 			}
 		}
 
@@ -146,7 +165,7 @@ namespace gfx
 
 		ChunkGrid overworld{};
 
-		std::unordered_map<types::chunk_loc, std::vector<WorldItem>> m_entities;
+		EntityContainer m_entities;
 
 		types::chunk_loc last_player_loc{}; // remove that when moved into the chunk grid class
 

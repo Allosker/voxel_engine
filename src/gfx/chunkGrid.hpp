@@ -122,6 +122,10 @@ namespace gfx
 
 		const std::unordered_map<types::chunk_loc, Chunk>& get_chunkMap() const noexcept { return m_chunks; }
 
+
+		const types::chunk_loc& get_min() const noexcept { return m_min; }
+		const types::chunk_loc& get_max() const noexcept { return m_max; }
+
 		
 	public:
 
@@ -134,6 +138,7 @@ namespace gfx
 		std::unordered_set<types::chunk_loc> m_chunkGenQueue{};
 		std::unordered_set<types::chunk_loc> m_chunkMeshQueue{};
 
+
 	private:
 
 		std::unordered_map<types::chunk_loc, Chunk> m_chunks{};
@@ -141,6 +146,7 @@ namespace gfx
 
 		types::chunk_loc m_min{};
 		types::chunk_loc m_max{};
+
 
 	};
 

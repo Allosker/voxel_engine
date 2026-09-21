@@ -213,21 +213,23 @@ namespace gfx
 
 	void World::draw(Renderer& renderer)
 	{
-		overworld.draw(renderer);
+		get_chunkGrid().draw(renderer);
 
 
-		for (i64 z{ min.z }; z <= max.z; z++)
+		for (i64 z{ get_chunkGrid().get_min().z}; z <= get_chunkGrid().get_max().z; z++)
 		{
-			for (i64 y{ min.y }; y <= max.y; y++)
+			for (i64 y{ get_chunkGrid().get_min().y }; y <= get_chunkGrid().get_max().y; y++)
 			{
-				for (i64 x{ min.x }; x <= max.x; x++)
+				for (i64 x{ get_chunkGrid().get_min().x }; x <= get_chunkGrid().get_max().x; x++)
 				{
 					const auto loc = types::chunk_loc{ x,y,z };
 
-					for (auto& entity : m_entities.at(loc))
-					{
-						entity.draw(renderer);
-					}
+					auto it = m_entities.find(loc);
+					if (it != m_entities.end())
+						for (auto& entity : it->second)
+						{
+							entity.draw(renderer);
+						}
 				}
 			}
 		}

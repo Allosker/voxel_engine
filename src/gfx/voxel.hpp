@@ -9,6 +9,8 @@
 #include "gfx/voxelType.hpp"
 #include "sys/types.hpp"
 
+#include <array>
+
 
 namespace gfx
 {

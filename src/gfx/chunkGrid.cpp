@@ -41,7 +41,7 @@ namespace gfx
 			loc.z - parameters.r_dist
 		};
 
-
+		// Still accept min/max for debug purposes
 		deallocate_chunks(m_min, m_max);
 		allocate_chunks(m_min, m_max);
 	}
