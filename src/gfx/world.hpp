@@ -9,11 +9,12 @@
 #include "sys/types.hpp"
 
 #include "chunkGrid.hpp"
-#include "terrainGeneration.hpp"
-#include "gfx/meshInstance.hpp"
 #include "drawable.hpp"
+#include "gfx/meshInstance.hpp"
+#include "terrainGeneration.hpp"
 
 #include "gfx/world_item.hpp"
+#include <utility>
 
 
 namespace gfx
@@ -28,7 +29,8 @@ namespace gfx
 
 		World()
 			: terrain_data{ {Chunk::g_size<f32>.z, Chunk::g_size<f32>.x} }
-		{}
+		{
+		}
 
 
 		/// <summary>
@@ -46,7 +48,7 @@ namespace gfx
 
 		std::optional<RayCastResult> raycast(const types::pos& origin, const types::pos& dir, u64 max_length) noexcept;
 
-		
+
 		/// <summary>
 		/// First draws chunk grids, then entities
 		/// </summary>
@@ -82,34 +84,39 @@ namespace gfx
 
 		void load_model(const filepath path);
 
+		/// <summary>
+		/// Considers the loc to be valid
+		/// </summary>
+		/// <param name="loc"></param>
+		/// <returns></returns>
+		const std::unordered_map<types::chunk_loc, std::vector<WorldItem>>& get_entities(const types::chunk_loc& loc) const noexcept { return m_entities; }
 
-		const std::unordered_map<i32, WorldItem>& get_entities() const noexcept { return m_items; }
-
-		void add_entity(WorldItem&& wi) noexcept
+		/// <summary>
+		/// Considers the loc to be valid
+		/// </summary>
+		/// <param name="loc"></param>
+		/// <param name="wi"></param>
+		void add_entity(const types::chunk_loc& loc, WorldItem&& wi) noexcept
 		{
-			m_items.try_emplace(m_entity_assign_count++, std::move(wi));
-			m_items.at(m_entity_assign_count - 1).handle.id = m_entity_assign_count;
+			m_entities.at(loc).push_back(std::move(wi));
 		}
-
-		void remove_entity(const WorldItem& wi) noexcept
-		{
-			m_items.erase(wi.handle.id);
-		}
-
+		  
 		/// <summary>
 		/// Loop through all entities and removes the ones responding true to the lambda expression
 		/// <para> Note: the lambda expression accepts the entity being processed</para>
+		/// <para> Note: considers loc to be valid</para>
 		/// </summary>
 		/// <param name="lambda"></param>
 		template<typename LAMBDA>
-		void remove_entities_if(LAMBDA lambda) noexcept
+		void remove_entities_if(const types::chunk_loc& loc, LAMBDA lambda) noexcept
 		{
-			std::unordered_map<i32, WorldItem>::iterator i{ m_items.begin() };
-			while (i != m_items.end())
+			auto& entities = m_entities.at(loc);
+			std::vector<WorldItem>::iterator i{};
+			while (i != entities.end())
 			{
-				if (lambda(i->second))
+				if (lambda(*i))
 				{
-					i = m_items.erase(i);
+					i = entities.erase(i);
 				}
 				else
 					i++;
@@ -134,13 +141,15 @@ namespace gfx
 
 		std::vector<gfx::MeshInstance> m_meshInstances;
 
+
 	private:
-		
+
 		ChunkGrid overworld{};
 
+		std::unordered_map<types::chunk_loc, std::vector<WorldItem>> m_entities;
+
 		types::chunk_loc last_player_loc{}; // remove that when moved into the chunk grid class
-		
-		std::unordered_map<i32, WorldItem> m_items{};
+
 		i32 m_entity_assign_count{};
 
 

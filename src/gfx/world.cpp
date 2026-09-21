@@ -17,7 +17,7 @@ namespace gfx
 
 			overworld.manage_chunks(player_loc, reload);
 			generate_pending_chunks(player_loc);
-			overworld.generatePendingMeshes(player_loc, time_budget);
+			overworld.generate_pending_meshes(player_loc, time_budget);
 		}
 
 		/*== Debug ==*/
@@ -156,7 +156,7 @@ namespace gfx
 		auto& c_voxel = chunk->at(voxel_l);
 
 		if (new_voxel.type_id == types::type_id_null)
-			add_entity(WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
+			add_entity(loc, WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
 
 		c_voxel = new_voxel;
 
@@ -215,8 +215,23 @@ namespace gfx
 	{
 		overworld.draw(renderer);
 
-		for (auto& wi : m_items)
-			wi.second.draw(renderer);
+
+		for (i64 z{ min.z }; z <= max.z; z++)
+		{
+			for (i64 y{ min.y }; y <= max.y; y++)
+			{
+				for (i64 x{ min.x }; x <= max.x; x++)
+				{
+					const auto loc = types::chunk_loc{ x,y,z };
+
+					for (auto& entity : m_entities.at(loc))
+					{
+						entity.draw(renderer);
+					}
+				}
+			}
+		}
+
 		
 		for (auto& meshInstance : m_meshInstances)
 		{

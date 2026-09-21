@@ -28,25 +28,22 @@ namespace gfx
 
 	void ChunkGrid::manage_chunks(const types::chunk_loc& loc, bool force) noexcept
 	{
-		const auto r_dist = static_cast<i64>(parameters.r_dist);
-		const auto r_height = static_cast<i64>(parameters.r_height);
-
-		const v3i64 max
+		m_max = 
 		{
-			loc.x + r_dist,
-			loc.y + r_height,
-			loc.z + r_dist
+			loc.x + parameters.r_dist,
+			loc.y + parameters.r_height,
+			loc.z + parameters.r_dist
 		};
-		const v3i64 min
+		m_min = 
 		{
-			loc.x - r_dist,
-			loc.y - r_height,
-			loc.z - r_dist
+			loc.x - parameters.r_dist,
+			loc.y - parameters.r_height,
+			loc.z - parameters.r_dist
 		};
 
 
-		deallocate_chunks(min, max);
-		allocate_chunks(min, max);
+		deallocate_chunks(m_min, m_max);
+		allocate_chunks(m_min, m_max);
 	}
 
 	bool ChunkGrid::update_cmesh(const types::chunk_loc& loc) noexcept
@@ -77,7 +74,7 @@ namespace gfx
 		m_chunkMeshQueue.insert(loc);
 	}
 
-	void ChunkGrid::generatePendingMeshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept
+	void ChunkGrid::generate_pending_meshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept
 	{
 		const auto start = std::chrono::steady_clock::now();
 

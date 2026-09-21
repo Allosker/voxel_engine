@@ -55,7 +55,7 @@ namespace gfx
 		/// - Allows for greater control over which chunk meshes have to be loaded first
 		/// </summary>
 		/// <returns>false if could not create chunk mesh</returns>
-		void generatePendingMeshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept;
+		void generate_pending_meshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept;
 
 		/// <summary>
 		/// Deallocate chunks from memory around a point in chunk coordinates
@@ -138,6 +138,10 @@ namespace gfx
 
 		std::unordered_map<types::chunk_loc, Chunk> m_chunks{};
 		std::unordered_map<types::chunk_loc, ChunkMesh> m_chunk_meshes{};
+
+		types::chunk_loc m_min{};
+		types::chunk_loc m_max{};
+
 	};
 
 

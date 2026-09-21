@@ -36,7 +36,7 @@ namespace gfx
 			count = m_item_stacks.at(i).add(type, count);
 
 			i++;
-		} 
+		}
 
 		m_change++;
 		return count;

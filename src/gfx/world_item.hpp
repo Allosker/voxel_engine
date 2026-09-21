@@ -21,12 +21,7 @@
 
 namespace gfx
 {
-	using EntityId = i32;
-
-	struct EntityHandle
-	{
-		EntityId id{};
-	};
+	class Player;
 
 	class WorldItem
 		: public Transformable3D, public Drawable
@@ -54,7 +49,7 @@ namespace gfx
 			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 
 			set_scale(0.2);
-			set_pos(pos + 0.5 - get_scale() / 2.); 
+			set_pos(pos + 0.5 - get_scale() / 2.);
 
 			m_hitbox.set_pos(get_pos() + get_scale() / 2.);
 			m_hitbox.set_extent(get_scale() / 2.);
@@ -68,14 +63,13 @@ namespace gfx
 
 		types::type_id get_id() const noexcept { return m_id; }
 
+		void update() noexcept;
+
 
 		void draw(Renderer& renderer) noexcept
 		{
 			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Opaque);
 		}
-
-
-		EntityHandle handle{};
 
 
 	private:

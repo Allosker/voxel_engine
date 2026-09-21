@@ -102,7 +102,7 @@ void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv
 	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
 	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
 
-	world.remove_entities_if([&](const WorldItem& item)
+	world.remove_entities_if(World::to_chunkLoc(get_pos()), [&](const WorldItem& item)
 	{
 		if (phy::intersects(hitbox, item.get_hitbox()))
 		{

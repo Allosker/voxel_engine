@@ -8,12 +8,12 @@
 */
 
 #include <array> 
-
-#include "sys/graphics.hpp"
 #include "sys/types.hpp"
-
 #include "voxel.hpp"
 #include "world_item.hpp"
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 
 namespace gfx
@@ -37,17 +37,17 @@ namespace gfx
 
 
 		bool isEmpty() const noexcept { return m_empty; }
-		
+
 
 		Voxel& at(types::voxel_loc loc) noexcept { return m_empty ? m_voxels[0] : m_voxels[loc.x + loc.y * g_size<u16>.y + loc.z * g_size<u16>.z * g_size<u16>.z]; }
 		const Voxel& at(types::voxel_loc loc) const noexcept { return m_empty ? m_voxels[0] : m_voxels[loc.x + loc.y * g_size<u16>.y + loc.z * g_size<u16>.z * g_size<u16>.z]; }
 
-		Voxel* at_ptr(types::voxel_loc loc) noexcept 
-		{ 
+		Voxel* at_ptr(types::voxel_loc loc) noexcept
+		{
 			if ((loc.x < 0 || loc.y < 0 || loc.z < 0) || (loc.x >= g_size<u16>.x || loc.y >= g_size<u16>.y || loc.z >= g_size<u16>.z))
 				return nullptr;
 
-			return &at(loc); 
+			return &at(loc);
 		}
 		const Voxel* at_ptr(types::voxel_loc loc) const noexcept
 		{
@@ -78,7 +78,7 @@ namespace gfx
 		template<typename T>
 		static constexpr glm::vec<3, T> g_size{ 32 };
 		static constexpr auto g_absolute_size{ g_size<size_t>.x * g_size<size_t>.y * g_size<size_t>.z };
-		
+
 		template<typename T>
 		static inline constexpr std::array<glm::vec<3, T>, 6> dirs
 		{
