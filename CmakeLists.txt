@@ -102,7 +102,7 @@ FetchContent_MakeAvailable(glfw)
 
 target_link_libraries(VoxelEngine PRIVATE glfw)
 
-
+ 
 # GLM - Math Library
 FetchContent_Declare(
 	glm
