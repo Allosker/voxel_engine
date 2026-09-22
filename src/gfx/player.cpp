@@ -4,7 +4,8 @@
 
 #include "chunk.hpp"
 #include "voxelType.hpp"
-
+#include <array>
+#include <optional>
 
 void gfx::Player::move(Keys key, f64 dt) noexcept
 {
@@ -32,7 +33,7 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 
 
 		case Keys::Space:
-			if (m_mov.flying)
+			if (flying)
 			{
 				if (m_mov.velocity.y < 0.)
 					m_mov.velocity.y = 0.;
@@ -40,14 +41,14 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 				m_mov.velocity.y += m_cam->get_up().y * m_mov.acceleration * dt;
 				m_mov.moving_ver = true;
 			}
-			else if (m_mov.isOnGround)
+			else if (is_on_ground)
 			{
-				m_mov.velocity.y += m_cam->get_up().y * m_mov.jump_velocity;
+				m_mov.velocity.y += m_cam->get_up().y * jump_velocity;
 			}
 			break;
 
 		case Keys::Left_shift:
-			if (m_mov.flying)
+			if (flying)
 			{
 				if (m_mov.velocity.y > 0.)
 					m_mov.velocity.y = 0.;
@@ -61,27 +62,7 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 
 void gfx::Player::update_position(World& world, f64 dt) noexcept
 {
-
-	if (glm::length2(v2f64{ m_mov.velocity.x, m_mov.velocity.z }) > m_mov.max_speed * m_mov.max_speed)
-	{
-		const auto tempY{ m_mov.velocity.y };
-
-		m_mov.velocity = glm::normalize(v3f64{ m_mov.velocity.x, 0, m_mov.velocity.z }) * m_mov.max_speed;
-		m_mov.velocity.y = tempY;
-	}
-
-
-	if (!m_mov.moving_hor)
-	{
-		m_mov.velocity.x *= (1 - m_mov.friction * dt);
-		m_mov.velocity.z *= (1 - m_mov.friction * dt);
-	}
-
-	if (!m_mov.flying && !m_mov.moving_ver)
-		m_mov.velocity.y += world.gravity * dt;
-	else if (!m_mov.moving_ver)
-		m_mov.velocity.y = 0.;
-
+	m_mov.velocity = phy::calculate_velocity(m_mov, dt, world.gravity, !flying);
 
 
 	set_pos(m_trans.get_pos() + m_mov.velocity * dt);
@@ -99,26 +80,36 @@ void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv
 		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0, 1 }, 0., false);
 
 
-	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
-	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
-
-	world.remove_entities_if(World::to_chunkLoc(get_pos()), [&](const WorldItem& item)
+	std::optional<types::chunk_loc> temp{ std::nullopt };
+	for (const auto& i : phy::get_corners(hitbox))
 	{
-		if (phy::intersects(hitbox, item.get_hitbox()))
+		const auto& loc = World::to_chunkLoc(World::to_voxelPos(i));
+
+		if (temp || loc != *temp)
 		{
-			inv.get_inventory().add_items({ item.get_id(), {} }, 1);
-			return true;
+			world.remove_entities_if(loc, [&](const WorldItem& item)
+			{
+				if (phy::intersects(hitbox, item.get_hitbox()))
+				{
+					inv.get_inventory().add_items({ item.get_id(), {} }, 1);
+					return true;
+				}
+				return false;
+			});
+
+			temp = std::make_optional(loc);
 		}
-		return false;
-	});
+	}
+
+	
 
 }
 
 void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 {
-	m_mov.isOnGround = false;
+	is_on_ground = false;
 
-	if (m_mov.ghost)
+	if (ghost)
 		return;
 
 	std::vector<types::voxel_pos> voxel_positions;
@@ -173,7 +164,7 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 							m_mov.velocity.z = 0;
 
 						if (offset.y < 0)
-							m_mov.isOnGround = true;
+							is_on_ground = true;
 
 						set_pos(get_pos() - offset);
 					}

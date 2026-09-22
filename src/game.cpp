@@ -257,10 +257,10 @@ void Game::inputs()
 				showDebugMenus = !showDebugMenus;
 
 			if (sys::InputManager::pressed(*key, Keys::F))
-				player.velocity.flying = !player.velocity.flying;
+				player.flying = !player.flying;
 
 			if (sys::InputManager::pressed(*key, Keys::G))
-				player.bounds.ghost = !player.bounds.ghost;
+				player.ghost = !player.ghost;
 
 		}
 
@@ -283,7 +283,7 @@ void Game::inputs()
 				if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
 				{
 					ray = *r;
-					auto pos = r->voxel_pos;
+					const auto& pos = r->voxel_pos;
 
 					world.set_voxel(pos, gfx::Voxel{ .type_id{} });
 				}
@@ -297,7 +297,10 @@ void Game::inputs()
 					if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
 					{
 						ray = *r;
-						auto pos = r->voxel_pos;
+						const auto& pos = r->voxel_pos;
+
+						const auto& p_vp = gfx::World::to_voxelPos(player.get_pos());
+						if (pos == p_vp) continue;
 
 						world.set_voxel(pos + static_cast<types::voxel_pos>(r->normal), gfx::Voxel{ .type_id{ id } });
 						
@@ -532,12 +535,12 @@ void Game::debug_imgui()
 	{
 		if (ImGui::Begin("Player & World", &show_player))
 		{
-			ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.velocity.settings.max_speed);
-			ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.velocity.settings.acceleration);
-			ImGui::Text("Player Velocity %f %f %f", player.velocity.get().x, player.velocity.get().y, player.velocity.get().z);
+			ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
+			ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.m_mov.acceleration);
+			ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
 
-			ImGui::Checkbox("Flying", &player.velocity.flying);
-			ImGui::Checkbox("Ghost", &player.bounds.ghost);
+			ImGui::Checkbox("Flying", &player.flying);
+			ImGui::Checkbox("Ghost", &player.ghost);
 			ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
 
 			ImGui::Text("Other Settings");

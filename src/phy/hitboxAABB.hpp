@@ -7,6 +7,7 @@
 */
 
 #include "sys/types.hpp"
+#include <array>
 
 
 namespace phy
@@ -25,6 +26,10 @@ namespace phy
 	/// </summary>
 	/// <returns>The MTV (minimum translation vector) to stop intersecting with the current AABB</returns>
 	v3f64 get_MTV(const HitboxAABB& a, const HitboxAABB& b) noexcept;
+
+	/// <param name="Hitbox"></param>
+	/// <returns>Each corner</returns>
+	std::array<v3f64, 8> get_corners(const HitboxAABB& a) noexcept;
 
 
 	/// <summary>

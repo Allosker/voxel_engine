@@ -1,4 +1,5 @@
 #include "hitboxAABB.hpp"
+#include <array>
 
 
 namespace phy
@@ -16,13 +17,13 @@ namespace phy
 
 	v3f64 get_MTV(const HitboxAABB& a, const HitboxAABB& b) noexcept
 	{
-		const f64 right	{ a.get_max().x - b.get_min().x };
-		const f64 down	{ a.get_max().y - b.get_min().y };
-		const f64 back	{ a.get_max().z - b.get_min().z };
+		const f64 right{ a.get_max().x - b.get_min().x };
+		const f64 down{ a.get_max().y - b.get_min().y };
+		const f64 back{ a.get_max().z - b.get_min().z };
 
-		const f64 left	{ b.get_max().x - a.get_min().x };
-		const f64 up	{ b.get_max().y - a.get_min().y };
-		const f64 front	{ b.get_max().z - a.get_min().z };
+		const f64 left{ b.get_max().x - a.get_min().x };
+		const f64 up{ b.get_max().y - a.get_min().y };
+		const f64 front{ b.get_max().z - a.get_min().z };
 
 		v3f64 ret{};
 		f64 bestDist{ -1 };
@@ -68,6 +69,22 @@ namespace phy
 
 
 		return ret;
+	}
+
+	std::array<v3f64, 8> get_corners(const HitboxAABB& a) noexcept
+	{
+		const auto& fpmi = a.get_min();
+		const auto& fpma = a.get_max();
+		return {
+			fpmi,
+			v3f64{ fpmi.x + fpma.x, fpmi.y, fpmi.z },
+			v3f64{ fpmi.x, fpmi.y, fpmi.z + fpma.z },
+			v3f64{ fpmi.x + fpma.x, fpmi.y, fpmi.z + fpma.z },
+			v3f64{ fpmi.x, fpmi.y + fpma.y, fpmi.z },
+			v3f64{ fpmi.x + fpma.x, fpmi.y + fpma.y, fpmi.z },
+			v3f64{ fpmi.x, fpmi.y + fpma.y, fpmi.z + fpma.z },
+			fpma,
+		};
 	}
 
 }

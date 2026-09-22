@@ -18,22 +18,20 @@
 
 #include "debugRenderer.hpp"
 #include "gfx/playerInventory.hpp"
-#include "phy/velocity.hxx"
+#include "phy/velocity.hpp"
 
 
 namespace gfx
 {
-	
+
 	class Player
 	{
 	public:
 
 		Player(Camera* cam)
-			: m_cam{ cam }, m_hitbox{ v3f64{ 0., -0.8, 0. }, { 0.25, 0.9, 0.25 }},
-			velocity{
-				&m_mat, phy::VelocitySettings{.acceleration{ 20 }, .max_speed{ 5. } }, true
-			}
-		{ }
+			: m_cam{ cam }, m_hitbox{ v3f64{ 0., -0.8, 0. }, { 0.25, 0.9, 0.25 } }
+		{
+		}
 
 
 		const types::pos& get_pos() const noexcept { return m_trans.get_pos(); }
@@ -54,7 +52,7 @@ namespace gfx
 
 		void update(World& world, PlayerInventory& inv, f64 dt) noexcept
 		{
-			set_pos(m_trans.get_pos() + velocity.update(world.gravity, dt));
+			update_position(world, dt);
 
 			resolve_collisions_world(world, dt);
 			resolve_collisions_entities(world, inv, dt);
@@ -82,27 +80,22 @@ namespace gfx
 
 		phy::HitboxAABB m_hitbox;
 
-		phy::PhysicsMaterial m_mat{ .friction{ 10. } };
-
 
 	public: // for debug
 
-		struct BoundChecking
-		{
-			bool ghost{ true };
-			bool is_on_ground{};
-		} bounds;
-		f64 jump_velocity{ 8.4 };
+		phy::MovementSettings m_mov{ .acceleration{ 20. }, .max_speed{ 5. }, .friction{ 10. } };
 
-		phy::Velocity velocity;
-	
+
+		f64 jump_velocity{ 8.4 };
+		bool is_on_ground{};
+		bool flying{ true };
+		bool ghost{ true };
+
 
 		struct Debug
 		{
 			bool show_hitbox{};
 		} debug;
-
-
 	};
 
 
