@@ -36,6 +36,8 @@ namespace gfx
 
 		const types::pos& get_pos() const noexcept { return m_trans.get_pos(); }
 
+		const phy::HitboxAABB& get_hitbox() const noexcept { return m_hitbox; }
+
 		void set_camera(Camera* cam) noexcept
 		{
 			m_cam = cam;

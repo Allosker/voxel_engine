@@ -31,6 +31,11 @@ namespace phy
 	/// <returns>Each corner</returns>
 	std::array<v3f64, 8> get_corners(const HitboxAABB& a) noexcept;
 
+	/// <param name="Hitbox"></param>
+	/// <param name="pos"></param>
+	/// <returns>Each corner + the pos</returns>
+	std::array<v3f64, 8> get_corners(const HitboxAABB& a, const types::pos& pos) noexcept;
+
 
 	/// <summary>
 	/// Basic AABB hitbox that considers an origin and a size, positive direction goes towards +inf

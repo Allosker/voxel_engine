@@ -87,4 +87,20 @@ namespace phy
 		};
 	}
 
+	std::array<v3f64, 8> get_corners(const HitboxAABB& a, const types::pos& pos) noexcept
+	{
+		const auto& fpmi = pos + a.get_min();
+		const auto& fpma = pos + a.get_max();
+		return {
+			fpmi,
+			v3f64{ fpmi.x + fpma.x, fpmi.y, fpmi.z },
+			v3f64{ fpmi.x, fpmi.y, fpmi.z + fpma.z },
+			v3f64{ fpmi.x + fpma.x, fpmi.y, fpmi.z + fpma.z },
+			v3f64{ fpmi.x, fpmi.y + fpma.y, fpmi.z },
+			v3f64{ fpmi.x + fpma.x, fpmi.y + fpma.y, fpmi.z },
+			v3f64{ fpmi.x, fpmi.y + fpma.y, fpmi.z + fpma.z },
+			fpma,
+		};
+	}
+
 }

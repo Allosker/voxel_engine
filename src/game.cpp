@@ -297,14 +297,25 @@ void Game::inputs()
 					if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
 					{
 						ray = *r;
-						const auto& pos = r->voxel_pos;
+						const auto& pos = r->voxel_pos + static_cast<types::voxel_pos>(r->normal);
 
-						const auto& p_vp = gfx::World::to_voxelPos(player.get_pos());
-						if (pos == p_vp) continue;
+						bool colliding{};
+						for (const auto& i : phy::get_corners(player.get_hitbox(), player.get_pos()))
+						{
+							const auto p = gfx::World::to_voxelPos(i);
+							if (pos == p)
+							{
+								colliding = true;
+								break;
+							}
+						}
 
-						world.set_voxel(pos + static_cast<types::voxel_pos>(r->normal), gfx::Voxel{ .type_id{ id } });
-						
-						player_inventory.get_inventory().take_current(1);
+						if (!colliding)
+						{     
+							world.set_voxel(pos, gfx::Voxel{ .type_id{ id } });
+
+							player_inventory.get_inventory().take_current(1);
+						}
 					}
 				}
 			}

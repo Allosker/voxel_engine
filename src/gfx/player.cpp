@@ -85,7 +85,7 @@ void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv
 	{
 		const auto& loc = World::to_chunkLoc(World::to_voxelPos(i));
 
-		if (temp || loc != *temp)
+		if (!temp || loc != *temp)
 		{
 			world.remove_entities_if(loc, [&](const WorldItem& item)
 			{

@@ -128,7 +128,7 @@ namespace gfx
 
 		m4f64 m_vp{};
 
-		f64 m_fov{ 45 };
+		f64 m_fov{ 70 };
 
 		v2f64 m_framebuffer_size{};
 		types::pos  m_pos{ 0.f, 0.f, 0.f };
