@@ -257,10 +257,10 @@ void Game::inputs()
 				showDebugMenus = !showDebugMenus;
 
 			if (sys::InputManager::pressed(*key, Keys::F))
-				player.m_mov.flying = !player.m_mov.flying;
+				player.velocity.flying = !player.velocity.flying;
 
 			if (sys::InputManager::pressed(*key, Keys::G))
-				player.m_mov.ghost = !player.m_mov.ghost;
+				player.bounds.ghost = !player.bounds.ghost;
 
 		}
 
@@ -532,19 +532,19 @@ void Game::debug_imgui()
 	{
 		if (ImGui::Begin("Player & World", &show_player))
 		{
-			ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.m_mov.max_speed);
-			ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.m_mov.acceleration);
-			ImGui::Text("Player Velocity %f %f %f", player.m_mov.velocity.x, player.m_mov.velocity.y, player.m_mov.velocity.z);
+			ImGui::DragScalar("Max Speed", ImGuiDataType_Double, &player.velocity.settings.max_speed);
+			ImGui::DragScalar("Acceleration", ImGuiDataType_Double, &player.velocity.settings.acceleration);
+			ImGui::Text("Player Velocity %f %f %f", player.velocity.get().x, player.velocity.get().y, player.velocity.get().z);
 
-			ImGui::Checkbox("Flying", &player.m_mov.flying);
-			ImGui::Checkbox("Ghost", &player.m_mov.ghost);
+			ImGui::Checkbox("Flying", &player.velocity.flying);
+			ImGui::Checkbox("Ghost", &player.bounds.ghost);
 			ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
 
 			ImGui::Text("Other Settings");
 
-			ImGui::DragScalar("Jump Velocity", ImGuiDataType_Double, &player.m_mov.jump_velocity);
+			ImGui::DragScalar("Jump Velocity", ImGuiDataType_Double, &player.jump_velocity);
 			ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
-			ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.m_mov.friction);
+			//ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.velocity.friction);
 
 
 		}

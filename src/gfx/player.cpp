@@ -11,84 +11,34 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 	switch (key)
 	{
 	case Keys::W:
-		m_mov.velocity += glm::normalize(v3f64{ m_cam->get_front().x, 0., m_cam->get_front().z }) * m_mov.acceleration * dt;
-		m_mov.moving_hor = true;
+		velocity.accelerate(v3f64{ m_cam->get_front().x, 0., m_cam->get_front().z }, dt);
 		break;
 
 	case Keys::S:
-		m_mov.velocity -= glm::normalize(v3f64{ m_cam->get_front().x, 0., m_cam->get_front().z }) * m_mov.acceleration * dt;
-		m_mov.moving_hor = true;
+		velocity.accelerate(-v3f64{ m_cam->get_front().x, 0., m_cam->get_front().z }, dt);
 		break;
 
 	case Keys::A:
-		m_mov.velocity -= glm::normalize(v3f64{ m_cam->get_right().x, 0., m_cam->get_right().z }) * m_mov.acceleration * dt;
-		m_mov.moving_hor = true;
+		velocity.accelerate(v3f64{ m_cam->get_right().x, 0., m_cam->get_right().z }, dt);
 		break;
 
 	case Keys::D:
-		m_mov.velocity += glm::normalize(v3f64{ m_cam->get_right().x, 0., m_cam->get_right().z }) * m_mov.acceleration * dt;
-		m_mov.moving_hor = true;
+		velocity.accelerate(-v3f64{ m_cam->get_right().x, 0., m_cam->get_right().z }, dt);
 		break;
 
 
 	case Keys::Space:
-		if (m_mov.flying)
-		{
-			if (m_mov.velocity.y < 0.)
-				m_mov.velocity.y = 0.;
-
-			m_mov.velocity.y += m_cam->get_up().y * m_mov.acceleration * dt;
-			m_mov.moving_ver = true;
-		}
-		else if (m_mov.isOnGround)
-		{
-			m_mov.velocity.y += m_cam->get_up().y * m_mov.jump_velocity;
-		}
+		if (bounds.is_on_ground)
+			velocity.accelerate(v3f64{ 0., m_cam->get_up().y * jump_velocity / velocity.settings.acceleration, 0. }, dt);
+		else
+			velocity.accelerate(v3f64{ 0., m_cam->get_up().y, 0. }, dt); 
 		break;
 
 	case Keys::Left_shift:
-		if (m_mov.flying)
-		{
-			if (m_mov.velocity.y > 0.)
-				m_mov.velocity.y = 0.;
-
-			m_mov.velocity -= v3f64{ 0, m_cam->get_up().y, 0. } * m_mov.acceleration * dt;
-			m_mov.moving_ver = true;
-		}
+		velocity.accelerate(-v3f64{ 0., m_cam->get_up().y, 0. }, dt);
 		break;
+
 	}
-}
-
-void gfx::Player::update_position(World& world, f64 dt) noexcept
-{
-
-	if (glm::length2(v2f64{ m_mov.velocity.x, m_mov.velocity.z }) > m_mov.max_speed * m_mov.max_speed)
-	{
-		const auto tempY{ m_mov.velocity.y };
-
-		m_mov.velocity = glm::normalize(v3f64{ m_mov.velocity.x, 0, m_mov.velocity.z }) * m_mov.max_speed;
-		m_mov.velocity.y = tempY;
-	}
-
-
-	if (!m_mov.moving_hor)
-	{
-		m_mov.velocity.x *= (1 - m_mov.friction * dt);
-		m_mov.velocity.z *= (1 - m_mov.friction * dt);
-	}
-
-	if (!m_mov.flying && !m_mov.moving_ver)
-		m_mov.velocity.y += world.gravity * dt;
-	else if (!m_mov.moving_ver)
-		m_mov.velocity.y = 0.;
-
-
-
-	set_pos(m_trans.get_pos() + m_mov.velocity * dt);
-
-
-	m_mov.moving_hor = false;
-	m_mov.moving_ver = false;
 }
 
 void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv, f64 dt) noexcept
@@ -116,9 +66,9 @@ void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv
 
 void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 {
-	m_mov.isOnGround = false;
+	bounds.is_on_ground = false;
 
-	if (m_mov.ghost)
+	if (bounds.ghost)
 		return;
 
 	std::vector<types::voxel_pos> voxel_positions;
@@ -163,17 +113,10 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 				if (VoxelTypeManager::get().get_type(world.get_voxel(World::to_voxelPos(static_cast<types::pos>(pos) - glm::normalize(offset)))).has_bounds)
 					offset = {};
 
-				if (offset.y != 0)
-					m_mov.velocity.y = 0;
-
-				if (offset.x != 0)
-					m_mov.velocity.x = 0;
-
-				if (offset.z != 0)
-					m_mov.velocity.z = 0;
+				velocity.set(v3f64{ offset.x ? 0 : velocity.get().x, offset.y ? 0 : velocity.get().y, offset.z ? 0 : velocity.get().z });
 
 				if (offset.y < 0)
-					m_mov.isOnGround = true;
+					bounds.is_on_ground = true;
 
 				set_pos(get_pos() - offset);
 			}

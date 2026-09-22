@@ -18,6 +18,7 @@
 
 #include "debugRenderer.hpp"
 #include "gfx/playerInventory.hpp"
+#include "phy/velocity.hxx"
 
 
 namespace gfx
@@ -28,7 +29,10 @@ namespace gfx
 	public:
 
 		Player(Camera* cam)
-			: m_cam{ cam }, m_hitbox{ v3f64{ 0., -0.8, 0. }, { 0.25, 0.9, 0.25 }}
+			: m_cam{ cam }, m_hitbox{ v3f64{ 0., -0.8, 0. }, { 0.25, 0.9, 0.25 }},
+			velocity{
+				&m_mat, phy::VelocitySettings{.acceleration{ 20 }, .max_speed{ 5. } }, true
+			}
 		{ }
 
 
@@ -50,7 +54,7 @@ namespace gfx
 
 		void update(World& world, PlayerInventory& inv, f64 dt) noexcept
 		{
-			update_position(world, dt);
+			set_pos(m_trans.get_pos() + velocity.update(world.gravity, dt));
 
 			resolve_collisions_world(world, dt);
 			resolve_collisions_entities(world, inv, dt);
@@ -78,34 +82,27 @@ namespace gfx
 
 		phy::HitboxAABB m_hitbox;
 
+		phy::PhysicsMaterial m_mat{ .friction{ 10. } };
+
 
 	public: // for debug
 
-		struct Movement
+		struct BoundChecking
 		{
-			v3f64 velocity{};
-
-			f64 acceleration{ 20. };
-			f64 jump_velocity{ 8.4 };
-
-			f64 max_speed{ 5. };
-
-			f64 friction{ 10. };
-
-			bool isOnGround{};
-
-			bool flying{ true };
 			bool ghost{ true };
-			bool moving_hor{};
-			bool moving_ver{};
+			bool is_on_ground{};
+		} bounds;
+		f64 jump_velocity{ 8.4 };
 
-		} m_mov;
+		phy::Velocity velocity;
 	
 
 		struct Debug
 		{
 			bool show_hitbox{};
 		} debug;
+
+
 	};
 
 
