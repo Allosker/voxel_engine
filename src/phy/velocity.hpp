@@ -46,10 +46,8 @@ namespace phy
 			velocity.z *= (1 - set.friction * dt);
 		}
 
-		if (compute_gravity && !set.moving_ver)
+		if (compute_gravity)
 			velocity.y += gravity * dt;
-		else if (!set.moving_ver)
-			velocity.y = 0.;
 
 
 		return velocity;

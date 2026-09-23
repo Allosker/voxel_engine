@@ -125,6 +125,8 @@ private: // Internal Communication/Logic
 	struct RuntimeSettings
 	{
 		bool paused{ false };
+		bool freecam{ false };
+
 	} runtime_settings;
 
 	f32 fps{};

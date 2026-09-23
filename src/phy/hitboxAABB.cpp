@@ -67,7 +67,6 @@ namespace phy
 			ret = v3f64{ 0, 0, back };
 		}
 
-
 		return ret;
 	}
 

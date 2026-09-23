@@ -64,6 +64,8 @@ void gfx::Player::update_position(World& world, f64 dt) noexcept
 {
 	m_mov.velocity = phy::calculate_velocity(m_mov, dt, world.gravity, !flying);
 
+	if (!m_mov.moving_hor)
+		m_mov.velocity.y = 0.;
 
 	set_pos(m_trans.get_pos() + m_mov.velocity * dt);
 
@@ -76,9 +78,6 @@ void gfx::Player::resolve_collisions_entities(World& world, PlayerInventory& inv
 {
 	auto hitbox = m_hitbox;
 	hitbox.move(get_pos());
-	if (debug.show_hitbox)
-		aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0, 1 }, 0., false);
-
 
 	std::optional<types::chunk_loc> temp{ std::nullopt };
 	for (const auto& i : phy::get_corners(hitbox))
@@ -142,6 +141,9 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 				{
 					phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
 
+					if (debug.show_hitbox)
+						aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 0.5, 1, 0, 1 }, 0., false);
+
 
 					if (phy::intersects(hitbox, voxel))
 					{
@@ -162,8 +164,9 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 						if (offset.z != 0)
 							m_mov.velocity.z = 0;
 
-						if (offset.y < 0)
+						if (offset.y <= 0)
 							is_on_ground = true;
+
 
 						set_pos(get_pos() - offset);
 					}

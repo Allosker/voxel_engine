@@ -144,7 +144,7 @@ DebugMessage Game::run()
 
 		inputs();
 
-		if (!runtime_settings.paused)
+		if (!runtime_settings.paused && !runtime_settings.freecam)
 			logic();
 
 		debug();
@@ -256,6 +256,9 @@ void Game::inputs()
 			if (sys::InputManager::pressed(*key, Keys::F5))
 				showDebugMenus = !showDebugMenus;
 
+			if (sys::InputManager::pressed(*key, Keys::F6))
+				runtime_settings.freecam = !runtime_settings.freecam;
+
 			if (sys::InputManager::pressed(*key, Keys::F))
 				player.flying = !player.flying;
 
@@ -361,25 +364,51 @@ void Game::inputs()
 	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0, 1 }, 0, false);
 	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1, 1 }, 0, false);
 
+	if (runtime_settings.freecam)
+	{
+		if (window->isKeyPressed(Keys::W))
+			camera.move_front(delta_time.get(), 10.);
 
-	if (window->isKeyPressed(Keys::W))
-		player.move(Keys::W, delta_time.get());
+		if (window->isKeyPressed(Keys::S))
+			camera.move_back(delta_time.get(), 10.);
 
-	if (window->isKeyPressed(Keys::S))
-		player.move(Keys::S, delta_time.get());
+		if (window->isKeyPressed(Keys::D))
+			camera.move_right(delta_time.get(), 10.);
 
-	if (window->isKeyPressed(Keys::D))
-		player.move(Keys::D, delta_time.get());
-
-	if (window->isKeyPressed(Keys::A))
-		player.move(Keys::A, delta_time.get());
+		if (window->isKeyPressed(Keys::A))
+			camera.move_left(delta_time.get(), 10.);
 
 
-	if (window->isKeyPressed(Keys::Space))
-		player.move(Keys::Space, delta_time.get());
+		if (window->isKeyPressed(Keys::Space))
+			camera.move_up(delta_time.get(), 10.);
 
-	if (window->isKeyPressed(Keys::Left_shift))
-		player.move(Keys::Left_shift, delta_time.get());
+		if (window->isKeyPressed(Keys::Left_shift))
+			camera.move_down(delta_time.get(), 10.);
+	}
+	else
+	{
+		if (window->isKeyPressed(Keys::W))
+			player.move(Keys::W, delta_time.get());
+
+		if (window->isKeyPressed(Keys::S))
+			player.move(Keys::S, delta_time.get());
+
+		if (window->isKeyPressed(Keys::D))
+			player.move(Keys::D, delta_time.get());
+
+		if (window->isKeyPressed(Keys::A))
+			player.move(Keys::A, delta_time.get());
+
+
+		if (window->isKeyPressed(Keys::Space))
+			player.move(Keys::Space, delta_time.get());
+
+		if (window->isKeyPressed(Keys::Left_shift))
+			player.move(Keys::Left_shift, delta_time.get());
+	}
+
+
+	
 
 
 	sys::InputManager::get().update();
