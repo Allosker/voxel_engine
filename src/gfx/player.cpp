@@ -141,7 +141,6 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 					vptr && VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
 				{
 					phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
-					aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 1, 1, 1, 1 }, 0., false);
 
 
 					if (phy::intersects(hitbox, voxel))

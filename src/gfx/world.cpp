@@ -3,6 +3,7 @@
 #include "debugRenderer.hpp"
 #include "meshInstance.hpp"
 #include "rayTraversal.hpp"
+#include "sys/random.hpp"
 #include <chrono>
 
 
@@ -29,6 +30,13 @@ namespace gfx
 				else
 					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 1, 1, 0, 1 }, 0, false);
 			}
+	}
+
+	void World::update_entities(f64 dt) noexcept
+	{
+		for (auto& i : m_entities)
+			for (auto& j : i.second)
+				j.update(*this, dt);
 	}
 
 	void World::generate_pending_chunks(const types::chunk_loc& player_loc) noexcept
@@ -156,7 +164,7 @@ namespace gfx
 		auto& c_voxel = chunk->at(voxel_l);
 
 		if (new_voxel.type_id == types::type_id_null)
-			add_entity(loc, WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p) });
+			add_entity(loc, WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p), v3f64{ Random::get().next(), std::abs(Random::get().next()), Random::get().next() } * 10. });
 
 		c_voxel = new_voxel;
 

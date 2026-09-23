@@ -42,6 +42,8 @@ namespace gfx
 		/// <param name="Player's location"></param>
 		void update_grid(types::chunk_loc player_loc, bool reload = false) noexcept;
 
+		void update_entities(f64 dt) noexcept;
+
 		void generate_pending_chunks(const types::chunk_loc& player_loc) noexcept;
 		void generate_chunk(const types::chunk_loc& loc) noexcept;
 

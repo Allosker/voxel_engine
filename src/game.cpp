@@ -393,7 +393,15 @@ void Game::logic()
 
 	world.update_grid(player_loc);
 
+	debugTimer.add("grid update");
+
 	player.update(world, player_inventory, delta_time.get());
+
+	debugTimer.add("player update");
+
+	world.update_entities(delta_time.get());
+
+	debugTimer.add("entity updates");
 
 
 	m_inv_gui.update(Window::to_gui_coordinates(*window, (v2f32)window->get_cursor_pos()));

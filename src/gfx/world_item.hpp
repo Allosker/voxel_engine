@@ -14,6 +14,7 @@
 #include "gfx/voxel.hpp"
 #include "material.hpp"
 #include "phy/hitboxAABB.hpp"
+#include "phy/velocity.hpp"
 #include "sys/assetsManager.hpp"
 #include "sys/hash.hpp"
 #include "sys/types.hpp"
@@ -22,19 +23,20 @@
 namespace gfx
 {
 	class Player;
+	class World;
 
 	class WorldItem
 		: public Transformable3D, public Drawable
 	{
 	public:
 
-		WorldItem(types::type_id id, const types::pos& pos)
+		WorldItem(types::type_id id, const types::pos& pos, const v3f64& base_velocity)
 			: Transformable3D{ pos }, m_hitbox{ {}, {} }, m_id{ id },
 			m_material{ &AssetsManager::get().shaders.at("shaders/world_entities"_id) }
 		{
 			m_mesh.create_buffer<Vertex>(false);
 
-			std::vector<Vertex> mesh{};  
+			std::vector<Vertex> mesh{};
 
 			const std::vector<v2f32>& uvs = calculate_uvs(m_id);
 			for (const auto& i : Voxel::g_model)
@@ -53,17 +55,26 @@ namespace gfx
 
 			m_hitbox.set_pos(get_pos() + get_scale() / 2.);
 			m_hitbox.set_extent(get_scale() / 2.);
+
+			m_mov.velocity = base_velocity;
 		}
 
 		DELETE_COPY_INIT(WorldItem);
 		DEFAULT_MOVE_INIT(WorldItem);
 
 
-		const phy::HitboxAABB& get_hitbox() const noexcept { return m_hitbox; }
+		const phy::HitboxAABB get_hitbox() const noexcept { return m_hitbox; }
 
 		types::type_id get_id() const noexcept { return m_id; }
 
-		void update() noexcept;
+
+		void move(const v3f64& offset) noexcept override
+		{
+			Transformable3D::move(offset);
+			m_hitbox.move(offset);
+		}
+
+		void update(const World& world, f64 dt) noexcept;
 
 
 		void draw(Renderer& renderer) noexcept
@@ -75,11 +86,15 @@ namespace gfx
 	private:
 
 		Material m_material;
+		phy::MovementSettings m_mov{ .acceleration{ 20. }, .max_speed{ 5. }, .friction{ 10. } };
 		phy::HitboxAABB m_hitbox;
 		Mesh m_mesh{};
 
 		types::type_id m_id{};
-		
+
+		bool is_on_ground{};
+
+
 	};
 
 

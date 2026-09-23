@@ -78,7 +78,7 @@ namespace gfx
 			m_transformNeedUpdate = true;
 		}
 
-		void move(const v3f64& offset) noexcept
+		virtual void move(const v3f64& offset) noexcept
 		{
 			set_pos(m_position + offset);
 		}
