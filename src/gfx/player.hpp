@@ -19,7 +19,6 @@
 #include "debugRenderer.hpp"
 #include "gfx/playerInventory.hpp"
 #include "phy/velocity.hpp"
-#include "gfx/debug.hpp"
 
 
 namespace gfx

@@ -183,6 +183,17 @@ DebugMessage Game::run()
 			gfx::aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0, 1 }, 0., false);
 		}
 
+		if (debug_flags.show_chunk_borders)
+		{
+			for (const auto& c : world.get_chunkGrid().get_chunkMap())
+			{
+				if (c.second.isEmpty())
+					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 0, 1, 1, 1 }, 0, false);
+				else
+					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 1, 1, 0, 1 }, 0, false);
+			}
+		}
+
 		//
 
 
@@ -282,7 +293,7 @@ void Game::inputs()
 				player_inventory.toggle(*window);
 
 			if (sys::InputManager::pressed(*key, Keys::F2))
-				world.debug.show_chunk_borders = !world.debug.show_chunk_borders;
+				debug_flags.show_chunk_borders = !debug_flags.show_chunk_borders;
 
 			if (sys::InputManager::pressed(*key, Keys::F3))
 				compute_noise_map = true;

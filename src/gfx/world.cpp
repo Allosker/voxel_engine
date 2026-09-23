@@ -20,16 +20,6 @@ namespace gfx
 			generate_pending_chunks(player_loc);
 			overworld.generate_pending_meshes(player_loc, time_budget);
 		}
-
-		/*== Debug ==*/
-		if (debug.show_chunk_borders)
-			for (const auto& c : overworld.get_chunkMap())
-			{
-				if (c.second.isEmpty())
-					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 0, 1, 1, 1 }, 0, false);
-				else
-					gfx::aabb((v3f32)(c.second.get_position() + 16ll), v3f32{ 16.f }, { 1, 1, 0, 1 }, 0, false);
-			}
 	}
 
 	void World::update_entities(f64 dt) noexcept

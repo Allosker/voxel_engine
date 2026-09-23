@@ -149,7 +149,6 @@ namespace gfx
 
 		struct Debug
 		{
-			bool show_chunk_borders{};
 			bool update_world{ true };
 		} debug;
 

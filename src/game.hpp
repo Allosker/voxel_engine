@@ -18,7 +18,6 @@
 #include "gfx/world.hpp"
 #include "gfx/player.hpp"
 #include "gfx/playerInventory.hpp"
-#include "gfx/debug.hpp"
 
 
 // Only one instance of the game must exist at a time
@@ -132,7 +131,11 @@ private: // Internal Communication/Logic
 	} runtime_settings;
 
 
-	Debug debug_flags;
+	struct Debug
+	{
+		bool show_hitboxes{ false };
+		bool show_chunk_borders{ false };
+	}debug_flags;
 
 	bool showDebugMenus{};
 	
