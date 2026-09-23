@@ -62,7 +62,7 @@ static DebugMessage init_imgui(Window& window)
 }
 
 Game::Game() noexcept
-	: window{ init_glfw(true, render_settings.MSAA) }
+	: window{ init_glfw(true, render_settings.MSAA) }, player{ &camera }
 {
 }
 
@@ -148,6 +148,43 @@ DebugMessage Game::run()
 			logic();
 
 		debug();
+
+		// Debug
+			
+		if (debug_flags.show_hitboxes)
+		{
+			auto hitbox = player.get_hitbox();
+			hitbox.move(player.get_pos());
+
+			const auto floored_pos_min = gfx::World::to_voxelPos(hitbox.get_min());
+			const auto floored_pos_max = gfx::World::to_voxelPos(hitbox.get_max());
+			for (i64 x{ floored_pos_min.x }; x <= floored_pos_max.x; x++)
+				for (i64 y{ floored_pos_min.y }; y <= floored_pos_max.y; y++)
+					for (i64 z{ floored_pos_min.z }; z <= floored_pos_max.z; z++)
+					{
+						const types::voxel_pos pos{ x, y, z };
+
+						const auto chunk_loc = gfx::World::to_chunkLoc(pos);
+						gfx::Chunk* chunk = world.get_chunkGrid().at_chunk(chunk_loc);
+
+						if (!chunk)
+							continue;
+
+
+						if (const auto* vptr{ chunk->at_ptr(gfx::Chunk::to_voxelLoc(*chunk, pos)) };
+							vptr && gfx::VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
+						{
+							phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
+
+							gfx::aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 0.5, 1, 0, 1 }, 0., false);
+						}
+					}
+
+			gfx::aabb_min_max((v3f32)hitbox.get_min(), (v3f32)hitbox.get_max(), { 1, 0, 0, 1 }, 0., false);
+		}
+
+		//
+
 
 		renderer.start(camera, orthographic_proj);
 
@@ -589,7 +626,8 @@ void Game::debug_imgui()
 
 			ImGui::Checkbox("Flying", &player.flying);
 			ImGui::Checkbox("Ghost", &player.ghost);
-			ImGui::Checkbox("Show Hitbox", &player.debug.show_hitbox);
+
+			ImGui::Checkbox("Show Hitboxes", &debug_flags.show_hitboxes);
 
 			ImGui::Text("Other Settings");
 

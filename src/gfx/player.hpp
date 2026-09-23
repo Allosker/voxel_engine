@@ -19,6 +19,7 @@
 #include "debugRenderer.hpp"
 #include "gfx/playerInventory.hpp"
 #include "phy/velocity.hpp"
+#include "gfx/debug.hpp"
 
 
 namespace gfx
@@ -93,11 +94,6 @@ namespace gfx
 		bool flying{ true };
 		bool ghost{ true };
 
-
-		struct Debug
-		{
-			bool show_hitbox{};
-		} debug;
 	};
 
 
