@@ -62,13 +62,9 @@ void gfx::Player::move(Keys key, f64 dt) noexcept
 
 void gfx::Player::update_position(World& world, f64 dt) noexcept
 {
-	m_mov.velocity = phy::calculate_velocity(m_mov, dt, world.gravity, !flying);
-
-	if (!m_mov.moving_hor)
-		m_mov.velocity.y = 0.;
+	m_mov.velocity = phy::calculate_velocity(m_mov, dt, world.gravity, !flying && !m_mov.moving_ver);
 
 	set_pos(m_trans.get_pos() + m_mov.velocity * dt);
-
 
 	m_mov.moving_hor = false;
 	m_mov.moving_ver = false;
@@ -119,6 +115,8 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 
 	const Chunk* chunk = nullptr;
 
+	bool correction_already_applied_y{};
+
 	const auto floored_pos_min = World::to_voxelPos(hitbox.get_min());
 	const auto floored_pos_max = World::to_voxelPos(hitbox.get_max());
 	for (i64 x{ floored_pos_min.x }; x <= floored_pos_max.x; x++)
@@ -163,8 +161,19 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 						if (offset.y <= 0)
 							is_on_ground = true;
 
+						/*r
+						* This fixes the jerky motions since it occurred when multiple voxels tried to resolve collisions on the y axis
+						* which caused the player to be over-offset-ed.
+						*/
+						if (correction_already_applied_y)
+						{
+							offset.y = 0;
+						}
+						else if (!correction_already_applied_y && offset.y != 0)
+							correction_already_applied_y = true;
 
 						set_pos(get_pos() - offset);
+						
 					}
 				}
 			}

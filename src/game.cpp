@@ -208,6 +208,7 @@ DebugMessage Game::run()
 		debugTimer.add("renderer");
 		
 		gfx::DebugRenderer::get().render3D(static_cast<m4f32>(camera.get_VP()));
+		gfx::DebugRenderer::get().erase_all();
 
 
 		/*= Debug Draws =*/
