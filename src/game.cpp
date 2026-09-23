@@ -312,7 +312,20 @@ void Game::inputs()
 			player_inventory.get_inventory().on_mouse_scroll(wheel->delta);
 
 			if (runtime_settings.freecam)
-				runtime_settings.cam_speed += wheel->delta.y;
+			{
+				if (runtime_settings.cam_speed <= 1)
+				{
+					runtime_settings.cam_speed += wheel->delta.y / 100.;
+				}
+				else
+				{
+					runtime_settings.cam_speed += wheel->delta.y;
+				}
+
+				if (runtime_settings.cam_speed < 0.05)
+					runtime_settings.cam_speed = 0.05;
+				
+			}
 		}
 
 		if (auto mouse = event->get_if<Event::MouseButtonEvent>())
