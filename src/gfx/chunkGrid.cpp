@@ -20,6 +20,14 @@ namespace gfx
 					if (m_chunks.try_emplace(loc, Chunk{ loc }).second)
 					{
 						m_chunkGenQueue.insert(loc);
+
+						// May want to change that later
+						/*
+						* Some meshes may still appear while some other voxels should hide them, 
+						* this fixes the problem
+						*/
+						for (const auto& dir : Chunk::dirs<i64>)
+							m_chunkMeshQueue.insert(loc + dir);
 					}
 				}
 			}
