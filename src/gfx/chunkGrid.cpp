@@ -82,8 +82,21 @@ namespace gfx
 		m_chunkMeshQueue.insert(loc);
 	}
 
+	static inline i64 square_dist(const types::chunk_loc& a, const types::chunk_loc& b)
+	{
+		return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
+	}
+
 	void ChunkGrid::generate_pending_meshes(const types::chunk_loc& player_loc, f32 time_budget) noexcept
 	{
+		while (!m_high_priority_meshes.empty())
+		{
+			const auto i = std::move(m_high_priority_meshes.back());
+			m_high_priority_meshes.pop_back();
+
+			update_cmesh(i);
+		}
+
 		const auto start = std::chrono::steady_clock::now();
 
 		int generatedCount{};
@@ -94,14 +107,9 @@ namespace gfx
 
 			const auto chunkStart = std::chrono::steady_clock::now();
 
-			const auto squareDist = [](const types::chunk_loc & a, const types::chunk_loc & b)
-			{
-				return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
-			};
-
 			auto closest = std::min_element(m_chunkMeshQueue.begin(), m_chunkMeshQueue.end(),
 				[&](const types::chunk_loc& a, const types::chunk_loc& b) {
-					return squareDist(a, player_loc) < squareDist(b, player_loc);
+					return square_dist(a, player_loc) < square_dist(b, player_loc);
 				}
 			);
 

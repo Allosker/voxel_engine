@@ -49,6 +49,15 @@ namespace gfx
 		bool update_cmesh(const types::chunk_loc& loc) noexcept;
 
 		void dirty_cmesh(const types::chunk_loc& loc) noexcept;
+
+		/// <summary>
+		/// For meshes that need to be rebuilt instantly
+		/// </summary>
+		/// <param name="loc"></param>
+		void add_high_priority_cmesh(const types::chunk_loc& loc) noexcept
+		{
+			m_high_priority_meshes.emplace_back(loc);
+		}
 		
 		/// <summary>
 		/// Allocate a new chunk mesh in sequence from the Queue
@@ -143,6 +152,11 @@ namespace gfx
 
 		std::unordered_map<types::chunk_loc, Chunk> m_chunks{};
 		std::unordered_map<types::chunk_loc, ChunkMesh> m_chunk_meshes{};
+
+		/// <summary>
+		/// Put meshes that need to be instantly rebuilt into this vector
+		/// </summary>
+		std::vector<types::chunk_loc> m_high_priority_meshes{};
 
 		types::chunk_loc m_min{};
 		types::chunk_loc m_max{};

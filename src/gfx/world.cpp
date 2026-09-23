@@ -160,17 +160,17 @@ namespace gfx
 
 
 		if (voxel_l.z == Chunk::g_size<i32>.z - 1)
-			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[4]);
+			overworld.add_high_priority_cmesh(loc + Chunk::dirs<i64>[4]);
 		if (voxel_l.y == Chunk::g_size<i32>.y - 1)
-			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[2]);
+			overworld.add_high_priority_cmesh(loc + Chunk::dirs<i64>[2]);
 		if (voxel_l.x == Chunk::g_size<i32>.x - 1)
-			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[0]);
+			overworld.add_high_priority_cmesh(loc + Chunk::dirs<i64>[0]);
 		if (voxel_l.z == 0)
-			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[5]);
+			overworld.add_high_priority_cmesh(loc + Chunk::dirs<i64>[5]);
 		if (voxel_l.y == 0)
-			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[3]);
+			overworld.add_high_priority_cmesh(loc + Chunk::dirs<i64>[3]);
 		if (voxel_l.x == 0)
-			overworld.dirty_cmesh(loc + Chunk::dirs<i64>[1]);
+			overworld.add_high_priority_cmesh(loc + Chunk::dirs<i64>[1]);
 
 
 		overworld.dirty_cmesh(loc);
