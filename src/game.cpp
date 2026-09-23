@@ -164,8 +164,8 @@ DebugMessage Game::run()
 					{
 						const types::voxel_pos pos{ x, y, z };
 
-						const auto chunk_loc = gfx::World::to_chunkLoc(pos);
-						gfx::Chunk* chunk = world.get_chunkGrid().at_chunk(chunk_loc);
+						const auto& chunk_loc = gfx::World::to_chunkLoc(pos);
+						const gfx::Chunk* chunk = world.get_chunkGrid().at_chunk(chunk_loc);
 
 						if (!chunk)
 							continue;
@@ -174,7 +174,7 @@ DebugMessage Game::run()
 						if (const auto* vptr{ chunk->at_ptr(gfx::Chunk::to_voxelLoc(*chunk, pos)) };
 							vptr && gfx::VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
 						{
-							phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
+							const phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
 
 							gfx::aabb_min_max((v3f32)voxel.get_min(), (v3f32)voxel.get_max(), { 0.5, 1, 0, 1 }, 0., false);
 						}
@@ -308,7 +308,12 @@ void Game::inputs()
 			return;
 
 		if (auto wheel = event->get_if<Event::MouseWheelScrolled>())
+		{
 			player_inventory.get_inventory().on_mouse_scroll(wheel->delta);
+
+			if (runtime_settings.freecam)
+				runtime_settings.cam_speed += wheel->delta.y;
+		}
 
 		if (auto mouse = event->get_if<Event::MouseButtonEvent>())
 		{
@@ -404,23 +409,23 @@ void Game::inputs()
 	if (runtime_settings.freecam)
 	{
 		if (window->isKeyPressed(Keys::W))
-			camera.move_front(delta_time.get(), 10.);
+			camera.move_front(delta_time.get(), runtime_settings.cam_speed);
 
 		if (window->isKeyPressed(Keys::S))
-			camera.move_back(delta_time.get(), 10.);
+			camera.move_back(delta_time.get(), runtime_settings.cam_speed);
 
 		if (window->isKeyPressed(Keys::D))
-			camera.move_right(delta_time.get(), 10.);
+			camera.move_right(delta_time.get(), runtime_settings.cam_speed);
 
 		if (window->isKeyPressed(Keys::A))
-			camera.move_left(delta_time.get(), 10.);
+			camera.move_left(delta_time.get(), runtime_settings.cam_speed);
 
 
 		if (window->isKeyPressed(Keys::Space))
-			camera.move_up(delta_time.get(), 10.);
+			camera.move_up(delta_time.get(), runtime_settings.cam_speed);
 
 		if (window->isKeyPressed(Keys::Left_shift))
-			camera.move_down(delta_time.get(), 10.);
+			camera.move_down(delta_time.get(), runtime_settings.cam_speed);
 	}
 	else
 	{

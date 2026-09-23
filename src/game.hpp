@@ -127,6 +127,7 @@ private: // Internal Communication/Logic
 	{
 		bool paused{ false };
 		bool freecam{ false };
+		f64 cam_speed{ 5. };
 
 	} runtime_settings;
 
