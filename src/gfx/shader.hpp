@@ -14,7 +14,6 @@
 #include "sys/hash.hpp"
 #include "gl.hpp"
 
-
 namespace gfx
 {
 	struct UniformDefinition

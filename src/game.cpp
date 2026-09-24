@@ -8,6 +8,9 @@
 #include "gfx/rayTraversal.hpp"
 #include "gfx/renderer.hpp"
 
+#include "gfx/line.hpp"
+
+
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
 {
 	if (!glfwInit())
@@ -82,6 +85,12 @@ DebugMessage Game::run()
 
 	camera.set_FBS((v2f64)window->getSize());
 
+	assert(glCreateProgram != nullptr);
+	assert(glCreateShader != nullptr);
+	assert(glUseProgram != nullptr);
+
+	std::println("glCreateProgram = {}", (void*)glCreateProgram);
+
 
 	AssetsManager::get(); // load all assets
 
@@ -107,7 +116,7 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
-
+	gfx::Line line{};
 
 	gfx::Renderer renderer;
 
@@ -200,6 +209,8 @@ DebugMessage Game::run()
 		renderer.start(camera, orthographic_proj);
 
 		world.draw(renderer);
+
+		line.draw(renderer);
 
 		m_inv_gui.draw(renderer);
 

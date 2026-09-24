@@ -27,6 +27,72 @@ private:
 
 	Game() noexcept; // Singleton
 
+	class DeltaTime
+	{
+	public:
+
+		f64 get() const noexcept { return dt; }
+
+		void update(f64 current_time) noexcept
+		{
+			dt = current_time - last_frame;
+			last_frame = current_time;
+		}
+
+		void limit() noexcept { dt = std::min(dt, 1. / 30.); }
+
+	private:
+
+		f64 dt{};
+		f64 last_frame{};
+	};
+
+	struct ValueAverage
+	{
+		void update(f32 new_value) noexcept
+		{
+			if (values.size() > 20)
+			{
+				values.pop_back();
+			}
+
+			values.push_front(new_value);
+		}
+
+		f32 get_average() noexcept
+		{
+			f32 total{};
+			for (const auto& i : values)
+				total += i;
+
+			return total / values.size();
+		}
+
+	private:
+
+		std::deque<f32> values;
+	};
+
+	struct RuntimeSettings
+	{
+		bool paused{ false };
+		bool freecam{ false };
+		f64 cam_speed{ 5. };
+	};
+
+	struct Debug
+	{
+		bool show_hitboxes{ false };
+		bool show_chunk_borders{ false };
+	};
+
+	struct RenderSettings
+	{
+		u32 MSAA{ 8 };
+
+	};
+
+
 
 public:
 
@@ -58,109 +124,47 @@ private: // Internal Communication/Logic
 	void debug_imgui();
 
 
-	std::unique_ptr<Window> window;
 
-	gfx::Camera camera{};
+	std::unique_ptr<Window> window;
 
 	gfx::World world{};
 
+	gfx::Camera camera{};
+
 	gfx::Player player;
-
-	
-
-	m4f32 orthographic_proj{ glm::ortho(0.f, Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, -2000.f, 2000.f) };
-
 
 	gfx::PlayerInventory player_inventory{};
 	gui::InventoryGUI	m_inv_gui{ player_inventory.get_inventory() };
 
-
-	class DeltaTime
-	{
-	public:
-
-		f64 get() const noexcept { return dt; }
-
-		void update(f64 current_time) noexcept
-		{
-			dt = current_time - last_frame;
-			last_frame = current_time;
-		}
-
-		void limit() noexcept { dt = std::min(dt, 1. / 30.); }
-
-	private:
-
-		f64 dt{};
-		f64 last_frame{};
-	} delta_time;
-
-	struct ValueAverage
-	{
-		void update(f32 new_value) noexcept
-		{
-			if (values.size() > 20)
-			{
-				values.pop_back();
-			}
-
-			values.push_front(new_value);
-		}
-
-		f32 get_average() noexcept
-		{
-			f32 total{};
-			for (const auto& i : values)
-				total += i;
-
-			return total / values.size();
-		}
-
-	private:
-
-		std::deque<f32> values;
-	};
-
-
-	struct RuntimeSettings
-	{
-		bool paused{ false };
-		bool freecam{ false };
-		f64 cam_speed{ 5. };
-
-	} runtime_settings;
-
-
-	struct Debug
-	{
-		bool show_hitboxes{ false };
-		bool show_chunk_borders{ false };
-	}debug_flags;
-
-	bool showDebugMenus{};
 	
 
+
+	m4f32 orthographic_proj{ glm::ortho(0.f, Window::g_gui_view_size.x, Window::g_gui_view_size.y, 0.f, -2000.f, 2000.f) };
+
+	RenderSettings render_settings;
+
+	
+	DeltaTime delta_time;
 	f32 fps{};
 	f32 fps_sleep{};
+	f32 target_fps{ 160 };
+	
 	ValueAverage time_elapsed_average{};
 	ValueAverage time_elapsed_sleep_average{};
-	f32 target_fps{ 160 };
-
 
 	DebugTimer debugTimer;
+	
 
+	RuntimeSettings runtime_settings;
+
+	Debug debug_flags;
+
+	bool showDebugMenus{};
+	bool compute_noise_map{ false };
+	
 
 	v2f32 last_mouse_window_pos{};
 	f32 yaw{}, pitch{};
-
-	struct RenderSettings
-	{
-		u32 MSAA{ 8 };
-
-	} render_settings;
-
-	// Debug
-	bool compute_noise_map{ false };
-
+	
 
 };

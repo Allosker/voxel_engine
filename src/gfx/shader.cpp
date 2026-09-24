@@ -157,7 +157,8 @@ namespace gfx
 			GLchar infoLog[1024];
 			glGetShaderInfoLog(s_id, 1024, nullptr, infoLog);
 
-			throw std::runtime_error("ERROR::SHADER::COMPILATION_FAILED::" + std::string{name.data()} + '\n' + infoLog + '\n');
+			std::println("ERROR::SHADER::COMPILATION_FAILED::{}\nInfoLog:\n{}\n", std::string{name.data()}, infoLog);
+			throw;
 		}
 	}
 
@@ -174,7 +175,8 @@ namespace gfx
 			GLchar infoLog[1024];
 			glGetProgramInfoLog(s_id, 1024, nullptr, infoLog);
 
-			throw std::runtime_error(std::string{ "ERROR::SHADER::LINKAGE_FAILED::Shader_Program::" } + infoLog + '\n');
+			std::println("ERROR::SHADER::LINKAGE_FAILED::Shader_Program::InfoLog:\n{}\n", infoLog);
+			throw;
 		}
 	}
 

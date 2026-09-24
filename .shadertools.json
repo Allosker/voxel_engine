@@ -1,0 +1,8 @@
+{
+  "includes": [],
+  "defines": {},
+  "glsl": {
+    "targetClient": "None",
+    "spirvVersion": "None"
+  }
+}

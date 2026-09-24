@@ -62,6 +62,8 @@ private:
 		shaders.emplace("shaders/twoD", gfx::Shader{ (filepath)ASSET_PATH"shader/twoD.vert", ASSET_PATH"shader/twoD.frag" });
 		shaders.emplace("shaders/twoD_to_3D", gfx::Shader{ (filepath)ASSET_PATH"shader/twoD_to_3D.vert", ASSET_PATH"shader/twoD_to_3D.frag" });
 		shaders.emplace("shaders/text", gfx::Shader{ (filepath)ASSET_PATH"shader/text.vert", ASSET_PATH"shader/text.frag" });
+
+		shaders.emplace("shaders/line", gfx::Shader{ (filepath)ASSET_PATH"shader/line.vert", ASSET_PATH"shader/line.frag",  ASSET_PATH"shader/line.geom" });
 	}
 
 	void add_textures()
