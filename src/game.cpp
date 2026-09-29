@@ -9,6 +9,7 @@
 #include "gfx/renderer.hpp"
 
 #include "gfx/line.hpp"
+#include <cassert>
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -83,13 +84,7 @@ DebugMessage Game::run()
 
 	window->set_cursor_sight(true);
 
-	camera.set_FBS((v2f64)window->getSize());
-
-	assert(glCreateProgram != nullptr);
-	assert(glCreateShader != nullptr);
-	assert(glUseProgram != nullptr);
-
-	std::println("glCreateProgram = {}", (void*)glCreateProgram);
+	camera.set_FBS((v2f64)window->get_size());
 
 
 	AssetsManager::get(); // load all assets
@@ -116,7 +111,7 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
-	gfx::Line line{};
+	gfx::Line line{ window->get_size() };
 
 	gfx::Renderer renderer;
 
@@ -159,7 +154,7 @@ DebugMessage Game::run()
 		debug();
 
 		// Debug
-			
+
 		if (debug_flags.show_hitboxes)
 		{
 			auto hitbox = player.get_hitbox();
@@ -205,7 +200,7 @@ DebugMessage Game::run()
 
 		//
 
-
+		// static_cast<v2f32>(window->get_size())
 		renderer.start(camera, orthographic_proj);
 
 		world.draw(renderer);
@@ -217,7 +212,7 @@ DebugMessage Game::run()
 		renderer.draw();
 
 		debugTimer.add("renderer");
-		
+
 		gfx::DebugRenderer::get().render3D(static_cast<m4f32>(camera.get_VP()));
 		gfx::DebugRenderer::get().erase_all();
 
@@ -240,7 +235,7 @@ DebugMessage Game::run()
 		//debugTimer.printAll();
 
 		time_elapsed_average.update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - time_start).count());
-		
+
 		const auto frameExecutionTime = glfwGetTime() - time_at_frame_start;
 		const auto targetTime = 1.f / target_fps;
 		if (frameExecutionTime < targetTime)
@@ -347,7 +342,7 @@ void Game::inputs()
 
 				if (runtime_settings.cam_speed < 0.05)
 					runtime_settings.cam_speed = 0.05;
-				
+
 			}
 		}
 
@@ -392,7 +387,7 @@ void Game::inputs()
 						}
 
 						if (!colliding)
-						{     
+						{
 							world.set_voxel(pos, gfx::Voxel{ .type_id{ id } });
 
 							player_inventory.get_inventory().take_current(1);
@@ -486,7 +481,7 @@ void Game::inputs()
 	}
 
 
-	
+
 
 
 	sys::InputManager::get().update();
@@ -618,10 +613,10 @@ void Game::debug_imgui()
 			static gfx::Image noise_image{ v2u32{}, GL_RED };
 			static gfx::Texture noise_texture{ noise_image };
 
-			static i32 renderdistance{};   
+			static i32 renderdistance{};
 			const i32 l1{ 0 }, l2{ 100 };
 			ImGui::SliderScalar("Render Distance", ImGuiDataType_S32, &renderdistance, &l1, &l2);
-			     
+
 			auto pos = static_cast<v3i32>(camera.get_pos());
 			v3i32 min{ pos - renderdistance * gfx::Chunk::g_size<i32> };
 			v3i32 max{ pos + renderdistance * gfx::Chunk::g_size<i32> };

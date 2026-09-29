@@ -69,6 +69,18 @@ namespace gfx
 		unbind();
 	}
 
+	void Mesh::draw(GLenum mode) const noexcept
+	{
+		bind();
+
+		if (m_ebo)
+			glDrawElements(mode, m_nb_indices, GL_UNSIGNED_INT, 0);
+		else
+			glDrawArrays(mode, 0, m_nb_elements);
+
+		unbind();
+	}
+
 	void Mesh::free() const noexcept
 	{
 		glDeleteBuffers(1, &m_vbo);

@@ -54,6 +54,9 @@ namespace gfx
 
 		void draw() const noexcept;
 
+		void draw(GLenum mode) const noexcept;
+
+
 		// Only binds VAO/EBO
 		void bind() const noexcept
 		{

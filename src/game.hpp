@@ -6,18 +6,18 @@
 * ==============================================-
 */
 
-#include <memory>
 #include <deque>
+#include <memory>
 
+#include "sys/debugTimer.hpp"
 #include "sys/opengl_debug.hpp"
 #include "sys/types.hpp"
 #include "sys/window.hpp"
-#include "sys/debugTimer.hpp"
 
 #include "gfx/camera.hpp"
-#include "gfx/world.hpp"
 #include "gfx/player.hpp"
 #include "gfx/playerInventory.hpp"
+#include "gfx/world.hpp"
 
 
 // Only one instance of the game must exist at a time

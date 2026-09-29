@@ -75,7 +75,7 @@ public:
 	GLFWwindow* get() noexcept { return m_window; }
 	const GLFWwindow* const get() const noexcept { return m_window; }
 
-	v2i32 getSize() const noexcept { return m_size; }
+	const v2i32& get_size() const noexcept { return m_size; }
 
 	/// <returns>Empty vector if the cursor is hidden, the cursor position on screen otherwise</returns>
 	v2f64 get_cursor_pos() const noexcept

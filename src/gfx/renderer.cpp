@@ -111,7 +111,7 @@ namespace gfx
 			command.material->bindBlocks();
 			command.material->bindTextures();
 
-			command.mesh->draw();
+			command.mesh->draw(command.mode);
 		}
 
 		m_commands.clear();

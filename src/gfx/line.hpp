@@ -26,30 +26,33 @@ namespace gfx
 
 		struct LineVertex
 		{
-			v3f32 pos_a;
-			v3f32 pos_b;
+			v3f32 pos;
 			v4f32 rgba;
 
 			static void setupAttributes()
 			{
-				DEFINE_VERTEX_VAR(0, LineVertex, pos_a);
-				DEFINE_VERTEX_VAR(1, LineVertex, pos_b);
-				DEFINE_VERTEX_VAR(2, LineVertex, rgba);
+				DEFINE_VERTEX_VAR(0, LineVertex, pos);
+				DEFINE_VERTEX_VAR(1, LineVertex, rgba);
 			}
 		};
 
-		Line() noexcept
-			: m_material{ &AssetsManager::get().shaders.at("shaders/line"_id) }
+		Line(const v2i32& view_port_size) noexcept
+			: m_material{ &AssetsManager::get().shaders.at("shaders/line"_id) }, m_view_port_size{ view_port_size }
 		{
 			m_mesh.create_buffer<LineVertex>(false);
 
-			m_mesh.update_buffer<LineVertex>({ { { 0., 0., 0. }, { 1., 30., 0. }, { 1., 1., 1., 1.} } });
+			m_mesh.update_buffer<LineVertex>(
+				{
+					{ { 0., 0., 0. }, { 1., 1., 1., 1.} },
+					{ { 1., 1., 1. }, { 1., 1., 1., 1.} }
+				});
 		}
 
 
 		void draw(Renderer& renderer) noexcept
 		{
-			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Transparent);
+			m_material.get_shader().set_value("view_port_size", static_cast<v2f32>(m_view_port_size));
+			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Transparent, (GLenum)GL_LINES);
 		}
 
 
@@ -58,6 +61,8 @@ namespace gfx
 		Material m_material;
 
 		Mesh m_mesh;
+
+		const v2i32& m_view_port_size;
 
 
 	};

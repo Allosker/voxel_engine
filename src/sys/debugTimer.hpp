@@ -4,10 +4,12 @@
 * ==============================================
 */
 
-#include <iostream>
 #include <chrono>
-#include <vector>
+#include <imgui.h>
+#include <iostream>
+#include <print>
 #include <string>
+#include <vector>
 
 class DebugTimer
 {
@@ -60,12 +62,12 @@ public:
 		const auto prevTime = lastTime;
 		lastTime = now();
 
-		currentFrame.sections.push_back({sectionName, lastTime - prevTime});
+		currentFrame.sections.push_back({ sectionName, lastTime - prevTime });
 	}
 
-	void printAll() 
+	void printAll()
 	{
-		for(const auto& section : lastFrame.sections)
+		for (const auto& section : lastFrame.sections)
 		{
 			std::print("[{}] {}ms\n", section.name, section.duration);
 		}

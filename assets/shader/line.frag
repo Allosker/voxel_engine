@@ -6,4 +6,5 @@ out vec4 FragColor;
 void main()
 {
 	FragColor = RGBA;
+	FragColor = vec4(0, 0, 0, 1);
 }

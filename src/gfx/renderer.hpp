@@ -82,6 +82,7 @@ namespace gfx
 		Mesh* mesh{};
 		m4f32 transform{1};
 		Material* material{};
+		GLenum mode{};
 
 		bool operator<(const DrawCommand& other) const
 		{
@@ -93,17 +94,18 @@ namespace gfx
 	{
 	public:
 
-		void push_command(Mesh* mesh, m4f32 transform, Material* material, RenderLayer layer, float depth)
+		void push_command(Mesh* mesh, m4f32 transform, Material* material, RenderLayer layer, float depth, GLenum mode = GL_TRIANGLES)
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {layer, depth},
 				.mesh = mesh,
 				.transform = transform,
-				.material = material
+				.material = material,
+				.mode = mode
 			});
 		}
 
-		void push_command(Mesh* mesh, m4f32 transform, Material* material, RenderLayer layer)
+		void push_command(Mesh* mesh, m4f32 transform, Material* material, RenderLayer layer, GLenum mode = GL_TRIANGLES)
 		{
 			const v4f32 worldPos(v3f32(transform[3]), 1);
 			float depth = -glm::dot(m_viewZRow, worldPos);
@@ -112,37 +114,41 @@ namespace gfx
 				.key = {layer, depth},
 				.mesh = mesh,
 				.transform = transform,
-				.material = material
+				.material = material,
+				.mode = mode
 			});
 		}
 
-		void push_command(Mesh* mesh, Material* material, RenderLayer layer)
+		void push_command(Mesh* mesh, Material* material, RenderLayer layer, GLenum mode = GL_TRIANGLES)
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {layer, 0.f},
 				.mesh = mesh,
 				.transform = m4f32{1},
-				.material = material
+				.material = material,
+				.mode = mode
 			});
 		}
 
-		void push_command(Mesh* mesh, m3f32 transform, Material* material)
+		void push_command(Mesh* mesh, m3f32 transform, Material* material, GLenum mode = GL_TRIANGLES)
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {RenderLayer::UI, 0.f},
 				.mesh = mesh,
 				.transform = static_cast<m4f32>(transform),
-				.material = material
+				.material = material,
+				.mode = mode
 			});
 		}
 
-		void push_command(Mesh* mesh, m3f32 transform, Material* material, RenderLayer layer)
+		void push_command(Mesh* mesh, m3f32 transform, Material* material, RenderLayer layer, GLenum mode = GL_TRIANGLES)
 		{
 			m_commands.emplace_back(DrawCommand{
 				.key = {layer, 0.f},
 				.mesh = mesh,
 				.transform = static_cast<m4f32>(transform),
-				.material = material
+				.material = material,
+				.mode = mode
 			});
 		}
 
