@@ -43,15 +43,18 @@ namespace gfx
 
 			m_mesh.update_buffer<LineVertex>(
 				{
-					{ { 0., 0., 0. }, { 1., 1., 1., 1.} },
-					{ { 1., 1., 1. }, { 1., 1., 1., 1.} }
+					{ { 0.5, 0., 0. }, { 1., 1., 1., 1.} },
+					{ { -0.5, 0., 0. }, { 1., 1., 1., 1.} }
 				});
 		}
 
 
 		void draw(Renderer& renderer) noexcept
 		{
+			m_material.get_shader().bind();
 			m_material.get_shader().set_value("view_port_size", static_cast<v2f32>(m_view_port_size));
+			m_material.get_shader().unbind();
+
 			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Transparent, (GLenum)GL_LINES);
 		}
 

@@ -1,47 +1,70 @@
 #version 460 core
-layout (lines) in;
-layout (triangle_strip, max_vertices = 4) out;
-
-in vec4 oRGBA[];
+layout(lines) in;
+layout(triangle_strip, max_vertices = 4) out;
 
 uniform vec2 view_port_size;
 
+in vec4 oRGBA;
 out vec4 RGBA;
-
 
 void main()
 {
-	RGBA = oRGBA[0];
+    RGBA = oRGBA;
 
-	float widthPixels = 10.;
-	vec2 pixel_to_ndc = vec2(2. / view_port_size.x, 2. / view_port_size.y);
+    vec4 A = gl_in[0].gl_Position;
+    vec4 B = gl_in[1].gl_Position;
 
 
-	vec2 a = gl_in[0].gl_Position.xy / gl_in[0].gl_Position.w;
-	vec2 b = gl_in[1].gl_Position.xy / gl_in[1].gl_Position.w;
+    float da = A.z + A.w;
+    float db = B.z + B.w;
 
-	vec2 dir = normalize(b - a);
-	vec2 perp = vec2(-dir.y, dir.x);
+    if (da < 0.0 && db < 0.0)
+        return;
 
-	vec2 offset = perp * widthPixels * 0.5 * pixel_to_ndc;
+    if (da < 0.0)
+    {
+        float t = da / (da - db);
+        A = mix(A, B, t);
+    }
 
-	float za = gl_in[0].gl_Position.z / gl_in[0].gl_Position.w;
-	float zb = gl_in[1].gl_Position.z / gl_in[1].gl_Position.w;
-	
+    if (db < 0.0)
+    {
+        float t = db / (db - da);S
+        B = mix(B, A, t);
+    }
 
-	gl_Position = vec4(a + offset, za, 1.);
-	EmitVertex();
+    vec2 a = A.xy / A.w;
+    vec2 b = B.xy / B.w;
 
-	gl_Position = vec4(a - offset, za, 1.);
-	EmitVertex();
-	
-	gl_Position = vec4(b + offset, zb, 1.);
-	EmitVertex();
+    float za = A.z / A.w;
+    float zb = B.z / B.w;
 
-	gl_Position = vec4(b - offset, zb, 1.);
-	EmitVertex();
 
-	
+    vec2 dir = b - a;
+    float len = length(d);
 
-	EndPrimitive();
+    if (len < 1e-6)
+        return;
+
+    vec2 perp = vec2(-dir.y, dir.x) / len;
+
+    vec2 pixel_to_ndc = 2.0 / view_port_size;
+
+    vec2 offset = perp * (10.0 * 0.5) * pixel_to_ndc;
+
+
+
+    gl_Position = vec4(a - offset, za, 1.0);
+    EmitVertex();
+
+    gl_Position = vec4(b - offset, zb, 1.0);
+    EmitVertex();
+
+    gl_Position = vec4(a + offset, za, 1.0);
+    EmitVertex();
+
+    gl_Position = vec4(b + offset, zb, 1.0);
+    EmitVertex();
+
+    EndPrimitive();
 }
