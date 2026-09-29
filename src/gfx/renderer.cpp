@@ -8,13 +8,14 @@
 namespace gfx
 {
 
-	void Renderer::start(const Camera& camera, m4f32 uiViewMatrix)
+	void Renderer::start(const Camera& camera, m4f32 uiViewMatrix, v2f32 viewport_size)
 	{
 		m_camera = camera;
 		m_viewMatrix = m_camera.get_VP();
 		m_viewZRow = { m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], m_viewMatrix[3][2] };
 
 		m_uiViewMatrix = uiViewMatrix;
+		m_viewport_size = viewport_size;
 
 		glDepthMask(GL_TRUE);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -25,6 +26,12 @@ namespace gfx
 	{
 		viewUBI.bind();
 		instanceUBI.bind();
+
+
+		// Update every frame -- base var
+
+		viewUBI.set("viewport_size", m_viewport_size);
+
 
 		std::sort(m_commands.begin(), m_commands.end());
 
@@ -54,7 +61,6 @@ namespace gfx
 			if (newLayer != currentLayer)
 			{
 				currentLayer = newLayer;
-
 
 				switch (currentLayer)
 				{

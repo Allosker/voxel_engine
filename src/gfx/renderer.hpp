@@ -152,7 +152,7 @@ namespace gfx
 			});
 		}
 
-		void start(const Camera& camera, m4f32 uiViewMatrix);
+		void start(const Camera& camera, m4f32 uiViewMatrix, v2f32 viewport_size);
 		void draw();
 
 
@@ -163,6 +163,7 @@ namespace gfx
 		glm::vec4 m_viewZRow;
 
 		m4f32 m_uiViewMatrix;
+		v2f32 m_viewport_size;
 
 		std::vector<DrawCommand> m_commands;
 

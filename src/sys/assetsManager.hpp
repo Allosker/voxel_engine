@@ -56,6 +56,8 @@ private:
 
 	void add_shaders()
 	{
+		shaders.emplace("shaders/line", gfx::Shader{ (filepath)ASSET_PATH"shader/line.vert", ASSET_PATH"shader/line.frag",  ASSET_PATH"shader/line.geom" });
+
 		shaders.emplace("shaders/world_chunks", gfx::Shader{ (filepath)ASSET_PATH"shader/world_chunks.vert", ASSET_PATH"shader/world_chunks.frag" });
 		shaders.emplace("shaders/world_entities", gfx::Shader{ (filepath)ASSET_PATH"shader/world_entities.vert", ASSET_PATH"shader/world_entities.frag" });
 		shaders.emplace("shaders/static_mesh", gfx::Shader{ (filepath)ASSET_PATH"shader/static_mesh.vert", ASSET_PATH"shader/static_mesh.frag" });
@@ -63,7 +65,6 @@ private:
 		shaders.emplace("shaders/twoD_to_3D", gfx::Shader{ (filepath)ASSET_PATH"shader/twoD_to_3D.vert", ASSET_PATH"shader/twoD_to_3D.frag" });
 		shaders.emplace("shaders/text", gfx::Shader{ (filepath)ASSET_PATH"shader/text.vert", ASSET_PATH"shader/text.frag" });
 
-		shaders.emplace("shaders/line", gfx::Shader{ (filepath)ASSET_PATH"shader/line.vert", ASSET_PATH"shader/line.frag",  ASSET_PATH"shader/line.geom" });
 	}
 
 	void add_textures()

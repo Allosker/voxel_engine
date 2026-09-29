@@ -2,14 +2,14 @@
 layout(lines) in;
 layout(triangle_strip, max_vertices = 4) out;
 
-uniform vec2 view_port_size;
+in vec2 Viewport_size[];
+in vec4 oRGBA[];
 
-in vec4 oRGBA;
 out vec4 RGBA;
 
 void main()
 {
-    RGBA = oRGBA;
+    RGBA = oRGBA[0];
 
     vec4 A = gl_in[0].gl_Position;
     vec4 B = gl_in[1].gl_Position;
@@ -29,7 +29,7 @@ void main()
 
     if (db < 0.0)
     {
-        float t = db / (db - da);S
+        float t = db / (db - da);
         B = mix(B, A, t);
     }
 
@@ -41,14 +41,14 @@ void main()
 
 
     vec2 dir = b - a;
-    float len = length(d);
+    float len = length(dir);
 
     if (len < 1e-6)
         return;
 
     vec2 perp = vec2(-dir.y, dir.x) / len;
 
-    vec2 pixel_to_ndc = 2.0 / view_port_size;
+    vec2 pixel_to_ndc = 2.0 / Viewport_size[0];
 
     vec2 offset = perp * (10.0 * 0.5) * pixel_to_ndc;
 

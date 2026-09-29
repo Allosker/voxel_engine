@@ -111,7 +111,7 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
-	gfx::Line line{ window->get_size() };
+	gfx::Line line{};
 
 	gfx::Renderer renderer;
 
@@ -201,7 +201,7 @@ DebugMessage Game::run()
 		//
 
 		// static_cast<v2f32>(window->get_size())
-		renderer.start(camera, orthographic_proj);
+		renderer.start(camera, orthographic_proj, static_cast<v2f32>(window->get_size()));
 
 		world.draw(renderer);
 

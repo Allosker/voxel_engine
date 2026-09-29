@@ -36,8 +36,8 @@ namespace gfx
 			}
 		};
 
-		Line(const v2i32& view_port_size) noexcept
-			: m_material{ &AssetsManager::get().shaders.at("shaders/line"_id) }, m_view_port_size{ view_port_size }
+		Line() noexcept
+			: m_material{ &AssetsManager::get().shaders.at("shaders/line"_id) }
 		{
 			m_mesh.create_buffer<LineVertex>(false);
 
@@ -49,12 +49,8 @@ namespace gfx
 		}
 
 
-		void draw(Renderer& renderer) noexcept
+		void draw(Renderer& renderer) noexcept override
 		{
-			m_material.get_shader().bind();
-			m_material.get_shader().set_value("view_port_size", static_cast<v2f32>(m_view_port_size));
-			m_material.get_shader().unbind();
-
 			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Transparent, (GLenum)GL_LINES);
 		}
 
@@ -63,9 +59,7 @@ namespace gfx
 
 		Material m_material;
 
-		Mesh m_mesh;
-
-		const v2i32& m_view_port_size;
+		Mesh m_mesh;  
 
 
 	};

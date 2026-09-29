@@ -85,17 +85,17 @@ namespace gfx
 
 		const std::vector<UniformBlockDefinition>& get_block_definitions() const
 		{
-			return m_blockDefinitions;
+			return m_block_definitions;
 		}
 
 		const std::unordered_map<StringHash, UniformDefinition>& get_uniform_definitions() const
 		{
-			return m_uniformDefinitions;
+			return m_uniform_definitions;
 		}
 
 		uint32_t get_texture_count() const
 		{
-			return m_textureSlotCount;
+			return m_texture_slot_count;
 		}
 
 		// = Setters
@@ -124,11 +124,11 @@ namespace gfx
 
 		GlId_Shader m_id;
 
-		uint32_t m_textureSlotCount{};
-		std::vector<UniformBlockDefinition> m_blockDefinitions;
-		UniformDefinitions m_uniformDefinitions;
+		uint32_t m_texture_slot_count{};
+		std::vector<UniformBlockDefinition> m_block_definitions;
+		UniformDefinitions m_uniform_definitions;
 
-		static inline std::unordered_set<StringHash> g_globalBlockNames{"ViewData", "InstanceData"};
-		static inline std::unordered_map<StringHash, GlobalUniformBlockDefinition> g_globalBlockDefinitions;
+		static inline std::unordered_set<StringHash> gl_block_names{"ViewData", "InstanceData"};
+		static inline std::unordered_map<StringHash, GlobalUniformBlockDefinition> g_block_definitions;
 	};
 }
