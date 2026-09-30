@@ -222,6 +222,8 @@ namespace types
 	{
 		T pos;
 		T size;
+
+		constexpr auto operator<=>(const Rect&) const noexcept = default;
 	};
 
 	/// <summary>

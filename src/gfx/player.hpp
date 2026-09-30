@@ -88,7 +88,7 @@ namespace gfx
 		phy::MovementSettings m_mov{ .acceleration{ 20. }, .max_speed{ 5. }, .friction{ 10. } };
 
 
-		f64 jump_velocity{ 8.4 };
+		f64 jump_velocity{ 9 };
 		f32 voxel_range{ 5.f };
 		bool is_on_ground{};
 		bool flying{ true };

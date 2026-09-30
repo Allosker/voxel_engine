@@ -38,12 +38,12 @@ namespace gfx
 
 			std::vector<Vertex> mesh{};
 
-			const std::vector<v2f32>& uvs = calculate_uvs(m_id);
-			for (const auto& i : Voxel::g_model)
+			const auto& uvs = calculate_uvs(m_id);
+			for (size_t i{}; i < gfx::Voxel::g_model.size(); i++)
 				assemble_pos_uvs<Vertex>(
 					mesh,
-					i,
-					uvs
+					gfx::Voxel::g_model[i],
+					uvs[i]
 				);
 
 			m_mesh.update_buffer(mesh, GL_STATIC_DRAW);

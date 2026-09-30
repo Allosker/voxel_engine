@@ -6,6 +6,9 @@
 #include "sys/assetsManager.hpp"
 #include "voxel.hpp"
 #include "voxelType.hpp"
+#include <array>
+#include <sys/types.hpp>
+#include <vector>
 
 namespace gfx
 {
@@ -257,7 +260,7 @@ namespace gfx
 							assemble_pos_uvs(
 								ret,
 								Voxel::g_model[i],
-								uvs,
+								uvs.at(i),
 								calculate_ao(targetChunk, i, v_loc_dir, grid),
 								abs_pos
 							);

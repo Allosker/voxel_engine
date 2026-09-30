@@ -186,11 +186,12 @@ namespace gui
 		{
 			std::vector<gfx::Vertex> mesh{};
 
-			for (const auto& i : g_model)
+			const auto& uvs = gfx::calculate_uvs(id);
+			for (size_t i{}; i < g_model.size(); i++)
 				gfx::assemble_pos_uvs<gfx::Vertex>(
 					mesh,
-					i,
-					gfx::calculate_uvs(id)
+					g_model[i],
+					uvs[i]
 				);
 
 			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);

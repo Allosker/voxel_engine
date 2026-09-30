@@ -14,22 +14,35 @@
 
 namespace gfx
 {
-	inline std::vector<v2f32> calculate_uvs(types::type_id id) noexcept
+	/// <summary>
+	/// Predefined pattern:
+	///		Left, Right, Up, Down, Front, Back
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	inline std::vector<std::vector<v2f32>> calculate_uvs(types::type_id id) noexcept
 	{
-		auto uvs = VoxelTypeManager::get().get_type(id).uvs;
-		uvs.pos += 0.0001;
-		uvs.size -= 0.0001;
+		std::vector<std::vector<v2f32>> ret;
+		ret.reserve(42);
 
-		return
+		for (auto uvs : VoxelTypeManager::get().get_type(id).uvs)
 		{
-			v2f32
-			{ uvs.pos.x				 , uvs.pos.y },
-			{ uvs.pos.x + uvs.size.x , uvs.pos.y },
-			{ uvs.pos.x				 , uvs.pos.y + uvs.size.y },
-			{ uvs.pos.x + uvs.size.x , uvs.pos.y },
-			{ uvs.pos.x + uvs.size.x , uvs.pos.y + uvs.size.y },
-			{ uvs.pos.x				 , uvs.pos.y + uvs.size.y }
-		};
+			uvs.pos += 0.0001;
+			uvs.size -= 0.0001;
+
+			ret.emplace_back(std::vector
+			{
+				v2f32
+				{ uvs.pos.x				 , uvs.pos.y },
+				{ uvs.pos.x + uvs.size.x , uvs.pos.y },
+				{ uvs.pos.x				 , uvs.pos.y + uvs.size.y },
+				{ uvs.pos.x + uvs.size.x , uvs.pos.y },
+				{ uvs.pos.x + uvs.size.x , uvs.pos.y + uvs.size.y },
+				{ uvs.pos.x				 , uvs.pos.y + uvs.size.y }
+			});
+		}
+
+		return ret;
 	}
 
 	template<typename T>

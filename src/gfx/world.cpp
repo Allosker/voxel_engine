@@ -91,6 +91,9 @@ namespace gfx
 		const auto& vtm = VoxelTypeManager::get();
 		const auto dirtId = vtm.get_id("dirt"_id);
 		const auto stoneId = vtm.get_id("stone"_id);
+		const auto grassId = vtm.get_id("grass"_id);
+
+		Random::get().set_range(3, 5);
 
 		for (u16 z{}; z < Chunk::g_size<u16>.z; z++)
 		{
@@ -100,6 +103,7 @@ namespace gfx
 
 				const i64 height = terrain_data.noise_data.at(x + z * Chunk::g_size<size_t>.z) * 10;
 				const i64 localHeight = height - c_pos.y;
+				const i64 rh = height - 1;
 
 				if (localHeight < 0)
 				{
@@ -108,14 +112,21 @@ namespace gfx
 
 				should_be_empty_chunk = false;
 
-				if (localHeight < Chunk::g_size<size_t>.y)
-				{
-					chunk->set_voxel_at({ x,localHeight,z }, Voxel{ dirtId });
-				}
-
 				for (u16 y = 0; y < std::min(localHeight, Chunk::g_size<i64>.x); y++)
 				{
-					chunk->set_voxel_at({ x,y,z }, Voxel{ vtm.get_id("stone") });
+					const auto vy = y + c_pos.y;
+
+					const auto dirt_height = Random::get().next();
+					// Make it so that the random thingie gives a random engien that can be manipulated however you like
+
+					if (vy == rh)
+						chunk->set_voxel_at({ x,y,z }, Voxel{ grassId });
+
+					else if (vy < rh && vy >= rh - dirt_height)
+						chunk->set_voxel_at({ x,y,z }, Voxel{ dirtId });
+
+					else if (vy < rh - dirt_height)
+						chunk->set_voxel_at({ x,y,z }, Voxel{ stoneId });
 				}
 			}
 		}
@@ -154,7 +165,10 @@ namespace gfx
 		auto& c_voxel = chunk->at(voxel_l);
 
 		if (new_voxel.type_id == types::type_id_null)
+		{
+			Random::get().set_range(-1, 1);
 			add_entity(loc, WorldItem{ c_voxel.type_id, static_cast<v3f64>(voxel_p), v3f64{ Random::get().next(), std::abs(Random::get().next()), Random::get().next() } * 10. });
+		}
 
 		c_voxel = new_voxel;
 
