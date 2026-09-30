@@ -89,6 +89,7 @@ namespace gfx
 
 
 		f64 jump_velocity{ 8.4 };
+		f32 voxel_range{ 5.f };
 		bool is_on_ground{};
 		bool flying{ true };
 		bool ghost{ true };

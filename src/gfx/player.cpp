@@ -161,7 +161,7 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 						if (offset.y <= 0)
 							is_on_ground = true;
 
-						/*r
+						/*
 						* This fixes the jerky motions since it occurred when multiple voxels tried to resolve collisions on the y axis
 						* which caused the player to be over-offset-ed.
 						*/  

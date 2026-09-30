@@ -112,7 +112,9 @@ DebugMessage Game::run()
 	gfx::Renderer renderer;
 	std::chrono::time_point<std::chrono::system_clock> time_start{}; // debug
 
+
 #pragma endregion 
+
 
 	while (window->isOpen())
 	{
@@ -234,10 +236,10 @@ DebugMessage Game::run()
 
 				if (sys::InputManager::pressed(*mouse, MouseButtons::Left))
 				{
-					if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
+					if (raycast_result)
 					{
-						ray = *r;
-						const auto& pos = r->voxel_pos;
+						ray = *raycast_result;
+						const auto& pos = ray.voxel_pos;
 
 						world.set_voxel(pos, gfx::Voxel{ .type_id{} });
 					}
@@ -248,10 +250,10 @@ DebugMessage Game::run()
 					if (const auto id = player_inventory.get_inventory().get_selected_item().get_type().id)
 					{
 
-						if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
+						if (raycast_result)
 						{
-							ray = *r;
-							const auto& pos = r->voxel_pos + static_cast<types::voxel_pos>(r->normal);
+							ray = *raycast_result;
+							const auto& pos = ray.voxel_pos + static_cast<types::voxel_pos>(ray.normal);
 
 							bool colliding{};
 							for (const auto& i : phy::get_corners(player.get_hitbox(), player.get_pos()))
@@ -364,8 +366,28 @@ DebugMessage Game::run()
 #pragma endregion
 
 
+#pragma region Logic
+
 		if (!runtime_settings.paused && !runtime_settings.freecam)
+		{
+			raycast_result = world.raycast(camera.get_pos(), camera.get_front(), player.voxel_range);
+
+			if (raycast_result)
+			{
+				voxel_highlight.set_pos((types::pos)raycast_result->voxel_pos + 0.5);
+				voxel_highlight.set_visibility(true);
+			}
+			else
+			{
+				voxel_highlight.set_visibility(false);
+			}
+
 			logic();
+		}
+
+
+#pragma endregion
+
 
 		debug();
 
@@ -664,6 +686,7 @@ void Game::debug_imgui()
 
 			ImGui::DragScalar("Jump Velocity", ImGuiDataType_Double, &player.jump_velocity);
 			ImGui::DragScalar("Gravity", ImGuiDataType_Double, &world.gravity);
+			ImGui::DragFloat("Voxel Range", &player.voxel_range);
 			//ImGui::DragScalar("Friction", ImGuiDataType_Double, &player.velocity.friction);
 
 

@@ -48,7 +48,7 @@ namespace gfx
 		void set_width(f32 width) noexcept { m_width = width; }
 		void set_color(const v4f32& color) noexcept { m_color = color; }
 
-		void toggle_visibility() noexcept { m_draw = !m_draw; }
+		void set_visibility(bool b) noexcept { m_draw = b; }
 		
 
 		void draw(Renderer& renderer) noexcept
