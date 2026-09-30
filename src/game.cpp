@@ -10,6 +10,8 @@
 
 #include "gfx/line.hpp"
 #include <cassert>
+#include "gfx/line_highlight.hpp"
+#include "gfx/voxelType.hpp"
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -89,18 +91,6 @@ DebugMessage Game::run()
 
 	AssetsManager::get(); // load all assets
 
-	AssetsManager::get().shaders.at("shaders/twoD").bind();
-	AssetsManager::get().shaders.at("shaders/twoD").set_value("ortho", orthographic_proj);
-	AssetsManager::get().shaders.at("shaders/twoD").unbind();
-
-	AssetsManager::get().shaders.at("shaders/twoD_to_3D").bind();
-	AssetsManager::get().shaders.at("shaders/twoD_to_3D").set_value("ortho", orthographic_proj);
-	AssetsManager::get().shaders.at("shaders/twoD_to_3D").unbind();
-
-	AssetsManager::get().shaders.at("shaders/text").bind();
-	AssetsManager::get().shaders.at("shaders/text").set_value("vp", orthographic_proj);
-	AssetsManager::get().shaders.at("shaders/text").unbind();
-
 
 	world.update_grid({ 0, 0, 0 }, true);
 
@@ -111,15 +101,19 @@ DebugMessage Game::run()
 
 	player.set_pos(player.get_pos() + types::pos{ 0.0, 2.0, 0.0 });
 
-	gfx::Line line{};
 
-	line.set_pos({ 0., 10., 30 }, { 0., 0., 0. });
-	line.set_width(10);
-	line.set_color({ 0.4, 0.5, 0.6, 1.0 }, { 0.9, 0.4, 0.8, 0.8 });
+#pragma region Permanent Variables
+
+	gfx::LineHighlight voxel_highlight{ gfx::VoxelTypeManager::get().get_type("air"_id).hitbox, { 0.f, 0.f, 0.f, 1.f}, 2.f };
+
+	std::optional<gfx::RayCastResult> raycast_result{ std::nullopt };
+
 
 	gfx::Renderer renderer;
+	std::chrono::time_point<std::chrono::system_clock> time_start{}; // debug
 
-	std::chrono::time_point<std::chrono::system_clock> time_start{};
+#pragma endregion 
+
 	while (window->isOpen())
 	{
 		debugTimer.start();
@@ -150,7 +144,225 @@ DebugMessage Game::run()
 		debugTimer.add("clear states");
 
 
-		inputs();
+#pragma region Input Managing
+
+		static gfx::RayCastResult ray{};
+
+		while (auto event = window->poll_event())
+		{
+			if (auto focus_changed = event->get_if<Event::FocusChanged>())
+				if (focus_changed->focus)
+					runtime_settings.paused = false;
+				else
+					runtime_settings.paused = true;
+
+			if (auto f = event->get_if<Event::Resized>())
+			{
+				camera.set_FBS((v2f64)f->size);
+			}
+
+			if (auto key = event->get_if<Event::KeyEvent>())
+			{
+
+				if (!runtime_settings.paused)
+					sys::InputManager::get().add_key_event(*key);
+
+
+				if (sys::InputManager::pressed(*key, Keys::Escape))
+					window->close();
+
+				if (sys::InputManager::pressed(*key, Keys::F1))
+					window->toggle_cursor();
+
+				if (sys::InputManager::pressed(*key, Keys::Tab))
+					player_inventory.toggle(*window);
+
+				if (sys::InputManager::pressed(*key, Keys::F2))
+					debug_flags.show_chunk_borders = !debug_flags.show_chunk_borders;
+
+				if (sys::InputManager::pressed(*key, Keys::F3))
+					compute_noise_map = true;
+
+				if (sys::InputManager::pressed(*key, Keys::F4))
+					world.debug.update_world = !world.debug.update_world;
+
+				if (sys::InputManager::pressed(*key, Keys::F5))
+					showDebugMenus = !showDebugMenus;
+
+				if (sys::InputManager::pressed(*key, Keys::F6))
+					runtime_settings.freecam = !runtime_settings.freecam;
+
+				if (sys::InputManager::pressed(*key, Keys::F))
+					player.flying = !player.flying;
+
+				if (sys::InputManager::pressed(*key, Keys::G))
+					player.ghost = !player.ghost;
+
+			}
+
+			if (runtime_settings.paused)
+				break;
+
+			if (auto wheel = event->get_if<Event::MouseWheelScrolled>())
+			{
+				player_inventory.get_inventory().on_mouse_scroll(wheel->delta);
+
+				if (runtime_settings.freecam)
+				{
+					if (runtime_settings.cam_speed <= 1)
+					{
+						runtime_settings.cam_speed += wheel->delta.y / 100.;
+					}
+					else
+					{
+						runtime_settings.cam_speed += wheel->delta.y;
+					}
+
+					if (runtime_settings.cam_speed < 0.05)
+						runtime_settings.cam_speed = 0.05;
+
+				}
+			}
+
+			if (auto mouse = event->get_if<Event::MouseButtonEvent>())
+			{
+				sys::InputManager::get().add_mouseButton_event(*mouse);
+
+
+				if (player_inventory.is_active()) break;
+
+
+				if (sys::InputManager::pressed(*mouse, MouseButtons::Left))
+				{
+					if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
+					{
+						ray = *r;
+						const auto& pos = r->voxel_pos;
+
+						world.set_voxel(pos, gfx::Voxel{ .type_id{} });
+					}
+				}
+
+				if (sys::InputManager::pressed(*mouse, MouseButtons::Right))
+				{
+					if (const auto id = player_inventory.get_inventory().get_selected_item().get_type().id)
+					{
+
+						if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
+						{
+							ray = *r;
+							const auto& pos = r->voxel_pos + static_cast<types::voxel_pos>(r->normal);
+
+							bool colliding{};
+							for (const auto& i : phy::get_corners(player.get_hitbox(), player.get_pos()))
+							{
+								const auto p = gfx::World::to_voxelPos(i);
+								if (pos == p)
+								{
+									colliding = true;
+									break;
+								}
+							}
+
+							if (!colliding)
+							{
+								world.set_voxel(pos, gfx::Voxel{ .type_id{ id } });
+
+								player_inventory.get_inventory().take_current(1);
+							}
+						}
+					}
+				}
+			}
+
+			if (auto p = event->get_if<Event::MouseMoved>())
+			{
+				v2f32 offset{ p->pos - last_mouse_window_pos };
+				last_mouse_window_pos = p->pos;
+
+				// Do after last_mouse_window_pos was updated to avoid jumps
+				if (!window->is_cursor_visible())
+				{
+
+					offset *= 0.1;
+
+					yaw += offset.x;
+					pitch += offset.y;
+
+
+					if (pitch > 89.)
+						pitch = 89.;
+					if (pitch < -89.)
+						pitch = -89.;
+
+					types::pos direction{};
+
+					f64 radPitch{ glm::radians(pitch) };
+					f64 cosPitch{ std::cos(radPitch) };
+					f64 radYaw{ glm::radians(yaw) };
+
+					direction.x = std::cos(radYaw) * cosPitch;
+					direction.y = -std::sin(radPitch);
+					direction.z = std::sin(radYaw) * cosPitch;
+
+					camera.set_dirs(glm::normalize(direction));
+				}
+			}
+
+		}
+
+
+		gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0, 1 }, 0, false);
+		gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1, 1 }, 0, false);
+
+		if (runtime_settings.freecam)
+		{
+			if (window->isKeyPressed(Keys::W))
+				camera.move_front(delta_time.get(), runtime_settings.cam_speed);
+
+			if (window->isKeyPressed(Keys::S))
+				camera.move_back(delta_time.get(), runtime_settings.cam_speed);
+
+			if (window->isKeyPressed(Keys::D))
+				camera.move_right(delta_time.get(), runtime_settings.cam_speed);
+
+			if (window->isKeyPressed(Keys::A))
+				camera.move_left(delta_time.get(), runtime_settings.cam_speed);
+
+
+			if (window->isKeyPressed(Keys::Space))
+				camera.move_up(delta_time.get(), runtime_settings.cam_speed);
+
+			if (window->isKeyPressed(Keys::Left_shift))
+				camera.move_down(delta_time.get(), runtime_settings.cam_speed);
+		}
+		else
+		{
+			if (window->isKeyPressed(Keys::W))
+				player.move(Keys::W, delta_time.get());
+
+			if (window->isKeyPressed(Keys::S))
+				player.move(Keys::S, delta_time.get());
+
+			if (window->isKeyPressed(Keys::D))
+				player.move(Keys::D, delta_time.get());
+
+			if (window->isKeyPressed(Keys::A))
+				player.move(Keys::A, delta_time.get());
+
+
+			if (window->isKeyPressed(Keys::Space))
+				player.move(Keys::Space, delta_time.get());
+
+			if (window->isKeyPressed(Keys::Left_shift))
+				player.move(Keys::Left_shift, delta_time.get());
+		}
+
+
+		sys::InputManager::get().update();
+
+#pragma endregion
+
 
 		if (!runtime_settings.paused && !runtime_settings.freecam)
 			logic();
@@ -202,14 +414,15 @@ DebugMessage Game::run()
 			}
 		}
 
-		//
+
+#pragma region Rendering
 
 		// static_cast<v2f32>(window->get_size())
 		renderer.start(camera, orthographic_proj, static_cast<v2f32>(window->get_size()));
 
 		world.draw(renderer);
 
-		line.draw(renderer);
+		voxel_highlight.draw(renderer);
 
 		m_inv_gui.draw(renderer);
 
@@ -235,6 +448,7 @@ DebugMessage Game::run()
 
 		debugTimer.add("window display");
 
+#pragma endregion
 
 		//debugTimer.printAll();
 
@@ -266,229 +480,6 @@ DebugMessage Game::run()
 	ImGui::DestroyContext();
 
 	return DebugMessage{ .msg{"Info::Game ran successfully"}, .severity{DebugMessage::Info} };
-}
-
-
-
-void Game::inputs()
-{
-	static gfx::RayCastResult ray{};
-
-	while (auto event = window->poll_event())
-	{
-		if (auto focus_changed = event->get_if<Event::FocusChanged>())
-			if (focus_changed->focus)
-				runtime_settings.paused = false;
-			else
-				runtime_settings.paused = true;
-
-		if (auto f = event->get_if<Event::Resized>())
-		{
-			camera.set_FBS((v2f64)f->size);
-		}
-
-		if (auto key = event->get_if<Event::KeyEvent>())
-		{
-
-			if (!runtime_settings.paused)
-				sys::InputManager::get().add_key_event(*key);
-
-
-			if (sys::InputManager::pressed(*key, Keys::Escape))
-				window->close();
-
-			if (sys::InputManager::pressed(*key, Keys::F1))
-				window->toggle_cursor();
-
-			if (sys::InputManager::pressed(*key, Keys::Tab))
-				player_inventory.toggle(*window);
-
-			if (sys::InputManager::pressed(*key, Keys::F2))
-				debug_flags.show_chunk_borders = !debug_flags.show_chunk_borders;
-
-			if (sys::InputManager::pressed(*key, Keys::F3))
-				compute_noise_map = true;
-
-			if (sys::InputManager::pressed(*key, Keys::F4))
-				world.debug.update_world = !world.debug.update_world;
-
-			if (sys::InputManager::pressed(*key, Keys::F5))
-				showDebugMenus = !showDebugMenus;
-
-			if (sys::InputManager::pressed(*key, Keys::F6))
-				runtime_settings.freecam = !runtime_settings.freecam;
-
-			if (sys::InputManager::pressed(*key, Keys::F))
-				player.flying = !player.flying;
-
-			if (sys::InputManager::pressed(*key, Keys::G))
-				player.ghost = !player.ghost;
-
-		}
-
-		if (runtime_settings.paused)
-			return;
-
-		if (auto wheel = event->get_if<Event::MouseWheelScrolled>())
-		{
-			player_inventory.get_inventory().on_mouse_scroll(wheel->delta);
-
-			if (runtime_settings.freecam)
-			{
-				if (runtime_settings.cam_speed <= 1)
-				{
-					runtime_settings.cam_speed += wheel->delta.y / 100.;
-				}
-				else
-				{
-					runtime_settings.cam_speed += wheel->delta.y;
-				}
-
-				if (runtime_settings.cam_speed < 0.05)
-					runtime_settings.cam_speed = 0.05;
-
-			}
-		}
-
-		if (auto mouse = event->get_if<Event::MouseButtonEvent>())
-		{
-			sys::InputManager::get().add_mouseButton_event(*mouse);
-
-
-			if (player_inventory.is_active()) return;
-
-
-			if (sys::InputManager::pressed(*mouse, MouseButtons::Left))
-			{
-				if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
-				{
-					ray = *r;
-					const auto& pos = r->voxel_pos;
-
-					world.set_voxel(pos, gfx::Voxel{ .type_id{} });
-				}
-			}
-
-			if (sys::InputManager::pressed(*mouse, MouseButtons::Right))
-			{
-				if (const auto id = player_inventory.get_inventory().get_selected_item().get_type().id)
-				{
-
-					if (auto r = world.raycast(camera.get_pos(), camera.get_front(), 200))
-					{
-						ray = *r;
-						const auto& pos = r->voxel_pos + static_cast<types::voxel_pos>(r->normal);
-
-						bool colliding{};
-						for (const auto& i : phy::get_corners(player.get_hitbox(), player.get_pos()))
-						{
-							const auto p = gfx::World::to_voxelPos(i);
-							if (pos == p)
-							{
-								colliding = true;
-								break;
-							}
-						}
-
-						if (!colliding)
-						{
-							world.set_voxel(pos, gfx::Voxel{ .type_id{ id } });
-
-							player_inventory.get_inventory().take_current(1);
-						}
-					}
-				}
-			}
-		}
-
-		if (auto p = event->get_if<Event::MouseMoved>())
-		{
-			v2f32 offset{ p->pos - last_mouse_window_pos };
-			last_mouse_window_pos = p->pos;
-
-			// Do after last_mouse_window_pos was updated to avoid jumps
-			if (!window->is_cursor_visible())
-			{
-
-				offset *= 0.1;
-
-				yaw += offset.x;
-				pitch += offset.y;
-
-
-				if (pitch > 89.)
-					pitch = 89.;
-				if (pitch < -89.)
-					pitch = -89.;
-
-				types::pos direction{};
-
-				f64 radPitch{ glm::radians(pitch) };
-				f64 cosPitch{ std::cos(radPitch) };
-				f64 radYaw{ glm::radians(yaw) };
-
-				direction.x = std::cos(radYaw) * cosPitch;
-				direction.y = -std::sin(radPitch);
-				direction.z = std::sin(radYaw) * cosPitch;
-
-				camera.set_dirs(glm::normalize(direction));
-			}
-		}
-
-	}
-
-
-	gfx::line((v3f32)gfx::World::to_voxelPos(ray.origin), (v3f32)gfx::World::to_voxelPos(ray.hit_pos), { 0, 0, 0, 1 }, 0, false);
-	gfx::line((v3f32)ray.origin, (v3f32)ray.hit_pos, { 1, 1, 1, 1 }, 0, false);
-
-	if (runtime_settings.freecam)
-	{
-		if (window->isKeyPressed(Keys::W))
-			camera.move_front(delta_time.get(), runtime_settings.cam_speed);
-
-		if (window->isKeyPressed(Keys::S))
-			camera.move_back(delta_time.get(), runtime_settings.cam_speed);
-
-		if (window->isKeyPressed(Keys::D))
-			camera.move_right(delta_time.get(), runtime_settings.cam_speed);
-
-		if (window->isKeyPressed(Keys::A))
-			camera.move_left(delta_time.get(), runtime_settings.cam_speed);
-
-
-		if (window->isKeyPressed(Keys::Space))
-			camera.move_up(delta_time.get(), runtime_settings.cam_speed);
-
-		if (window->isKeyPressed(Keys::Left_shift))
-			camera.move_down(delta_time.get(), runtime_settings.cam_speed);
-	}
-	else
-	{
-		if (window->isKeyPressed(Keys::W))
-			player.move(Keys::W, delta_time.get());
-
-		if (window->isKeyPressed(Keys::S))
-			player.move(Keys::S, delta_time.get());
-
-		if (window->isKeyPressed(Keys::D))
-			player.move(Keys::D, delta_time.get());
-
-		if (window->isKeyPressed(Keys::A))
-			player.move(Keys::A, delta_time.get());
-
-
-		if (window->isKeyPressed(Keys::Space))
-			player.move(Keys::Space, delta_time.get());
-
-		if (window->isKeyPressed(Keys::Left_shift))
-			player.move(Keys::Left_shift, delta_time.get());
-	}
-
-
-
-
-
-	sys::InputManager::get().update();
 }
 
 

@@ -9,7 +9,6 @@
 #include "drawable.hpp"
 #include "gfx/material.hpp"
 #include "gfx/mesh.hpp"
-#include "gfx/transformable3D.hpp"
 #include "renderer.hpp"
 #include "sys/assetsManager.hpp"
 #include "sys/hash.hpp"
@@ -20,7 +19,7 @@ namespace gfx
 {
 
 	class Line
-		: public Transformable3D, public Drawable
+		: public Drawable
 	{
 	public:
 
@@ -44,6 +43,9 @@ namespace gfx
 		{
 			m_mesh.create_buffer<LineVertex>(false);
 		}
+
+		DELETE_COPY_INIT(Line);
+		DEFAULT_MOVE_INIT(Line);
 
 
 		void set_width(f32 width) noexcept
@@ -81,7 +83,7 @@ namespace gfx
 			m_material.get_shader().bind();
 			m_material.get_shader().set_value("line_width", m_width);
 			m_material.get_shader().unbind();
-			renderer.push_command(&m_mesh, static_cast<m4f32>(get_transform()), &m_material, RenderLayer::Opaque, (GLenum)GL_LINES);
+			renderer.push_command(&m_mesh, m4f32{ 1.f }, &m_material, RenderLayer::Opaque, (GLenum)GL_LINES);
 		}
 
 
@@ -101,11 +103,11 @@ namespace gfx
 
 		Material m_material;
 
-		Mesh m_mesh;  
+		Mesh m_mesh;
 
 		types::pos m_start;
 		types::pos m_end;
-		v4f32 m_start_color{ 0.f, 0.f, 0.f, 1.f};
+		v4f32 m_start_color{ 0.f, 0.f, 0.f, 1.f };
 		v4f32 m_end_color{ 0.f, 0.f, 0.f, 1.f };
 		f32 m_width{ 1.f };
 
