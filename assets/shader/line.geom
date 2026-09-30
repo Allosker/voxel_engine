@@ -12,8 +12,6 @@ out vec4 RGBA;
 
 void main()
 {
-    RGBA = oRGBA[0];
-
     vec4 A = gl_in[0].gl_Position;
     vec4 B = gl_in[1].gl_Position;
 
@@ -58,15 +56,19 @@ void main()
 
 
     gl_Position = vec4(a - offset, za, 1.0);
+    RGBA = oRGBA[0];
     EmitVertex();
 
     gl_Position = vec4(b - offset, zb, 1.0);
+    RGBA = oRGBA[1];
     EmitVertex();
 
     gl_Position = vec4(a + offset, za, 1.0);
+    RGBA = oRGBA[0];
     EmitVertex();
 
     gl_Position = vec4(b + offset, zb, 1.0);
+    RGBA = oRGBA[1];
     EmitVertex();
 
     EndPrimitive();

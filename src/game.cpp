@@ -115,6 +115,7 @@ DebugMessage Game::run()
 
 	line.set_pos({ 0., 10., 30 }, { 0., 0., 0. });
 	line.set_width(10);
+	line.set_color({ 0.4, 0.5, 0.6, 1.0 }, { 0.9, 0.4, 0.8, 0.8 });
 
 	gfx::Renderer renderer;
 
