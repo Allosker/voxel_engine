@@ -2,10 +2,13 @@
 layout(lines) in;
 layout(triangle_strip, max_vertices = 4) out;
 
+uniform float line_width;
+
 in vec2 Viewport_size[];
 in vec4 oRGBA[];
 
 out vec4 RGBA;
+
 
 void main()
 {
@@ -50,7 +53,7 @@ void main()
 
     vec2 pixel_to_ndc = 2.0 / Viewport_size[0];
 
-    vec2 offset = perp * (10.0 * 0.5) * pixel_to_ndc;
+    vec2 offset = perp * (line_width * 0.5) * pixel_to_ndc;
 
 
 

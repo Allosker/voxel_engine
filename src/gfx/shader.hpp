@@ -100,7 +100,7 @@ namespace gfx
 
 		// = Setters
 
-		void set_value(std::string_view name, float value) const noexcept;
+		void set_value(std::string_view name, f32 value) const noexcept;
 
 		void set_value(std::string_view name, const v2f32& value) const noexcept;
 		void set_value(std::string_view name, const v3f32& value) const noexcept;

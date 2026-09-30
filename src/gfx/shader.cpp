@@ -93,7 +93,7 @@ namespace gfx
 	// Setters
 	// =====================
 
-	void Shader::set_value(std::string_view name, float value) const noexcept
+	void Shader::set_value(std::string_view name, f32 value) const noexcept
 	{
 		glUniform1f(glGetUniformLocation(m_id, name.data()), value);
 	}

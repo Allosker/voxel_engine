@@ -113,6 +113,9 @@ DebugMessage Game::run()
 
 	gfx::Line line{};
 
+	line.set_pos({ 0., 10., 30 }, { 0., 0., 0. });
+	line.set_width(10);
+
 	gfx::Renderer renderer;
 
 	std::chrono::time_point<std::chrono::system_clock> time_start{};
