@@ -38,7 +38,7 @@ namespace gui
 			m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{ .scancode{} });
 
 			m_temp.set_scale(g_over_ISG_scale);
-			m_temp.set_pos(v3f64{ 0., 0., 0. } + (f64)g_slot_size / 2.f);
+			m_temp.set_pos(types::pos{ 0., 0., g_temp_depth } + g_slot_size / 2.);
 			m_temp.rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
 			m_temp.rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
 			m_temp.set_scale_text(g_over_ISG_text_scale);
@@ -114,6 +114,9 @@ namespace gui
 
 		static constexpr f32 g_base_ISG_text_scale{ 0.4 };
 		static constexpr f32 g_over_ISG_text_scale{ 0.48 };
+
+		static constexpr f64 g_temp_depth{ -100 };
+		static constexpr f64 g_model_depth{ -300 };
 
 
 		/// <summary>

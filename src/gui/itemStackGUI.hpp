@@ -138,9 +138,9 @@ namespace gui
 				set_text(str);
 		}
 
-		void set_should_be_drawn(bool b) noexcept { m_should_be_drawn = b; }
+		void set_visibility(bool b) noexcept { m_should_be_drawn = b; }
 
-		void set_pos(const types::pos& pos) noexcept override
+		void set_pos(const types::pos& pos) noexcept
 		{
 			Transformable3D::set_pos(pos);
 			set_text_pos();
@@ -159,7 +159,7 @@ namespace gui
 
 		void set_text_pos() noexcept
 		{
-			m_text.set_pos({ get_pos().x + g_x_size_three_digits_number_px - m_text.get_size().x, get_pos().y + get_scale().y * 0.3, 0. });
+			m_text.set_pos({ get_pos().x + g_x_size_three_digits_number_px - m_text.get_size().x, get_pos().y + get_scale().y * 0.3, get_pos().z + g_depth_text });
 		}
 
 
@@ -178,6 +178,8 @@ namespace gui
 	private:
 		
 		static constexpr f32 g_x_size_three_digits_number_px{ 36.f }; 
+
+		static constexpr f32 g_depth_text{ 100 };
 
 
 		void update_model(types::type_id id)

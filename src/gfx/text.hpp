@@ -56,7 +56,7 @@ namespace gfx
 		v3f64 get_size() const noexcept { return m_size * get_scale(); }
 
 
-		void draw(Renderer& renderer);
+		void draw(Renderer& renderer) override;
 
 		void reload()
 		{

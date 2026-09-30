@@ -25,7 +25,7 @@ namespace gui
 		}
 
 		if (m_inv.is_active() && m_move_temp_to_mouse)
-			m_temp.set_pos({ gui_mouse_pos, 0. });
+			m_temp.set_pos(types::pos{ gui_mouse_pos, g_temp_depth });
 
 		// Highlight to know on which slot the mouse is
 		const auto highlight = [&](auto& stacks, const auto& new_index, auto& index)
@@ -77,7 +77,7 @@ namespace gui
 					m_inv.set_temp(*current);
 					m_inv.set_item_stack(*m_index, {});
 
-					m_item_stacks.at(*m_index).set_should_be_drawn(false);
+					m_item_stacks.at(*m_index).set_visibility(false);
 				}
 				else if (m_index_hb)
 				{
@@ -88,14 +88,14 @@ namespace gui
 					m_inv.set_temp(*current);
 					m_inv.set_item_stack_hb(*m_index_hb, {});
 
-					m_item_stacks_hb.at(*m_index_hb).set_should_be_drawn(false);
+					m_item_stacks_hb.at(*m_index_hb).set_visibility(false);
 				}
 				else return;
 
 				// GUI
 
 				m_temp.update(m_inv.get_temp().get_type(), std::to_string(m_inv.get_temp().count()));
-				m_temp.set_should_be_drawn(true);
+				m_temp.set_visibility(true);
 				m_move_temp_to_mouse = true;
 
 				m_picked_item_up = true;
@@ -133,7 +133,7 @@ namespace gui
 						is_there_leftover = remainder;
 					}
 
-					m_item_stacks.at(*m_index).set_should_be_drawn(true);
+					m_item_stacks.at(*m_index).set_visibility(true);
 				}
 				else if (m_index_hb)
 				{
@@ -164,14 +164,14 @@ namespace gui
 						is_there_leftover = remainder;
 					}
 
-					m_item_stacks_hb.at(*m_index_hb).set_should_be_drawn(true);
+					m_item_stacks_hb.at(*m_index_hb).set_visibility(true);
 				}
 				else return;
 
 
 				// GUI  
 
-				m_temp.set_should_be_drawn(is_there_leftover);
+				m_temp.set_visibility(is_there_leftover);
 				m_move_temp_to_mouse = is_there_leftover;
 				if (is_there_leftover)
 					m_temp.update(m_inv.get_temp().get_type(), std::to_string(m_inv.get_temp().count()));
@@ -217,7 +217,7 @@ namespace gui
 					isg = &stacks.back();
 
 					isg->set_scale(g_base_ISG_scale);
-					isg->set_pos(v3f64{ slot_pos, -100. } + (f64)g_slot_size / 2.);
+					isg->set_pos(types::pos{ slot_pos, g_model_depth } + (f64)g_slot_size / 2.);
 					isg->rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
 					isg->rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
 					isg->set_scale_text(g_base_ISG_text_scale);
@@ -232,10 +232,10 @@ namespace gui
 					// When there are item models, change it so that it can accept either of them
 					isg->update(is->get_type(), std::to_string(is->count()));
 					isg->set_text_pos();
-					isg->set_should_be_drawn(true);
+					isg->set_visibility(true);
 				}
 				else
-					isg->set_should_be_drawn(false);
+					isg->set_visibility(false);
 			};
 
 		change_textures(m_inv.get_size());
