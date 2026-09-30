@@ -77,8 +77,8 @@ namespace gfx
 		const Font* p_font{ nullptr };
 
 		v3f64 m_size{};
-
-		v4f32 m_color{ 0.18, 0.18, 0.18, 1. };
+		 
+		v4f32 m_color{ 1.f, 1.f, 1.f, 1.f };
 		f32 m_scale_text{ 1. };
 
 		size_t m_size_data{};
