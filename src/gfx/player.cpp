@@ -158,7 +158,7 @@ void gfx::Player::resolve_collisions_world(World& world, f64 dt) noexcept
 						if (offset.z != 0)
 							m_mov.velocity.z = 0;
 
-						if (offset.y <= 0)
+						if (m_mov.velocity.y == 0 && offset.y <= 0)
 							is_on_ground = true;
 
 						/*
