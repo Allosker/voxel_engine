@@ -218,8 +218,12 @@ namespace gui
 
 					isg->set_scale(g_base_ISG_scale);
 					isg->set_pos(types::pos{ slot_pos, g_model_depth } + (f64)g_slot_size / 2.);
-					isg->rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
-					isg->rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
+
+					
+					isg->rotate(glm::angleAxis<f64>(glm::radians(-20.f), glm::normalize(v3f64{ 1, 0, 0 })));
+					isg->rotate(glm::angleAxis<f64>(glm::radians(-50.f), glm::normalize(v3f64{ 0, 1, 0 })));
+					isg->rotate(glm::angleAxis<f64>(glm::radians(180.f), glm::normalize(v3f64{ 0, 0, 1 })));
+
 					isg->set_scale_text(g_base_ISG_text_scale);
 				}
 				else

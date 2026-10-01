@@ -96,7 +96,4 @@ namespace gfx
 		}
 	};
 
-
-
-
 }

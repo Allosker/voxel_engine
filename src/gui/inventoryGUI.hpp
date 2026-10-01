@@ -39,8 +39,9 @@ namespace gui
 
 			m_temp.set_scale(g_over_ISG_scale);
 			m_temp.set_pos(types::pos{ 0., 0., g_temp_depth } + g_slot_size / 2.);
-			m_temp.rotate(glm::angleAxis<f64>(glm::radians(70.f), glm::normalize(v3f64{ 1, 0, 0 })));
-			m_temp.rotate(glm::angleAxis<f64>(glm::radians(45.f), glm::normalize(v3f64{ 0, 0, 1 })));
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(-20.f), glm::normalize(v3f64{ 1, 0, 0 })));
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(-50.f), glm::normalize(v3f64{ 0, 1, 0 })));
+			m_temp.rotate(glm::angleAxis<f64>(glm::radians(180.f), glm::normalize(v3f64{ 0, 0, 1 })));
 			m_temp.set_scale_text(g_over_ISG_text_scale);
 		}
 

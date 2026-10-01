@@ -32,6 +32,8 @@ namespace gfx
 
 		std::array<types::Rect<v2f32>, 6> uvs;
 
+		std::vector<v3f32>
+
 
 		bool is_transparent{ false };
 		bool is_solid{ true };

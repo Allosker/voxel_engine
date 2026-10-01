@@ -30,23 +30,6 @@ namespace gfx
 	{
 	public:
 
-		struct VoxelVertex
-		{
-			v3f32 position;
-			v2f32 uvs;
-			f32 ao;
-
-			static void setupAttributes()
-			{
-				DEFINE_VERTEX_VAR(0, VoxelVertex, position);
-				DEFINE_VERTEX_VAR(1, VoxelVertex, uvs);
-				DEFINE_VERTEX_VAR(2, VoxelVertex, ao);
-			}
-		};
-
-
-	public:
-
 
 		ChunkMesh() noexcept = default;
 
