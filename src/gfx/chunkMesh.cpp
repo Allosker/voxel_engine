@@ -13,14 +13,17 @@
 namespace gfx
 {
 
-	static void assemble_pos_uvs(auto& out, const auto& pos, const std::vector<v2f32>& uvs, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
+	static void compute_final_model(auto& out, const std::vector<Vertex>& vx, size_t index, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
 	{
-		out.emplace_back(ChunkMesh::VoxelVertex{ pos[0] + xyz, uvs[0], ao[0] });
-		out.emplace_back(ChunkMesh::VoxelVertex{ pos[1] + xyz, uvs[1], ao[1] });
-		out.emplace_back(ChunkMesh::VoxelVertex{ pos[2] + xyz, uvs[2], ao[2] });
-		out.emplace_back(ChunkMesh::VoxelVertex{ pos[3] + xyz, uvs[3], ao[1] });
-		out.emplace_back(ChunkMesh::VoxelVertex{ pos[4] + xyz, uvs[4], ao[3] });
-		out.emplace_back(ChunkMesh::VoxelVertex{ pos[5] + xyz, uvs[5], ao[2] });
+		static constexpr size_t nb_vertices_face = 6ll;
+		const auto i = index * nb_vertices_face;
+
+		out.emplace_back(VoxelVertex{ vx[i + 0].pos + xyz, vx[0].uvs, ao[0] });
+		out.emplace_back(VoxelVertex{ vx[i + 1].pos + xyz, vx[1].uvs, ao[1] });
+		out.emplace_back(VoxelVertex{ vx[i + 2].pos + xyz, vx[2].uvs, ao[2] });
+		out.emplace_back(VoxelVertex{ vx[i + 3].pos + xyz, vx[3].uvs, ao[1] });
+		out.emplace_back(VoxelVertex{ vx[i + 4].pos + xyz, vx[4].uvs, ao[3] });
+		out.emplace_back(VoxelVertex{ vx[i + 5].pos + xyz, vx[5].uvs, ao[2] });
 	}
 
 	/// <summary>
@@ -179,7 +182,7 @@ namespace gfx
 		material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 	}
 
-	std::vector<ChunkMesh::VoxelVertex> ChunkMesh::bake_mesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
+	std::vector<VoxelVertex> ChunkMesh::bake_mesh(const Chunk& current_chunk, const ChunkGrid& grid) noexcept
 	{
 		std::vector<VoxelVertex> ret;
 
@@ -211,7 +214,6 @@ namespace gfx
 
 					std::array<f32, 4> ao_corners{};
 
-					const auto& uvs = calculate_uvs(voxel.type_id);
 
 					for (size_t i{}; i < Chunk::dirs<i8>.size(); i++)
 					{
@@ -251,16 +253,16 @@ namespace gfx
 							targetChunk = chunk_dirs[i];
 						}
 
-						if (targetChunk && VoxelTypeManager::get().get_type(targetChunk->at(static_cast<v3u16>(v_loc_dir)).type_id).is_transparent)
+						if (targetChunk && VoxelTypeManager::get().get_type(targetChunk->at(static_cast<v3u16>(v_loc_dir))).is_transparent)
 							is_face_visible = true;
 
 
 						if (is_face_visible)
 						{
-							assemble_pos_uvs(
+							compute_final_model(
 								ret,
-								Voxel::g_model[i],
-								uvs.at(i),
+								VoxelTypeManager::get().get_type(voxel).model,
+								i,
 								calculate_ao(targetChunk, i, v_loc_dir, grid),
 								abs_pos
 							);

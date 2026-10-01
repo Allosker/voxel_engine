@@ -17,7 +17,7 @@
 #include "renderer.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
-#include "world_item.hpp"
+#include "gfx/vertices.hpp"
 
 
 namespace gfx

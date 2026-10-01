@@ -18,6 +18,7 @@
 #include "sys/assetsManager.hpp"
 #include "sys/hash.hpp"
 #include "sys/types.hpp"
+#include "voxelType.hpp"
 
 
 namespace gfx
@@ -36,17 +37,7 @@ namespace gfx
 		{
 			m_mesh.create_buffer<Vertex>(false);
 
-			std::vector<Vertex> mesh{};
-
-			const auto& uvs = calculate_uvs(m_id);
-			for (size_t i{}; i < gfx::Voxel::g_model.size(); i++)
-				assemble_pos_uvs<Vertex>(
-					mesh,
-					gfx::Voxel::g_model[i],
-					uvs[i]
-				);
-
-			m_mesh.update_buffer(mesh, GL_STATIC_DRAW);
+			m_mesh.update_buffer(VoxelTypeManager::get().get_type(id).model, GL_STATIC_DRAW);
 
 			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 

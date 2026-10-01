@@ -9,9 +9,11 @@
 #include <string>
 #include <vector>
 
+#include "gfx/vertices.hpp"
 #include "phy/hitboxAABB.hpp"
 #include "sys/hash.hpp"
 #include "sys/types.hpp"
+#include "voxel.hpp"
 #include <array>
 
 
@@ -30,9 +32,7 @@ namespace gfx
 
 		phy::HitboxAABB hitbox;
 
-		std::array<types::Rect<v2f32>, 6> uvs;
-
-		std::vector<v3f32>
+		std::vector<Vertex> model;
 
 
 		bool is_transparent{ false };
@@ -52,7 +52,7 @@ namespace gfx
 		/// <param name="main"></param>
 		/// <returns></returns>
 		static constexpr std::array<Uvs, 6> get_uvs(const Uvs& main) noexcept
-		{	
+		{
 			return { main, main, main, main, main, main };
 		}
 
@@ -99,10 +99,39 @@ namespace gfx
 		}
 
 
+		static inline std::vector<Vertex> get_simple_model(const std::array<Uvs, 6>& uvs) noexcept
+		{
+			std::vector<Vertex> ret;
+
+			for (size_t i{}; i < uvs.size(); i++)
+			{
+				auto uv = uvs[i];
+
+				uv.pos += 0.0001;
+				uv.size -= 0.0001;
+
+				ret.insert_range(
+					ret.end(),
+				std::vector<Vertex>
+				{
+					Vertex
+					{ .pos{ Voxel::g_model[i][0] }, .uvs{ uv.pos.x				, uv.pos.y } },
+					{ .pos{ Voxel::g_model[i][1] }, .uvs{ uv.pos.x + uv.size.x	, uv.pos.y } },
+					{ .pos{ Voxel::g_model[i][2] }, .uvs{ uv.pos.x				, uv.pos.y + uv.size.y } },
+					{ .pos{ Voxel::g_model[i][3] }, .uvs{ uv.pos.x + uv.size.x  , uv.pos.y } },
+					{ .pos{ Voxel::g_model[i][4] }, .uvs{ uv.pos.x + uv.size.x  , uv.pos.y + uv.size.y } },
+					{ .pos{ Voxel::g_model[i][5] }, .uvs{ uv.pos.x				, uv.pos.y + uv.size.y } },
+				});
+			}
+
+			return ret;
+		}
+
+
 
 	public:
 
-		
+
 
 		static const VoxelTypeManager& get() noexcept
 		{
@@ -147,7 +176,7 @@ namespace gfx
 		{
 			// Put the name on the right side to quickly know which type it is
 
-			
+
 
 			m_voxel_types.push_back(VoxelType{ .name{"air"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
@@ -158,21 +187,21 @@ namespace gfx
 
 			m_voxel_types.push_back(VoxelType{ .name{"stone"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
-				.uvs{ get_uvs(stone_uv) },
+				.model{ get_simple_model(get_uvs(stone_uv)) },
 				.has_bounds{ true }
 			});
 			m_ids.emplace("stone"_id, 1);
 
 			m_voxel_types.push_back(VoxelType{ .name{"dirt"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
-				.uvs{ get_uvs(dirt_uv) },
+				.model{ get_simple_model(get_uvs(dirt_uv)) },
 				.has_bounds{ true }
 			});
 			m_ids.emplace("dirt"_id, 2);
 
 			m_voxel_types.push_back(VoxelType{ .name{"grass"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
-				.uvs{ get_uvs(grass_top_uv, dirt_uv, grass_side_uv) },
+				.model{ get_simple_model(get_uvs(grass_top_uv, dirt_uv, grass_side_uv)) },
 				.has_bounds{ true }
 			});
 			m_ids.emplace("grass"_id, 3);

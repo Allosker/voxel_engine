@@ -7,6 +7,7 @@
 */
 
 #include "sys/types.hpp"
+#include "sys/graphics.hpp"
 
 #define DEFINE_VERTEX_VAR(index, Class, var) \
 glVertexAttribPointer(index, VertexTrait<decltype(Class :: var)>::length, VertexTrait<decltype(Class :: var)>::gl_type, false, sizeof(Class), std::bit_cast<void*>(offsetof(Class, var)));  \
@@ -21,7 +22,7 @@ namespace gfx
 	};
 
 	template <>
-	struct VertexTrait<float>
+	struct VertexTrait<f32>
 	{
 		static constexpr GLenum gl_type = GL_FLOAT;
 		static constexpr GLint length = 1;
@@ -94,6 +95,21 @@ namespace gfx
 			DEFINE_VERTEX_VAR(0, Vertex2DRGBA, pos);
 			DEFINE_VERTEX_VAR(1, Vertex2DRGBA, color);
 		}
+	};
+
+	struct VoxelVertex
+	{
+		v3f32 pos;
+		v2f32 uvs;
+		f32 ao;
+
+		static void setupAttributes()
+		{
+			DEFINE_VERTEX_VAR(0, VoxelVertex, pos);
+			DEFINE_VERTEX_VAR(1, VoxelVertex, uvs);
+			DEFINE_VERTEX_VAR(2, VoxelVertex, ao);
+		}
+
 	};
 
 }

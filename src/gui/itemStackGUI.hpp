@@ -3,17 +3,16 @@
 * https://github.com/Allosker/voxel_engine/blob/main/license.txt
 * ==============================================-
 *	Define any in-game object and make it a 2D image that can be displayed to represent an Item.
-* Can do that from a 3D model or a 
+* Can do that from a 3D model or a
 * ==============================================-
-*/  
+*/
 
-#include "gfx/mesh.hpp"
-#include "gfx/renderContext.hpp"
-#include "gfx/transformable3D.hpp"
-#include "gfx/voxel.hpp"
-#include "gfx/text.hpp"
 #include "gfx/drawable.hpp"
+#include "gfx/mesh.hpp"
+#include "gfx/text.hpp"
+#include "gfx/transformable3D.hpp"
 
+#include "gfx/voxelType.hpp"
 #include "sys/assetsManager.hpp"
 
 
@@ -116,7 +115,7 @@ namespace gui
 
 		ItemStackGUI() noexcept
 			: m_text{ &AssetsManager::get().fonts.at("fonts/november"_id) },
-			m_material{&AssetsManager::get().shaders.at("shaders/twoD_to_3D"_id) }
+			m_material{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D"_id) }
 		{
 			m_mesh.create_buffer<gfx::Vertex>(false);
 			m_text.set_scale(0.5);
@@ -176,25 +175,15 @@ namespace gui
 
 
 	private:
-		
-		static constexpr f32 g_x_size_three_digits_number_px{ 36.f }; 
+
+		static constexpr f32 g_x_size_three_digits_number_px{ 36.f };
 
 		static constexpr f32 g_depth_text{ 100 };
 
 
 		void update_model(types::type_id id)
 		{
-			std::vector<gfx::Vertex> mesh{};
-
-			const auto& uvs = gfx::calculate_uvs(id);
-			for (size_t i{}; i < g_model.size(); i++)
-				gfx::assemble_pos_uvs<gfx::Vertex>(
-					mesh,
-					g_model[i],
-					uvs[i]
-				);
-
-			m_mesh.update_buffer(mesh, GL_STREAM_DRAW);
+			m_mesh.update_buffer(gfx::VoxelTypeManager::get().get_type(id).model, GL_STREAM_DRAW);
 		}
 
 		void set_text(const std::string& str) noexcept
@@ -208,7 +197,7 @@ namespace gui
 		gfx::Mesh m_mesh;
 		gfx::Material m_material;
 		gfx::Text m_text;
-		
+
 		types::type_id m_id{};
 
 		bool m_should_be_drawn{};

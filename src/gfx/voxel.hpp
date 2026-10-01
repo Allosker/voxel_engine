@@ -6,7 +6,6 @@
 * ==============================================-
 */
 
-#include "gfx/voxelType.hpp"
 #include "sys/types.hpp"
 
 #include <array>
@@ -14,48 +13,6 @@
 
 namespace gfx
 {
-	/// <summary>
-	/// Predefined pattern:
-	///		Left, Right, Up, Down, Front, Back
-	/// </summary>
-	/// <param name="id"></param>
-	/// <returns></returns>
-	inline std::vector<std::vector<v2f32>> calculate_uvs(types::type_id id) noexcept
-	{
-		std::vector<std::vector<v2f32>> ret;
-		ret.reserve(42);
-
-		for (auto uvs : VoxelTypeManager::get().get_type(id).uvs)
-		{
-			uvs.pos += 0.0001;
-			uvs.size -= 0.0001;
-
-			ret.emplace_back(std::vector
-			{
-				v2f32
-				{ uvs.pos.x				 , uvs.pos.y },
-				{ uvs.pos.x + uvs.size.x , uvs.pos.y },
-				{ uvs.pos.x				 , uvs.pos.y + uvs.size.y },
-				{ uvs.pos.x + uvs.size.x , uvs.pos.y },
-				{ uvs.pos.x + uvs.size.x , uvs.pos.y + uvs.size.y },
-				{ uvs.pos.x				 , uvs.pos.y + uvs.size.y }
-			});
-		}
-
-		return ret;
-	}
-
-	template<typename T>
-	inline void assemble_pos_uvs(std::vector<T>& out, const std::array<v3f32, 6>& pos, const std::vector<v2f32>& uvs) noexcept
-	{
-		out.emplace_back(T{ pos[0], uvs[0] });
-		out.emplace_back(T{ pos[1], uvs[1] });
-		out.emplace_back(T{ pos[2], uvs[2] });
-		out.emplace_back(T{ pos[3], uvs[3] });
-		out.emplace_back(T{ pos[4], uvs[4] });
-		out.emplace_back(T{ pos[5], uvs[5] });
-	}
-
 	struct Voxel
 	{
 
