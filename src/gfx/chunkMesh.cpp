@@ -18,12 +18,12 @@ namespace gfx
 		static constexpr size_t nb_vertices_face = 6ll;
 		const auto i = index * nb_vertices_face;
 
-		out.emplace_back(VoxelVertex{ vx[i + 0].pos + xyz, vx[0].uvs, ao[0] });
-		out.emplace_back(VoxelVertex{ vx[i + 1].pos + xyz, vx[1].uvs, ao[1] });
-		out.emplace_back(VoxelVertex{ vx[i + 2].pos + xyz, vx[2].uvs, ao[2] });
-		out.emplace_back(VoxelVertex{ vx[i + 3].pos + xyz, vx[3].uvs, ao[1] });
-		out.emplace_back(VoxelVertex{ vx[i + 4].pos + xyz, vx[4].uvs, ao[3] });
-		out.emplace_back(VoxelVertex{ vx[i + 5].pos + xyz, vx[5].uvs, ao[2] });
+		out.emplace_back(VoxelVertex{ vx[i + 0].pos + xyz, vx[i + 0].uvs, ao[0] });
+		out.emplace_back(VoxelVertex{ vx[i + 1].pos + xyz, vx[i + 1].uvs, ao[1] });
+		out.emplace_back(VoxelVertex{ vx[i + 2].pos + xyz, vx[i + 2].uvs, ao[2] });
+		out.emplace_back(VoxelVertex{ vx[i + 3].pos + xyz, vx[i + 3].uvs, ao[1] });
+		out.emplace_back(VoxelVertex{ vx[i + 4].pos + xyz, vx[i + 4].uvs, ao[3] });
+		out.emplace_back(VoxelVertex{ vx[i + 5].pos + xyz, vx[i + 5].uvs, ao[2] });
 	}
 
 	/// <summary>

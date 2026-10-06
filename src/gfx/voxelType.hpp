@@ -44,14 +44,12 @@ namespace gfx
 
 	class VoxelTypeManager
 	{
-		using Uvs = types::Rect<v2f32>;
-
 		/// <summary>
 		/// All same
 		/// </summary>
 		/// <param name="main"></param>
 		/// <returns></returns>
-		static constexpr std::array<Uvs, 6> get_uvs(const Uvs& main) noexcept
+		static constexpr std::array<types::Uvs, 6> get_uvs(const types::Uvs& main) noexcept
 		{
 			return { main, main, main, main, main, main };
 		}
@@ -63,7 +61,7 @@ namespace gfx
 		/// <param name="y"></param>
 		/// <param name="xz"></param>
 		/// <returns></returns>
-		static constexpr std::array<Uvs, 6> get_uvs(const Uvs& y, const Uvs& xz) noexcept
+		static constexpr std::array<types::Uvs, 6> get_uvs(const types::Uvs& y, const types::Uvs& xz) noexcept
 		{
 			return { xz, xz, y, y, xz, xz };
 		}
@@ -77,7 +75,7 @@ namespace gfx
 		/// <param name="down"></param>
 		/// <param name="xz"></param>
 		/// <returns></returns>
-		static constexpr std::array<Uvs, 6> get_uvs(const Uvs& top, const Uvs& down, const Uvs& xz) noexcept
+		static constexpr std::array<types::Uvs, 6> get_uvs(const types::Uvs& top, const types::Uvs& down, const types::Uvs& xz) noexcept
 		{
 			return { xz, xz, top, down, xz, xz };
 		}
@@ -93,13 +91,13 @@ namespace gfx
 		/// <param name="x"></param>
 		/// <param name="z"></param>
 		/// <returns></returns>
-		static constexpr std::array<Uvs, 6> get_uvs(const Uvs& top, const Uvs& down, const Uvs& x, const Uvs& z) noexcept
+		static constexpr std::array<types::Uvs, 6> get_uvs(const types::Uvs& top, const types::Uvs& down, const types::Uvs& x, const types::Uvs& z) noexcept
 		{
 			return { x, x, top, down, z, z };
 		}
 
 
-		static inline std::vector<Vertex> get_simple_model(const std::array<Uvs, 6>& uvs) noexcept
+		static inline std::vector<Vertex> get_simple_model(const std::array<types::Uvs, 6>& uvs) noexcept
 		{
 			std::vector<Vertex> ret;
 
@@ -175,9 +173,6 @@ namespace gfx
 		constexpr explicit VoxelTypeManager() noexcept
 		{
 			// Put the name on the right side to quickly know which type it is
-
-
-
 			m_voxel_types.push_back(VoxelType{ .name{"air"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
 				.is_transparent{ true },
@@ -227,10 +222,10 @@ namespace gfx
 		static constexpr v2f32 canonic_size{ g_ratio, g_ratio };
 
 
-		static constexpr Uvs stone_uv{ {0, 0}, canonic_size };
-		static constexpr Uvs dirt_uv{ { 1 * g_ratio, 0 }, canonic_size };
-		static constexpr Uvs grass_top_uv{ { 2 * g_ratio, 0 }, canonic_size };
-		static constexpr Uvs grass_side_uv{ { 3 * g_ratio, 0 }, canonic_size };
+		static constexpr types::Uvs stone_uv{ {0, 0}, canonic_size };
+		static constexpr types::Uvs dirt_uv{ { 1 * g_ratio, 0 }, canonic_size };
+		static constexpr types::Uvs grass_top_uv{ { 2 * g_ratio, 0 }, canonic_size };
+		static constexpr types::Uvs grass_side_uv{ { 3 * g_ratio, 0 }, canonic_size };
 
 
 	};

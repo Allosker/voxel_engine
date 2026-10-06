@@ -226,6 +226,8 @@ namespace types
 		constexpr auto operator<=>(const Rect&) const noexcept = default;
 	};
 
+	using Uvs = Rect<v2f32>;
+
 	/// <summary>
 	/// 2D world discrete position
 	/// </summary>

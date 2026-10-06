@@ -23,6 +23,11 @@ namespace gfx
 			return type_id != types::type_id_null;
 		}
 
+		operator types::type_id() const
+		{
+			return type_id;
+		}
+
 		static constexpr std::array<std::array<v3f32, 6>, 6> g_model
 		{
 			// Position	

@@ -14,6 +14,7 @@
 
 #include "gfx/voxelType.hpp"
 #include "sys/assetsManager.hpp"
+#include <vector>
 
 
 namespace gui
@@ -25,6 +26,8 @@ namespace gui
 	class ItemStackGUI
 		: public gfx::Transformable3D, public gfx::Drawable
 	{
+	public:
+
 		static constexpr std::array<std::array<v3f32, 6>, 6> g_model
 		{
 			/*Left*/
@@ -110,9 +113,6 @@ namespace gui
 
 		};
 
-
-	public:
-
 		ItemStackGUI() noexcept
 			: m_text{ &AssetsManager::get().fonts.at("fonts/november"_id) },
 			m_material{ &AssetsManager::get().shaders.at("shaders/twoD_to_3D"_id) }
@@ -183,7 +183,34 @@ namespace gui
 
 		void update_model(types::type_id id)
 		{
-			m_mesh.update_buffer(gfx::VoxelTypeManager::get().get_type(id).model, GL_STREAM_DRAW);
+			const auto& get_simple_model = [](types::type_id id) noexcept -> std::vector<gfx::Vertex>
+			{
+				std::vector<gfx::Vertex> ret;
+				const auto& type = gfx::VoxelTypeManager::get().get_type(id);
+
+				constexpr size_t canonic_size = 6; /*Canonic size for a Voxel (6 faces)*/
+				for (size_t i{}; i < canonic_size; i++)
+				{
+					const auto mi = i * canonic_size; // remap the index as per the size
+
+					ret.insert_range(
+					ret.end(),
+					std::vector<gfx::Vertex>
+					{
+						gfx::Vertex
+						{ .pos{ ItemStackGUI::g_model[i][0] }, .uvs{ type.model[mi + 0].uvs } },
+						{ .pos{ ItemStackGUI::g_model[i][1] }, .uvs{ type.model[mi + 1].uvs } },
+						{ .pos{ ItemStackGUI::g_model[i][2] }, .uvs{ type.model[mi + 2].uvs } },
+						{ .pos{ ItemStackGUI::g_model[i][3] }, .uvs{ type.model[mi + 3].uvs } },
+						{ .pos{ ItemStackGUI::g_model[i][4] }, .uvs{ type.model[mi + 4].uvs } },
+						{ .pos{ ItemStackGUI::g_model[i][5] }, .uvs{ type.model[mi + 5].uvs } },
+					});
+				}
+
+				return ret;
+			};
+
+			m_mesh.update_buffer(get_simple_model(id), GL_STREAM_DRAW);
 		}
 
 		void set_text(const std::string& str) noexcept
