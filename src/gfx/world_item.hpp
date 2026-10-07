@@ -18,7 +18,7 @@
 #include "sys/assetsManager.hpp"
 #include "sys/hash.hpp"
 #include "sys/types.hpp"
-#include "voxelType.hpp"
+#include "blockType.hpp"
 
 
 namespace gfx
@@ -37,7 +37,7 @@ namespace gfx
 		{
 			m_mesh.create_buffer<Vertex>(false);
 
-			m_mesh.update_buffer(VoxelTypeManager::get().get_type(id).model, GL_STATIC_DRAW);
+			m_mesh.update_buffer(BlockTypeManager::get().get_type(id).model, GL_STATIC_DRAW);
 
 			m_material.set("tex", &AssetsManager::get().textures.at("textures/voxels/atlas"_id));
 

@@ -23,7 +23,7 @@ namespace gfx
 	/// <summary>
 	/// All names are defaulted accounting for the average block
 	/// </summary>
-	struct VoxelType
+	struct BlockType
 	{
 		/// <summary>
 		/// Get the id back from the name
@@ -42,7 +42,7 @@ namespace gfx
 	};
 
 
-	class VoxelTypeManager
+	class BlockTypeManager
 	{
 		/// <summary>
 		/// All same
@@ -131,9 +131,9 @@ namespace gfx
 
 
 
-		static const VoxelTypeManager& get() noexcept
+		static const BlockTypeManager& get() noexcept
 		{
-			static VoxelTypeManager instance{};
+			static BlockTypeManager instance{};
 
 			return instance;
 		}
@@ -142,7 +142,7 @@ namespace gfx
 		/// <summary>
 		/// Let'em crash
 		/// </summary>
-		const VoxelType& get_type(types::type_id id) const noexcept
+		const BlockType& get_type(types::type_id id) const noexcept
 		{
 			return m_voxel_types[static_cast<size_t>(id)];
 		}
@@ -150,7 +150,7 @@ namespace gfx
 		/// <summary>
 		/// Let'em crash
 		/// </summary>
-		const VoxelType& get_type(const StringHash& name) const noexcept
+		const BlockType& get_type(const StringHash& name) const noexcept
 		{
 			return get_type(m_ids.at(name));
 		}
@@ -170,31 +170,31 @@ namespace gfx
 	private:
 
 
-		constexpr explicit VoxelTypeManager() noexcept
+		constexpr explicit BlockTypeManager() noexcept
 		{
 			// Put the name on the right side to quickly know which type it is
-			m_voxel_types.push_back(VoxelType{ .name{"air"},
+			m_voxel_types.push_back(BlockType{ .name{"air"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
 				.is_transparent{ true },
 				.is_solid{ false } }
 			);
 			m_ids.emplace("air"_id, types::type_id_null);
 
-			m_voxel_types.push_back(VoxelType{ .name{"stone"},
+			m_voxel_types.push_back(BlockType{ .name{"stone"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
 				.model{ get_simple_model(get_uvs(stone_uv)) },
 				.has_bounds{ true }
 			});
 			m_ids.emplace("stone"_id, 1);
 
-			m_voxel_types.push_back(VoxelType{ .name{"dirt"},
+			m_voxel_types.push_back(BlockType{ .name{"dirt"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
 				.model{ get_simple_model(get_uvs(dirt_uv)) },
 				.has_bounds{ true }
 			});
 			m_ids.emplace("dirt"_id, 2);
 
-			m_voxel_types.push_back(VoxelType{ .name{"grass"},
+			m_voxel_types.push_back(BlockType{ .name{"grass"},
 				.hitbox{ types::pos{}, v3f64{ 0.5f} },
 				.model{ get_simple_model(get_uvs(grass_top_uv, dirt_uv, grass_side_uv)) },
 				.has_bounds{ true }
@@ -204,7 +204,7 @@ namespace gfx
 		}
 
 		StringHash m_atlas{ "textures/voxels/atlas"_id };
-		std::vector<VoxelType> m_voxel_types{};
+		std::vector<BlockType> m_voxel_types{};
 		std::unordered_map<StringHash, types::type_id> m_ids;
 
 		/// <summary>

@@ -5,7 +5,7 @@
 #include "chunkGrid.hpp"
 #include "sys/assetsManager.hpp"
 #include "voxel.hpp"
-#include "voxelType.hpp"
+#include "blockType.hpp"
 #include <array>
 #include <sys/types.hpp>
 #include <vector>
@@ -81,7 +81,7 @@ namespace gfx
 			}
 
 			if (const auto* ao_targetChunk = grid.at_chunk(final_loc))
-				ao_full_dirs[j] = !VoxelTypeManager::get().get_type(ao_targetChunk->at(static_cast<v3u16>(v_check)).type_id).is_transparent;
+				ao_full_dirs[j] = !BlockTypeManager::get().get_type(ao_targetChunk->at(static_cast<v3u16>(v_check)).type_id).is_transparent;
 		}
 
 		// Set up the AO value according to the blocks surrounding the current face
@@ -253,7 +253,7 @@ namespace gfx
 							targetChunk = chunk_dirs[i];
 						}
 
-						if (targetChunk && VoxelTypeManager::get().get_type(targetChunk->at(static_cast<v3u16>(v_loc_dir))).is_transparent)
+						if (targetChunk && BlockTypeManager::get().get_type(targetChunk->at(static_cast<v3u16>(v_loc_dir))).is_transparent)
 							is_face_visible = true;
 
 
@@ -261,7 +261,7 @@ namespace gfx
 						{
 							compute_final_model(
 								ret,
-								VoxelTypeManager::get().get_type(voxel).model,
+								BlockTypeManager::get().get_type(voxel).model,
 								i,
 								calculate_ao(targetChunk, i, v_loc_dir, grid),
 								abs_pos

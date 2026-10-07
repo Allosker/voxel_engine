@@ -11,7 +11,7 @@
 #include "sys/types.hpp"
 
 #include "chunkGrid.hpp"
-#include "voxelType.hpp"
+#include "blockType.hpp"
 #include "world.hpp"
 
 
@@ -115,7 +115,7 @@ namespace gfx
 			const auto vloc = chunk->to_voxelLoc(*chunk, World::to_voxelPos(ray.pos));
 
 			if (auto* v = chunk->at_ptr(vloc))
-				if (VoxelTypeManager::get().get_type(v->type_id).is_solid)
+				if (BlockTypeManager::get().get_type(v->type_id).is_solid)
 				{
 					tMin += 0.0001f;
 					const auto hitPos = origin + dir * tMin;

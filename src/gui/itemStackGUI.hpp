@@ -12,7 +12,7 @@
 #include "gfx/text.hpp"
 #include "gfx/transformable3D.hpp"
 
-#include "gfx/voxelType.hpp"
+#include "gfx/blockType.hpp"
 #include "sys/assetsManager.hpp"
 #include <vector>
 
@@ -186,7 +186,7 @@ namespace gui
 			const auto& get_simple_model = [](types::type_id id) noexcept -> std::vector<gfx::Vertex>
 			{
 				std::vector<gfx::Vertex> ret;
-				const auto& type = gfx::VoxelTypeManager::get().get_type(id);
+				const auto& type = gfx::BlockTypeManager::get().get_type(id);
 
 				constexpr size_t canonic_size = 6; /*Canonic size for a Voxel (6 faces)*/
 				for (size_t i{}; i < canonic_size; i++)

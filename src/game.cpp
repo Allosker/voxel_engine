@@ -11,7 +11,7 @@
 #include "gfx/line.hpp"
 #include <cassert>
 #include "gfx/line_highlight.hpp"
-#include "gfx/voxelType.hpp"
+#include "gfx/blockType.hpp"
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -104,7 +104,7 @@ DebugMessage Game::run()
 
 #pragma region Permanent Variables
 
-	gfx::LineHighlight voxel_highlight{ gfx::VoxelTypeManager::get().get_type("air"_id).hitbox, { 0.f, 0.f, 0.f, 1.f}, 2.f };
+	gfx::LineHighlight voxel_highlight{ gfx::BlockTypeManager::get().get_type("air"_id).hitbox, { 0.f, 0.f, 0.f, 1.f}, 2.f };
 
 	std::optional<gfx::RayCastResult> raycast_result{ std::nullopt };
 
@@ -414,7 +414,7 @@ DebugMessage Game::run()
 
 
 						if (const auto* vptr{ chunk->at_ptr(gfx::Chunk::to_voxelLoc(*chunk, pos)) };
-							vptr && gfx::VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
+							vptr && gfx::BlockTypeManager::get().get_type(vptr->type_id).has_bounds)
 						{
 							const phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
 

@@ -88,7 +88,7 @@ namespace gfx
 
 		generate(terrain_context, terrain_data, (v3f32)chunk->get_position());
 
-		const auto& vtm = VoxelTypeManager::get();
+		const auto& vtm = BlockTypeManager::get();
 		const auto dirtId = vtm.get_id("dirt"_id);
 		const auto stoneId = vtm.get_id("stone"_id);
 		const auto grassId = vtm.get_id("grass"_id);

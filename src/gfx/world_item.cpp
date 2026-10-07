@@ -36,7 +36,7 @@ namespace gfx
 
 
 			if (const auto* vptr{ chunk->at_ptr(Chunk::to_voxelLoc(*chunk, pos)) };
-				vptr && VoxelTypeManager::get().get_type(vptr->type_id).has_bounds)
+				vptr && BlockTypeManager::get().get_type(vptr->type_id).has_bounds)
 			{
 				phy::HitboxAABB voxel{ static_cast<v3f64>(pos) + 0.5, v3f64{ 0.5 } };
 
@@ -47,7 +47,7 @@ namespace gfx
 					if (offset.x == 0. && offset.y == 0. && offset.z == 0.) continue;
 
 
-					if (VoxelTypeManager::get().get_type(world.get_voxel(World::to_voxelPos(static_cast<types::pos>(pos) - glm::normalize(offset)))).has_bounds)
+					if (BlockTypeManager::get().get_type(world.get_voxel(World::to_voxelPos(static_cast<types::pos>(pos) - glm::normalize(offset)))).has_bounds)
 						offset = {};
 
 					if (offset.y != 0)
