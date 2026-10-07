@@ -8,10 +8,12 @@
 #include "gfx/rayTraversal.hpp"
 #include "gfx/renderer.hpp"
 
-#include "gfx/line.hpp"
-#include <cassert>
-#include "gfx/line_highlight.hpp"
 #include "gfx/blockType.hpp"
+#include "gfx/line.hpp"
+#include "gfx/line_highlight.hpp"
+#include "sys/window.hpp"
+#include <cassert>
+#include <memory>
 
 
 static std::unique_ptr<Window> init_glfw(bool AA, u32 MSAA)
@@ -448,6 +450,8 @@ DebugMessage Game::run()
 
 		m_inv_gui.draw(renderer);
 
+		m_pi_select.draw(renderer);
+
 		renderer.draw();
 
 		debugTimer.add("renderer");
@@ -522,8 +526,9 @@ void Game::logic()
 
 	debugTimer.add("entity updates");
 
-
-	m_inv_gui.update(Window::to_gui_coordinates(*window, (v2f32)window->get_cursor_pos()));
+	const auto& mouse_pos_gui = Window::to_gui_coordinates(*window, (v2f32)window->get_cursor_pos());
+	m_inv_gui.update(mouse_pos_gui);
+	m_pi_select.update(mouse_pos_gui);
 
 }
 

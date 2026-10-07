@@ -36,6 +36,16 @@ namespace gfx
 			m_mesh.create_buffer<Vertex2D>();
 		}
 
+		Rectangle(const Texture* tex)
+			: m_hitbox{ types::pos2d{}, {} },
+			m_material{ &AssetsManager::get().shaders.at("shaders/twoD") }
+		{
+			m_mesh.create_buffer<Vertex2D>();
+			update_sprite(tex);
+
+			m_hitbox.set_extent(m_size);
+		}
+
 		/// <summary>
 		/// Update the GPU buffer based on the size of the texture, so it is default-sized
 		/// </summary>

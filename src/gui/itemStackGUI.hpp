@@ -178,7 +178,7 @@ namespace gui
 
 		static constexpr f32 g_x_size_three_digits_number_px{ 36.f };
 
-		static constexpr f32 g_depth_text{ 100 };
+		static constexpr f32 g_depth_text{ 50 };
 
 
 		void update_model(types::type_id id)

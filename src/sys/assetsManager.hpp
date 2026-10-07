@@ -78,6 +78,10 @@ private:
 		textures.emplace("textures/gui/inventory/selected_slot", gfx::Texture{ ASSET_PATH"textures/gui/inventory/selected_slot.png" });
 		textures.emplace("textures/gui/inventory/hotbar_small", gfx::Texture{ ASSET_PATH"textures/gui/inventory/hotbar_small.png" });
 
+		textures.emplace("textures/gui/inventory_select", gfx::Texture{ ASSET_PATH"textures/gui/inventory_select.png" });
+		textures.emplace("textures/gui/crafting_select", gfx::Texture{ ASSET_PATH"textures/gui/crafting_select.png" });
+		textures.emplace("textures/gui/armor_select", gfx::Texture{ ASSET_PATH"textures/gui/armor_select.png" });
+
 	}
 
 	void add_models()

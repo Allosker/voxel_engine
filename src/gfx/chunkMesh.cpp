@@ -13,7 +13,7 @@
 namespace gfx
 {
 
-	static void compute_final_model(auto& out, const std::vector<Vertex>& vx, size_t index, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
+	static void compute_face(auto& out, const std::vector<Vertex>& vx, size_t index, const std::array<f32, 4>& ao, const v3f32& xyz) noexcept
 	{
 		static constexpr size_t nb_vertices_face = 6ll;
 		const auto i = index * nb_vertices_face;
@@ -259,7 +259,7 @@ namespace gfx
 
 						if (is_face_visible)
 						{
-							compute_final_model(
+							compute_face(
 								ret,
 								BlockTypeManager::get().get_type(voxel).model,
 								i,

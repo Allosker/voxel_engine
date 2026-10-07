@@ -7,7 +7,28 @@
 
 namespace gui
 {
+	InventoryGUI::InventoryGUI(gfx::Inventory& inv)
+		:m_inv{ inv }, m_board{ {} }, m_hotbar{ {} }, m_selected_slot{ {} }
+	{
+		m_board.set_scale(g_scale);
+		m_hotbar.set_scale(g_scale);
+		m_selected_slot.set_scale(g_scale);
+		m_selected_slot.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/selected_slot"_id));
 
+		m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{});
+
+		m_temp.set_scale(g_over_ISG_scale);
+		m_temp.set_pos(types::pos{ 0., 0., g_temp_depth } + g_slot_size / 2.);
+		m_temp.rotate(glm::angleAxis<f64>(glm::radians(-20.f), glm::normalize(v3f64{ 1, 0, 0 })));
+		m_temp.rotate(glm::angleAxis<f64>(glm::radians(-50.f), glm::normalize(v3f64{ 0, 1, 0 })));
+		m_temp.rotate(glm::angleAxis<f64>(glm::radians(180.f), glm::normalize(v3f64{ 0, 0, 1 })));
+		m_temp.set_scale_text(g_over_ISG_text_scale);
+
+		change_textures(m_inv.get_size());
+
+		m_hotbar.get_hitbox().set_extent(m_hotbar.get_size());
+		m_hotbar.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y - m_hotbar.get_size().y });
+	}
 
 	void InventoryGUI::update(types::pos2d gui_mouse_pos) noexcept
 	{
@@ -24,51 +45,56 @@ namespace gui
 			m_inv_change = m_inv.get_change();
 		}
 
-		if (m_inv.is_active() && m_move_temp_to_mouse)
-			m_temp.set_pos(types::pos{ gui_mouse_pos, g_temp_depth });
-
-		// Highlight to know on which slot the mouse is
-		const auto highlight = [&](auto& stacks, const auto& new_index, auto& index)
-			{
-				if (new_index)
-				{
-					auto& current = stacks.at(*new_index);
-					current.set_scale_text(g_over_ISG_text_scale);
-					current.set_scale(g_over_ISG_scale);
-
-					if (index)
-						if (new_index != index)
-						{
-							auto& current = stacks.at(*index);
-							current.set_scale_text(g_base_ISG_text_scale);
-							current.set_scale(g_base_ISG_scale);
-						}
-
-					index = new_index;
-				}
-				else if (index)
-				{
-					auto& current = stacks.at(*index);
-					current.set_scale_text(g_base_ISG_text_scale);
-					current.set_scale(g_base_ISG_scale);
-
-					index = new_index;
-				}
-			};
-
 		if (m_inv.is_active())
+		{
+			if (m_inv.is_active() && m_move_temp_to_mouse)
+				m_temp.set_pos(types::pos{ gui_mouse_pos, g_temp_depth });
+
+			// Highlight to know on which slot the mouse is
+			const auto highlight = [&](auto& stacks, const auto& new_index, auto& index)
+				{
+					if (new_index)
+					{
+						auto& current = stacks.at(*new_index);
+						current.set_scale_text(g_over_ISG_text_scale);
+						current.set_scale(g_over_ISG_scale);
+
+						if (index)
+							if (new_index != index)
+							{
+								auto& current = stacks.at(*index);
+								current.set_scale_text(g_base_ISG_text_scale);
+								current.set_scale(g_base_ISG_scale);
+							}
+
+						index = new_index;
+					}
+					else if (index)
+					{
+						auto& current = stacks.at(*index);
+						current.set_scale_text(g_base_ISG_text_scale);
+						current.set_scale(g_base_ISG_scale);
+
+						index = new_index;
+					}
+				};
+
+		
 			highlight(m_item_stacks, compute_index(gui_mouse_pos), m_index);
-		highlight(m_item_stacks_hb, compute_index_hb(gui_mouse_pos), m_index_hb);
+			highlight(m_item_stacks_hb, compute_index_hb(gui_mouse_pos), m_index_hb);
+		}
 
 	}
 
 	void InventoryGUI::on_click(Event::MouseButtonEvent event) noexcept
 	{
+		if (!m_inv.is_active()) return;
+
 		if (event.scancode == MouseButtons::Left)
 		{
 			if (event.state == Event::ButtonState::Press && !m_picked_item_up)
 			{
-				if (m_inv.is_active() && m_index)
+				if (m_index)
 				{
 					const auto current = m_inv.get_item_stack(*m_index);
 
@@ -104,7 +130,7 @@ namespace gui
 			{
 				bool is_there_leftover{};
 
-				if (m_inv.is_active() && m_index)
+				if (m_index)
 				{
 					const auto current = m_inv.get_item_stack(*m_index);
 
@@ -207,7 +233,7 @@ namespace gui
 
 	void InventoryGUI::update_items() noexcept
 	{
-		const auto update_item_stack = [&](std::vector<ItemStackGUI>& stacks, const auto target_size, const auto current_index, const auto& is, const auto& slot_pos) 
+		const auto& update_item_stack = [&](std::vector<ItemStackGUI>& stacks, const auto target_size, const auto current_index, const auto& is, const auto& slot_pos) 
 			{
 				ItemStackGUI* isg = nullptr;
 
@@ -267,9 +293,6 @@ namespace gui
 				slot_pos.y += g_slot_size;
 			}
 		}
-
-		m_hotbar.get_hitbox().set_extent(m_hotbar.get_size());
-		m_hotbar.set_pos(v2f32{ Window::g_gui_view_size.x / 2, Window::g_gui_view_size.y - m_hotbar.get_size().y });
 
 		types::pos2d slot_pos{ m_hotbar.get_pos() - m_hotbar.get_size() + g_outline_hb };
 		for (i32 x{}; x < m_inv.get_nb_slots_hb(); x++)

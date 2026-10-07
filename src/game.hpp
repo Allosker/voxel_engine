@@ -18,6 +18,8 @@
 #include "gfx/player.hpp"
 #include "gfx/playerInventory.hpp"
 #include "gfx/world.hpp"
+#include "gui/piSelection.hpp"
+#include "gui/inventoryGUI.hpp"
 
 
 // Only one instance of the game must exist at a time
@@ -135,6 +137,7 @@ private: // Internal Communication/Logic
 
 	gfx::PlayerInventory player_inventory{};
 	gui::InventoryGUI	m_inv_gui{ player_inventory.get_inventory() };
+	gui::PI_Selection	m_pi_select{ player_inventory };
 
 	
 

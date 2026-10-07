@@ -113,6 +113,7 @@ namespace gfx
 
 
 		void toggle() noexcept { m_active = !m_active; m_change++; }
+		void set_active(bool b) noexcept { m_active = b; m_change++; }
 
 		/// <summary>
 		/// Tries to add the Item.s

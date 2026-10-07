@@ -9,41 +9,23 @@
 #include <optional>
 #include <vector>
 
+#include "gfx/drawable.hpp"
 #include "gfx/inventory.hpp"
 #include "gfx/rectangle.hpp"
-#include "gfx/drawable.hpp"
-#include <gfx/shader.hpp>
 
 #include "sys/inputManager.hpp"
-#include "sys/assetsManager.hpp"
 
 #include "gui/itemStackGUI.hpp"
 
 namespace gui
 {
 
-	class InventoryGUI 
+	class InventoryGUI
 		: public gfx::Drawable
 	{
 	public:
 
-		InventoryGUI(gfx::Inventory& inv)
-			:m_inv{ inv }, m_board{ {} }, m_hotbar{ {} }, m_selected_slot{ {} }
-		{
-			m_board.set_scale(g_scale);
-			m_hotbar.set_scale(g_scale);
-			m_selected_slot.set_scale(g_scale);
-			m_selected_slot.update_sprite(&AssetsManager::get().textures.at("textures/gui/inventory/selected_slot"_id));
-
-			m_dh_click = sys::InputManager::get().subscribe(&InventoryGUI::on_click, *this, Event::MouseButtonEvent{ .scancode{} });
-
-			m_temp.set_scale(g_over_ISG_scale);
-			m_temp.set_pos(types::pos{ 0., 0., g_temp_depth } + g_slot_size / 2.);
-			m_temp.rotate(glm::angleAxis<f64>(glm::radians(-20.f), glm::normalize(v3f64{ 1, 0, 0 })));
-			m_temp.rotate(glm::angleAxis<f64>(glm::radians(-50.f), glm::normalize(v3f64{ 0, 1, 0 })));
-			m_temp.rotate(glm::angleAxis<f64>(glm::radians(180.f), glm::normalize(v3f64{ 0, 0, 1 })));
-			m_temp.set_scale_text(g_over_ISG_text_scale);
-		}
+		InventoryGUI(gfx::Inventory& inv);
 
 		~InventoryGUI()
 		{
